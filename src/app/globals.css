@@ -4,26 +4,26 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 279 70% 58%;
-    --primary-foreground: 355.7 100% 97.3%;
+    --background: 224 71% 4%; /* Deep, dark blue */
+    --foreground: 220 15% 90%; /* Soft white */
+    --card: 224 71% 9%; /* Slightly lighter blue for cards */
+    --card-foreground: 220 15% 90%;
+    --popover: 224 71% 9%;
+    --popover-foreground: 220 15% 90%;
+    --primary: 279 70% 58%; /* Vibrant purple */
+    --primary-foreground: 0 0% 98%;
     --secondary: 240 4.8% 95.9%;
     --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 159 50% 50%;
-    --accent-foreground: 240 5.9% 10%;
-    --destructive: 0 84.2% 60.2%;
+    --muted: 223 47% 11%; /* Muted blue */
+    --muted-foreground: 220 15% 60%;
+    --accent: 177 69% 40%; /* Bright teal */
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 63% 31%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
+    --border: 224 20% 20%; /* Muted border color */
+    --input: 224 20% 20%;
     --ring: 177 69% 40%;
-    --gilded-accent: 51 100% 50%;
+    --gilded-accent: 45 85% 55%; /* Rich gold */
     --radius: 0.5rem;
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
@@ -33,26 +33,26 @@
   }
 
   .dark {
-    --background: 0 0% 5%;
-    --foreground: 0 0% 97%;
-    --card: 0 0% 9%;
-    --card-foreground: 0 0% 97%;
-    --popover: 0 0% 9%;
-    --popover-foreground: 0 0% 97%;
+    --background: 224 71% 4%;
+    --foreground: 220 15% 90%;
+    --card: 224 71% 9%;
+    --card-foreground: 220 15% 90%;
+    --popover: 224 71% 9%;
+    --popover-foreground: 220 15% 90%;
     --primary: 279 70% 58%;
-    --primary-foreground: 0 0% 97%;
-    --secondary: 0 0% 12%;
-    --secondary-foreground: 0 0% 97%;
-    --muted: 0 0% 12%;
-    --muted-foreground: 0 0% 60%;
-    --accent: 159 50% 50%;
-    --accent-foreground: 0 0% 97%;
-    --destructive: 0 62.8% 30.6%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 223 47% 11%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 223 47% 11%;
+    --muted-foreground: 220 15% 60%;
+    --accent: 177 69% 40%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 63% 31%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
+    --border: 224 20% 20%;
+    --input: 224 20% 20%;
     --ring: 177 69% 40%;
-    --gilded-accent: 51 100% 50%;
+    --gilded-accent: 45 85% 55%;
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
@@ -67,6 +67,9 @@
   }
   body {
     @apply bg-background text-foreground;
+    background-image: radial-gradient(circle at top left, hsl(var(--primary) / 0.1), transparent 30%),
+                      radial-gradient(circle at bottom right, hsl(var(--accent) / 0.1), transparent 30%);
+    background-attachment: fixed;
   }
 }
 
@@ -78,6 +81,6 @@
     @apply shadow-[0_0_15px_hsl(var(--accent)/0.6)];
   }
   .glow-gilded {
-     @apply shadow-[0_0_15px_hsl(var(--gilded-accent)/0.5)];
+     @apply shadow-[0_0_20px_hsl(var(--gilded-accent)/0.6)];
   }
 }
