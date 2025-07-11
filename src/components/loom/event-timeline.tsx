@@ -25,11 +25,18 @@ export default function EventTimeline() {
   } = useLoom();
 
   const requestRef = useRef<number>();
+  const lastTimeRef = useRef<number>(0);
 
   const animate = useCallback((time: number) => {
+    if (lastTimeRef.current === 0) {
+      lastTimeRef.current = time;
+    }
+    const deltaTime = (time - lastTimeRef.current) / 1000;
+    lastTimeRef.current = time;
+
     if (isPlaying) {
       setTimelineProgress(prev => {
-        const newProgress = prev + (time - (requestRef.current || time)) / 1000;
+        const newProgress = prev + deltaTime;
         if (newProgress >= timelineDuration) {
           pause();
           return timelineDuration;
@@ -37,16 +44,18 @@ export default function EventTimeline() {
         return newProgress;
       });
     }
-    requestRef.current = time;
-    if (!isFinished) {
-      requestAnimationFrame(animate);
-    }
-  }, [isPlaying, isFinished, timelineDuration, setTimelineProgress, pause]);
+    requestRef.current = requestAnimationFrame(animate);
+  }, [isPlaying, timelineDuration, setTimelineProgress, pause]);
 
   useEffect(() => {
     if (isPlaying) {
-      requestRef.current = performance.now();
-      requestAnimationFrame(animate);
+      lastTimeRef.current = performance.now();
+      requestRef.current = requestAnimationFrame(animate);
+    } else {
+        if (requestRef.current) {
+            cancelAnimationFrame(requestRef.current);
+            requestRef.current = undefined;
+        }
     }
     return () => {
       if (requestRef.current) {
@@ -59,16 +68,23 @@ export default function EventTimeline() {
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
-    const ms = Math.round((seconds - Math.floor(seconds)) * 100);
-    return `${String(mins).padStart(1, '0')}:${String(secs).padStart(2, '0')}.${String(ms).padStart(2, '0')}`;
+    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
   };
+  
+  const handleSliderChange = (value: number[]) => {
+      setTimelineProgress(value[0]);
+      if (isPlaying) {
+          pause();
+      }
+  }
 
   const isRunning = isPlaying && !isFinished;
-  const isSimulationStarted = timelineProgress > 0 || isPlaying;
+  const isSimulationStarted = timelineProgress > 0 || isPlaying || isFinished;
 
   const getStatus = () => {
-    if (isFinished) return { text: "COMPLETED", className: "text-muted-foreground" };
+    if (isFinished || timelineProgress >= timelineDuration) return { text: "COMPLETED", className: "text-muted-foreground" };
     if (isRunning) return { text: "STREAMING", className: "text-accent animate-pulse" };
+    if (isSimulationStarted && !isPlaying) return { text: "PAUSED", className: "text-muted-foreground" };
     return { text: "IDLE", className: "text-muted-foreground" };
   }
   const status = getStatus();
@@ -77,7 +93,7 @@ export default function EventTimeline() {
     <footer className="border-t-2 border-primary/20 bg-card/50 backdrop-blur-lg shrink-0">
       <div className="px-6 py-3 flex items-center justify-between gap-6">
         <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground" onClick={rewind} disabled={!isSimulationStarted}>
+            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground" onClick={rewind} disabled={!isSimulationStarted || isProcessing}>
               <Rewind className="h-5 w-5" />
             </Button>
             <Button 
@@ -85,11 +101,11 @@ export default function EventTimeline() {
               size="icon" 
               className="bg-primary/20 text-primary-foreground rounded-full h-10 w-10 hover:bg-primary/30 disabled:bg-muted disabled:text-muted-foreground"
               onClick={isPlaying ? pause : play}
-              disabled={isFinished || !isSimulationStarted}
+              disabled={isFinished || !isSimulationStarted || isProcessing || timelineProgress >= timelineDuration}
             >
               {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
             </Button>
-             <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground" onClick={fastForward} disabled={!isSimulationStarted}>
+             <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground" onClick={fastForward} disabled={!isSimulationStarted || isProcessing}>
               <FastForward className="h-5 w-5" />
             </Button>
         </div>
@@ -99,8 +115,8 @@ export default function EventTimeline() {
               value={[timelineProgress]}
               max={timelineDuration} 
               step={0.1}
-              onValueChange={([value]) => setTimelineProgress(value)}
-              disabled={!isSimulationStarted}
+              onValueChange={handleSliderChange}
+              disabled={!isSimulationStarted || isProcessing}
             />
             <span className="text-xs font-mono text-muted-foreground">{formatTime(timelineDuration)}</span>
         </div>
@@ -110,12 +126,12 @@ export default function EventTimeline() {
                 <span className="font-mono text-sm">{status.text}</span>
             </div>
             {isFinished || timelineProgress >= timelineDuration ? (
-              <Button onClick={resetSimulation} className="bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-full w-28 font-bold">
-                  <History />
+              <Button onClick={resetSimulation} className="bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-full w-28 font-bold flex items-center gap-2">
+                  <History className="w-4 h-4" />
                   RESET
               </Button>
             ) : (
-              <Button onClick={runSimulation} disabled={isPlaying || isProcessing} className="bg-gilded-accent text-black rounded-full w-28 font-bold glow-gilded disabled:bg-muted disabled:text-muted-foreground disabled:opacity-50 disabled:shadow-none">
+              <Button onClick={runSimulation} disabled={isPlaying || isProcessing || isSimulationStarted} className="bg-gilded-accent text-black rounded-full w-28 font-bold glow-gilded disabled:bg-muted disabled:text-muted-foreground disabled:opacity-50 disabled:shadow-none">
                   <span className="font-headline">RUN</span>
               </Button>
             )}

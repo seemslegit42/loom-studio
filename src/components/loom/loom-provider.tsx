@@ -1,6 +1,6 @@
 
 'use client';
-import React, { createContext, useContext, useState, ReactNode, useCallback } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useCallback, useEffect } from 'react';
 import Header from '@/components/loom/header';
 import IncantationEditor from '@/components/loom/incantation-editor';
 import EventTimeline from '@/components/loom/event-timeline';
@@ -13,6 +13,8 @@ import { useToast } from '@/hooks/use-toast';
 import { INITIAL_AVATAR, INITIAL_MODIFIED_PROMPT, INITIAL_NAME, INITIAL_ORIGINAL_PROMPT, INITIAL_PROFILE } from './loom-constants';
 import HallOfEchoes, { type NodeState } from './hall-of-echoes';
 import Sidebar from './sidebar';
+import { useSystemSigilState } from '@/hooks/use-system-sigil-state';
+import { SigilRites } from '../sigil-rites/SigilRites';
 
 type AgentProfile = AnalyzeAgentProfileOutput['profile'];
 
@@ -90,6 +92,7 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
   const { toast } = useToast();
   
   // View state
+  const { variant, ritual, setVariant, setRitual } = useSystemSigilState();
   const [workflowNodes, setWorkflowNodes] = useState<NodeState[]>(INITIAL_WORKFLOW_NODES);
 
   // Engine Tuning State
@@ -103,27 +106,45 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
   const [isFinished, setIsFinished] = useState(false);
   const timelineDuration = 90; // in seconds
 
-  const runSimulation = useCallback(() => {
+  useEffect(() => {
+    if (timelineProgress >= timelineDuration) {
+      setIsFinished(true);
+      setIsPlaying(false);
+      setRitual('idle');
+    } else {
+      setIsFinished(false);
+    }
+  }, [timelineProgress, timelineDuration, setRitual]);
+
+  const runSimulation = useCallback(async () => {
     setIsPlaying(true);
     setIsFinished(false);
     setTimelineProgress(0);
-  }, []);
+    setRitual('summon');
+    await new Promise(resolve => setTimeout(resolve, 1500)); // Wait for summon animation
+    if (isPlaying) { // Check if user hasn't paused during summon
+        setRitual('orchestrate');
+    }
+  }, [setRitual, isPlaying]);
 
   const resetSimulation = useCallback(() => {
     setIsPlaying(false);
     setIsFinished(false);
     setTimelineProgress(0);
-  }, []);
+    setRitual('idle');
+  }, [setRitual]);
 
   const play = useCallback(() => {
     if (!isFinished) {
       setIsPlaying(true);
+      setRitual('orchestrate');
     }
-  }, [isFinished]);
+  }, [isFinished, setRitual]);
 
   const pause = useCallback(() => {
     setIsPlaying(false);
-  }, []);
+    setRitual('idle');
+  }, [setRitual]);
 
   const rewind = useCallback(() => {
     setTimelineProgress(prev => Math.max(0, prev - 5));
@@ -147,6 +168,7 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
 
   const handlePromptUpdate = async (data: AnalyzePromptChangeInput): Promise<void> => {
     setIsProcessing(true);
+    resetSimulation();
     
     // Set all nodes to running state
     setWorkflowNodes(prev => prev.map(node => ({ ...node, status: 'running', content: 'Processing...' })));
@@ -286,7 +308,9 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
                 <div className="flex-1 flex flex-col overflow-hidden">
                     <Header />
                     <main className="flex-1 p-6 lg:p-8 flex flex-col gap-6 lg:gap-8 overflow-y-auto pt-24">
-                        <HallOfEchoes />
+                        <div className='flex-1 flex items-center justify-center'>
+                           <SigilRites variant={variant} ritual={ritual} onRitualComplete={() => setRitual('orchestrate')} />
+                        </div>
                         <div className="flex-1 flex flex-col">
                             <IncantationEditor />
                         </div>
