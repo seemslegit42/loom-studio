@@ -17,7 +17,12 @@ import { INITIAL_AVATAR, INITIAL_MODIFIED_PROMPT, INITIAL_NAME, INITIAL_ORIGINAL
 import HallOfEchoes, { type NodeState } from './hall-of-echoes';
 
 type AgentProfile = AnalyzeAgentProfileOutput['profile'];
-type MainView = 'sigil' | 'hall';
+
+const INITIAL_WORKFLOW_NODES: NodeState[] = [
+  { id: 'analysis', title: 'Analyze Behavior', status: 'idle', content: 'Awaiting analysis.' },
+  { id: 'avatar', title: 'Generate Avatar', status: 'idle', content: 'Awaiting generation.', isImage: true },
+  { id: 'profile', title: 'Profile Personality', status: 'idle', content: 'Awaiting profiling.' },
+];
 
 export interface Snapshot {
   id: string;
@@ -70,7 +75,6 @@ interface LoomContextType {
   resetSimulation: () => void;
   
   // Hall of Echoes state
-  mainView: MainView;
   workflowNodes: NodeState[];
 }
 
@@ -91,8 +95,7 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
   const { toast } = useToast();
   
   // View state
-  const [mainView, setMainView] = useState<MainView>('sigil');
-  const [workflowNodes, setWorkflowNodes] = useState<NodeState[]>([]);
+  const [workflowNodes, setWorkflowNodes] = useState<NodeState[]>(INITIAL_WORKFLOW_NODES);
 
   // Engine Tuning State
   const [creativity, setCreativity] = useState(65);
@@ -109,14 +112,12 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
     setIsPlaying(true);
     setIsFinished(false);
     setTimelineProgress(0);
-    setMainView('hall');
   }, []);
 
   const resetSimulation = useCallback(() => {
     setIsPlaying(false);
     setIsFinished(false);
     setTimelineProgress(0);
-    setMainView('sigil');
   }, []);
 
   const play = useCallback(() => {
@@ -143,6 +144,7 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
     setAgentProfile(INITIAL_PROFILE);
     setOriginalPrompt(INITIAL_ORIGINAL_PROMPT);
     setModifiedPrompt(INITIAL_MODIFIED_PROMPT);
+    setWorkflowNodes(INITIAL_WORKFLOW_NODES);
     resetSimulation();
     toast({ title: "Workspace Cleared", description: "Ready to create a new agent." });
   };
@@ -150,7 +152,9 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
   const handlePromptUpdate = async (data: AnalyzePromptChangeInput): Promise<void> => {
     setIsProcessing(true);
     setRitual('summon');
-    setMainView('sigil');
+    
+    // Set all nodes to running state
+    setWorkflowNodes(prev => prev.map(node => ({ ...node, status: 'running', content: 'Processing...' })));
 
     try {
       const results = await Promise.allSettled([
@@ -162,28 +166,37 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
       const [analysisResult, avatarResult, profileResult] = results;
 
       if (analysisResult.status === 'fulfilled') {
-        toast({ title: 'Behavioral Analysis Complete', description: analysisResult.value.analysis });
+        const { analysis } = analysisResult.value;
+        toast({ title: 'Behavioral Analysis Complete', description: analysis });
+        setWorkflowNodes(prev => prev.map(n => n.id === 'analysis' ? { ...n, status: 'success', content: analysis } : n));
       } else {
         console.error("Analysis failed:", analysisResult.reason);
         toast({ variant: 'destructive', title: 'Error', description: 'Behavioral analysis failed.' });
+        setWorkflowNodes(prev => prev.map(n => n.id === 'analysis' ? { ...n, status: 'error', content: 'Analysis failed.' } : n));
       }
 
       if (avatarResult.status === 'fulfilled') {
-        setAgentAvatar(avatarResult.value.avatarDataUri);
+        const { avatarDataUri } = avatarResult.value;
+        setAgentAvatar(avatarDataUri);
+        setWorkflowNodes(prev => prev.map(n => n.id === 'avatar' ? { ...n, status: 'success', content: avatarDataUri } : n));
       } else {
         console.error("Avatar generation failed:", avatarResult.reason);
         setAgentAvatar(INITIAL_AVATAR);
         toast({ variant: 'destructive', title: 'Error', description: 'Avatar generation failed.' });
+        setWorkflowNodes(prev => prev.map(n => n.id === 'avatar' ? { ...n, status: 'error', content: 'Generation failed.' } : n));
       }
 
       if (profileResult.status === 'fulfilled') {
-        setAgentName(profileResult.value.name);
-        setAgentProfile(profileResult.value.profile);
+        const { name, profile } = profileResult.value;
+        setAgentName(name);
+        setAgentProfile(profile);
+        setWorkflowNodes(prev => prev.map(n => n.id === 'profile' ? { ...n, status: 'success', content: `Agent name set to "${name}". Profile updated.` } : n));
       } else {
         console.error("Profile analysis failed:", profileResult.reason);
         setAgentName(INITIAL_NAME);
         setAgentProfile(INITIAL_PROFILE);
         toast({ variant: 'destructive', title: 'Error', description: 'Profile analysis failed.' });
+        setWorkflowNodes(prev => prev.map(n => n.id === 'profile' ? { ...n, status: 'error', content: 'Profiling failed.' } : n));
       }
 
     } catch (error) {
@@ -192,9 +205,10 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
       setAgentAvatar(INITIAL_AVATAR);
       setAgentName(INITIAL_NAME);
       setAgentProfile(INITIAL_PROFILE);
+      setWorkflowNodes(prev => prev.map(node => ({ ...node, status: 'error', content: 'System error.' })));
     } finally {
       setIsProcessing(false);
-      // The ritual state will be set back to 'idle' by the onRitualComplete callback in SigilRites
+      setRitual('idle');
     }
   };
 
@@ -220,6 +234,7 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
       setAgentProfile(snapshotToRestore.agentProfile);
       setOriginalPrompt(snapshotToRestore.originalPrompt);
       setModifiedPrompt(snapshotToRestore.modifiedPrompt);
+      setWorkflowNodes(INITIAL_WORKFLOW_NODES);
       toast({ title: 'Snapshot Restored', description: `Agent state restored to "${snapshotToRestore.agentName}".` });
     }
   };
@@ -267,7 +282,6 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
     runSimulation,
     resetSimulation,
 
-    mainView,
     workflowNodes,
   };
 
@@ -279,20 +293,16 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
                 <div className="flex-1 flex flex-col overflow-hidden">
                 <Header />
                 <main className="flex-1 p-6 lg:p-8 grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8 overflow-y-auto">
-                    <div className="flex items-center justify-center">
-                      {mainView === 'sigil' ? (
-                        <SigilRites ritual={ritual} variant={variant} onRitualComplete={() => setRitual('idle')} />
-                      ) : (
-                        <HallOfEchoes />
-                      )}
+                    <div className="flex items-center justify-center xl:col-span-2">
+                       <HallOfEchoes />
                     </div>
-                    <div className="xl:col-span-1">
+                    <div className="xl:col-span-2">
                         <IncantationEditor />
                     </div>
                 </main>
                 </div>
             </div>
-            <EventTimeline />
+            {isProcessing ? null : <EventTimeline />}
         </div>
     </LoomContext.Provider>
   );

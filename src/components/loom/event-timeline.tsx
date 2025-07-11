@@ -21,6 +21,7 @@ export default function EventTimeline() {
     fastForward,
     runSimulation,
     resetSimulation,
+    isProcessing,
   } = useLoom();
 
   const requestRef = useRef<number>();
@@ -43,13 +44,17 @@ export default function EventTimeline() {
   }, [isPlaying, isFinished, timelineDuration, setTimelineProgress, pause]);
 
   useEffect(() => {
-    requestAnimationFrame(animate);
+    if (isPlaying) {
+      requestRef.current = performance.now();
+      requestAnimationFrame(animate);
+    }
     return () => {
       if (requestRef.current) {
         cancelAnimationFrame(requestRef.current);
       }
     };
-  }, [animate]);
+  }, [isPlaying, animate]);
+
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -67,6 +72,8 @@ export default function EventTimeline() {
     return { text: "IDLE", className: "text-muted-foreground" };
   }
   const status = getStatus();
+
+  if(isProcessing) return null;
 
   return (
     <footer className="border-t-2 border-primary/20 bg-card/50 backdrop-blur-lg shrink-0">
@@ -104,7 +111,7 @@ export default function EventTimeline() {
                 <Rss />
                 <span className="font-mono text-sm">{status.text}</span>
             </div>
-            {isFinished ? (
+            {isFinished || timelineProgress >= timelineDuration ? (
               <Button onClick={resetSimulation} className="bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-full w-28 font-bold">
                   <History />
                   RESET

@@ -49,7 +49,7 @@ export default function IncantationEditor() {
           onSubmit={onSubmit}
           className="flex flex-col flex-1"
         >
-          <CardContent className="flex-1 grid grid-cols-1 gap-4">
+          <CardContent className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="grid gap-2 h-full">
               <Label htmlFor="original-prompt" className="text-muted-foreground">
                 Original Prompt
