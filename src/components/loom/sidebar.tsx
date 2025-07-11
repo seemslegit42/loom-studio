@@ -29,7 +29,7 @@ import {
 } from 'lucide-react';
 import { LoomStudioLogo } from './logo';
 import { useLoom } from './loom-provider';
-import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, Radar, Tooltip } from 'recharts';
+import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, Radar } from 'recharts';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '../ui/chart';
 
 const agentData = {
@@ -104,10 +104,10 @@ export default function Sidebar() {
                   <ChartContainer config={chartConfig} className="w-full h-full">
                     <ResponsiveContainer width="100%" height="100%">
                         <RadarChart data={agentProfile} margin={{ top: 20, right: 30, bottom: 20, left: 30 }}>
+                            <ChartTooltip content={<ChartTooltipContent />} cursor={{fill: 'hsl(var(--primary) / 0.1)'}}/>
                             <PolarGrid stroke="hsl(var(--border) / 0.5)" />
                             <PolarAngleAxis dataKey="trait" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} />
                             <Radar name="Profile" dataKey="value" stroke="hsl(var(--primary))" fill="hsl(var(--primary) / 0.4)" fillOpacity={0.6} />
-                             <ChartTooltip content={<ChartTooltipContent />} cursor={{fill: 'hsl(var(--primary) / 0.1)'}}/>
                         </RadarChart>
                     </ResponsiveContainer>
                    </ChartContainer>

@@ -1,3 +1,4 @@
+'use client';
 import { PlusCircle, UploadCloud, Settings, LogOut, User, LifeBuoy } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';

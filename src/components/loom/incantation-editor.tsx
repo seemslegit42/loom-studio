@@ -15,10 +15,10 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '../ui/form';
-import { analyzePromptChange } from '@/ai/flows/analyze-prompt-change-flow';
-import type { AnalyzePromptChangeInput } from '@/ai/flows/analyze-prompt-change-schema';
 import { useToast } from '@/hooks/use-toast';
 import { useLoom } from './loom-provider';
+import type { AnalyzePromptChangeInput } from '@/ai/flows/analyze-prompt-change-schema';
+
 
 const incantationSchema = z.object({
   originalPrompt: z.string().min(10, 'Original prompt is too short.'),
@@ -123,9 +123,11 @@ export default function IncantationEditor() {
               {isProcessing ? (
                 <LoaderCircle className="animate-spin" />
               ) : (
-                <ArrowRight />
+                <>
+                  Apply &amp; Analyze Changes
+                  <ArrowRight />
+                </>
               )}
-              Apply & Analyze Changes
             </Button>
           </CardFooter>
         </form>
