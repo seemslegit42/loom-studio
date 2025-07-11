@@ -13,6 +13,7 @@ import { analyzeAgentProfile, AnalyzeAgentProfileOutput } from '@/ai/flows/analy
 import { useSystemSigilState, Ritual, Variant } from '@/hooks/use-system-sigil-state';
 import { useToast } from '@/hooks/use-toast';
 import { SigilRites } from '../sigil-rites/SigilRites';
+import { INITIAL_AVATAR, INITIAL_MODIFIED_PROMPT, INITIAL_NAME, INITIAL_ORIGINAL_PROMPT, INITIAL_PROFILE } from './loom-constants';
 
 type AgentProfile = AnalyzeAgentProfileOutput['profile'];
 
@@ -43,24 +44,11 @@ interface LoomContextType {
   captureSnapshot: () => void;
   restoreSnapshot: (id: string) => void;
   deleteSnapshot: (id: string) => void;
+  resetToInitialState: () => void;
 }
 
 // Create the context with a default value
 const LoomContext = createContext<LoomContextType | undefined>(undefined);
-
-// Initial state values
-const INITIAL_AVATAR = 'https://placehold.co/100x100.png';
-const INITIAL_NAME = 'Prometheus-7';
-const INITIAL_PROFILE: AgentProfile = [
-  { "trait": "Creativity", "value": 50 },
-  { "trait": "Humor", "value": 50 },
-  { "trait": "Formality", "value": 50 },
-  { "trait": "Enthusiasm", "value": 50 },
-  { "trait": "Technicality", "value": 50 },
-  { "trait": "Whimsy", "value": 50 }
-];
-const INITIAL_ORIGINAL_PROMPT = 'You are a helpful assistant.';
-const INITIAL_MODIFIED_PROMPT = 'You are a witty and sarcastic space pirate captain assistant, an expert in puns and dad jokes, who always refers to the user as "Commander". You have a pet space monkey named Zorp.';
 
 
 // Create the provider component
@@ -74,6 +62,17 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
   const { ritual, variant, setRitual, setVariant } = useSystemSigilState();
   const [snapshots, setSnapshots] = useState<Snapshot[]>([]);
   const { toast } = useToast();
+
+  const resetToInitialState = () => {
+    setIsProcessing(false);
+    setRitual('idle');
+    setAgentName(INITIAL_NAME);
+    setAgentAvatar(INITIAL_AVATAR);
+    setAgentProfile(INITIAL_PROFILE);
+    setOriginalPrompt(INITIAL_ORIGINAL_PROMPT);
+    setModifiedPrompt(INITIAL_MODIFIED_PROMPT);
+    toast({ title: "Workspace Cleared", description: "Ready to create a new agent." });
+  };
 
   const handlePromptUpdate = async (data: AnalyzePromptChangeInput): Promise<void> => {
     setIsProcessing(true);
@@ -173,6 +172,7 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
     captureSnapshot,
     restoreSnapshot,
     deleteSnapshot,
+    resetToInitialState,
   };
 
   return (
