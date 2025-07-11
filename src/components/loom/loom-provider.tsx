@@ -10,7 +10,6 @@ import { analyzePromptChange } from '@/ai/flows/analyze-prompt-change-flow';
 import type { AnalyzePromptChangeInput } from '@/ai/flows/analyze-prompt-change-schema';
 import { generateAgentAvatar } from '@/ai/flows/generate-agent-avatar-flow';
 import { analyzeAgentProfile, AnalyzeAgentProfileOutput } from '@/ai/flows/analyze-agent-profile-flow';
-import { useSystemSigilState, Ritual, Variant } from '@/hooks/use-system-sigil-state';
 import { useToast } from '@/hooks/use-toast';
 import { INITIAL_AVATAR, INITIAL_MODIFIED_PROMPT, INITIAL_NAME, INITIAL_ORIGINAL_PROMPT, INITIAL_PROFILE } from './loom-constants';
 import HallOfEchoes, { type NodeState } from './hall-of-echoes';
@@ -44,8 +43,6 @@ interface LoomContextType {
   setOriginalPrompt: (prompt: string) => void;
   setModifiedPrompt: (prompt: string) => void;
   handlePromptUpdate: (data: AnalyzePromptChangeInput) => Promise<void>;
-  ritual: Ritual;
-  variant: Variant;
   snapshots: Snapshot[];
   captureSnapshot: () => void;
   restoreSnapshot: (id: string) => void;
@@ -89,7 +86,6 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
   const [agentProfile, setAgentProfile] = useState<AgentProfile>(INITIAL_PROFILE);
   const [originalPrompt, setOriginalPrompt] = useState(INITIAL_ORIGINAL_PROMPT);
   const [modifiedPrompt, setModifiedPrompt] = useState(INITIAL_MODIFIED_PROMPT);
-  const { ritual, variant, setRitual, setVariant } = useSystemSigilState();
   const [snapshots, setSnapshots] = useState<Snapshot[]>([]);
   const { toast } = useToast();
   
@@ -137,7 +133,6 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
 
   const resetToInitialState = () => {
     setIsProcessing(false);
-    setRitual('idle');
     setAgentName(INITIAL_NAME);
     setAgentAvatar(INITIAL_AVATAR);
     setAgentProfile(INITIAL_PROFILE);
@@ -150,7 +145,6 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
 
   const handlePromptUpdate = async (data: AnalyzePromptChangeInput): Promise<void> => {
     setIsProcessing(true);
-    setRitual('summon');
     
     // Set all nodes to running state
     setWorkflowNodes(prev => prev.map(node => ({ ...node, status: 'running', content: 'Processing...' })));
@@ -207,7 +201,6 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
       setWorkflowNodes(prev => prev.map(node => ({ ...node, status: 'error', content: 'System error.' })));
     } finally {
       setIsProcessing(false);
-      setRitual('idle');
     }
   };
 
@@ -234,6 +227,7 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
       setOriginalPrompt(snapshotToRestore.originalPrompt);
       setModifiedPrompt(snapshotToRestore.modifiedPrompt);
       setWorkflowNodes(INITIAL_WORKFLOW_NODES);
+      resetSimulation();
       toast({ title: 'Snapshot Restored', description: `Agent state restored to "${snapshotToRestore.agentName}".` });
     }
   };
@@ -254,8 +248,6 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
     setOriginalPrompt,
     setModifiedPrompt,
     handlePromptUpdate,
-    ritual,
-    variant,
     snapshots,
     captureSnapshot,
     restoreSnapshot,
