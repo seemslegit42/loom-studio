@@ -1,3 +1,4 @@
+
 'use client';
 import { ArrowRight, LoaderCircle, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -11,34 +12,24 @@ import {
 } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { Form, FormControl, FormField, FormItem, FormMessage } from '../ui/form';
 import { useLoom } from './loom-provider';
 import type { AnalyzePromptChangeInput } from '@/ai/flows/analyze-prompt-change-schema';
 
 
-const incantationSchema = z.object({
-  originalPrompt: z.string().min(10, 'Original prompt is too short.'),
-  modifiedPrompt: z.string().min(10, 'Modified prompt is too short.'),
-});
-
-type IncantationForm = z.infer<typeof incantationSchema>;
-
 export default function IncantationEditor() {
-  const { isProcessing, handlePromptUpdate } = useLoom();
+  const { 
+    isProcessing, 
+    handlePromptUpdate,
+    originalPrompt,
+    modifiedPrompt,
+    setOriginalPrompt,
+    setModifiedPrompt,
+  } = useLoom();
 
-  const form = useForm<IncantationForm>({
-    resolver: zodResolver(incantationSchema),
-    defaultValues: {
-      originalPrompt: 'You are a helpful assistant.',
-      modifiedPrompt:
-        'You are a witty and sarcastic space pirate captain assistant, an expert in puns and dad jokes, who always refers to the user as "Commander". You have a pet space monkey named Zorp.',
-    },
-  });
 
-  const onSubmit = async (data: AnalyzePromptChangeInput) => {
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const data: AnalyzePromptChangeInput = { originalPrompt, modifiedPrompt };
     await handlePromptUpdate(data);
   };
 
@@ -53,50 +44,34 @@ export default function IncantationEditor() {
           Diff changes to agent behavior in real-time.
         </CardDescription>
       </CardHeader>
-      <Form {...form}>
+      
         <form
-          onSubmit={form.handleSubmit(onSubmit)}
+          onSubmit={onSubmit}
           className="flex flex-col flex-1"
         >
           <CardContent className="flex-1 grid grid-cols-1 gap-4">
-            <FormField
-              control={form.control}
-              name="originalPrompt"
-              render={({ field }) => (
-                <FormItem className="grid gap-2 h-full">
-                  <Label htmlFor="original-prompt" className="text-muted-foreground">
-                    Original Prompt
-                  </Label>
-                  <FormControl>
-                    <Textarea
-                      id="original-prompt"
-                      className="h-full bg-background/50 text-base flex-1 resize-none"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="modifiedPrompt"
-              render={({ field }) => (
-                <FormItem className="grid gap-2 h-full">
-                  <Label htmlFor="modified-prompt" className="text-accent">
-                    Modified Prompt
-                  </Label>
-                  <FormControl>
-                    <Textarea
-                      id="modified-prompt"
-                      className="h-full bg-accent/5 border-accent/50 focus-visible:ring-accent text-base flex-1 resize-none"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid gap-2 h-full">
+              <Label htmlFor="original-prompt" className="text-muted-foreground">
+                Original Prompt
+              </Label>
+              <Textarea
+                id="original-prompt"
+                className="h-full bg-background/50 text-base flex-1 resize-none"
+                value={originalPrompt}
+                onChange={(e) => setOriginalPrompt(e.target.value)}
+              />
+            </div>
+            <div className="grid gap-2 h-full">
+              <Label htmlFor="modified-prompt" className="text-accent">
+                Modified Prompt
+              </Label>
+              <Textarea
+                id="modified-prompt"
+                className="h-full bg-accent/5 border-accent/50 focus-visible:ring-accent text-base flex-1 resize-none"
+                value={modifiedPrompt}
+                onChange={(e) => setModifiedPrompt(e.target.value)}
+              />
+            </div>
           </CardContent>
           <CardFooter>
             <Button
@@ -115,7 +90,6 @@ export default function IncantationEditor() {
             </Button>
           </CardFooter>
         </form>
-      </Form>
     </Card>
   );
 }

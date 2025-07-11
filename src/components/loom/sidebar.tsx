@@ -1,3 +1,4 @@
+
 'use client';
 import {
   Accordion,
@@ -26,11 +27,13 @@ import {
   Bot,
   TestTube2,
   Settings2,
+  Pointer,
 } from 'lucide-react';
 import { LoomStudioLogo } from './logo';
 import { useLoom } from './loom-provider';
 import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, Radar } from 'recharts';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '../ui/chart';
+import { formatDistanceToNow } from 'date-fns';
 
 const agentData = {
   certification: 'AIC Certified',
@@ -48,12 +51,6 @@ const agentData = {
   },
 };
 
-const snapshots = [
-  { id: 'alpha', name: 'Alpha-Baseline', date: '2024-07-22 10:30 UTC' },
-  { id: 'post_v2', name: 'Post-Finetune_v2', date: '2024-07-23 15:00 UTC' },
-  { id: 'experiment_x', name: 'Experiment-X7', date: '2024-07-24 11:00 UTC' },
-];
-
 const chartConfig = {
   value: {
     label: 'Value',
@@ -63,7 +60,7 @@ const chartConfig = {
 
 
 export default function Sidebar() {
-  const { agentName, agentProfile } = useLoom();
+  const { agentName, agentProfile, snapshots, captureSnapshot, restoreSnapshot, deleteSnapshot } = useLoom();
 
   return (
     <aside className="w-80 shrink-0 bg-card/30 border-r-2 border-gilded-accent/20 glow-gilded flex flex-col">
@@ -100,18 +97,16 @@ export default function Sidebar() {
                   </Badge>
                 </div>
 
-                <div className="w-full h-52">
-                  <ChartContainer config={chartConfig} className="w-full h-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <RadarChart data={agentProfile} margin={{ top: 20, right: 30, bottom: 20, left: 30 }}>
-                            <ChartTooltip content={<ChartTooltipContent />} cursor={{fill: 'hsl(var(--primary) / 0.1)'}}/>
-                            <PolarGrid stroke="hsl(var(--border) / 0.5)" />
-                            <PolarAngleAxis dataKey="trait" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} />
-                            <Radar name="Profile" dataKey="value" stroke="hsl(var(--primary))" fill="hsl(var(--primary) / 0.4)" fillOpacity={0.6} />
-                        </RadarChart>
-                    </ResponsiveContainer>
-                   </ChartContainer>
-                </div>
+                <ChartContainer config={chartConfig} className="w-full h-52">
+                  <ResponsiveContainer width="100%" height="100%">
+                      <RadarChart data={agentProfile} margin={{ top: 20, right: 30, bottom: 20, left: 30 }}>
+                          <ChartTooltip content={<ChartTooltipContent />} cursor={{fill: 'hsl(var(--primary) / 0.1)'}}/>
+                          <PolarGrid stroke="hsl(var(--border) / 0.5)" />
+                          <PolarAngleAxis dataKey="trait" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} />
+                          <Radar name="Profile" dataKey="value" stroke="hsl(var(--primary))" fill="hsl(var(--primary) / 0.4)" fillOpacity={0.6} />
+                      </RadarChart>
+                  </ResponsiveContainer>
+                 </ChartContainer>
 
                 <div className="space-y-3">
                   <h4 className="font-semibold text-sm text-muted-foreground">
@@ -180,25 +175,29 @@ export default function Sidebar() {
                 </AccordionTrigger>
               </CardHeader>
               <AccordionContent className="p-4 pt-0 space-y-3">
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full" onClick={captureSnapshot}>
                   <Camera className="mr-2 h-4 w-4" />
                   Capture New Snapshot
                 </Button>
                 <div className="space-y-2">
+                  {snapshots.length === 0 && (
+                    <p className="text-xs text-muted-foreground text-center p-4">No snapshots captured yet.</p>
+                  )}
                   {snapshots.map(snapshot => (
                     <div
                       key={snapshot.id}
-                      className="flex items-center justify-between p-2 rounded-md bg-muted/50 hover:bg-muted transition-colors"
+                      className="flex items-center justify-between p-2 rounded-md bg-muted/50 group"
                     >
-                      <div>
-                        <p className="font-medium text-sm">{snapshot.name}</p>
+                      <button className="text-left flex-1" onClick={() => restoreSnapshot(snapshot.id)}>
+                        <p className="font-medium text-sm group-hover:text-primary transition-colors">{snapshot.agentName}</p>
                         <p className="text-xs text-muted-foreground">
-                          {snapshot.date}
+                          {formatDistanceToNow(snapshot.capturedAt, { addSuffix: true })}
                         </p>
-                      </div>
+                      </button>
                       <Button
                         variant="ghost"
                         size="icon"
+                        onClick={() => deleteSnapshot(snapshot.id)}
                         className="h-8 w-8 text-muted-foreground hover:text-destructive"
                       >
                         <Trash2 className="h-4 w-4" />

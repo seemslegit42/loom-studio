@@ -1,3 +1,4 @@
+
 'use client';
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import Header from '@/components/loom/header';
@@ -10,10 +11,20 @@ import type { AnalyzePromptChangeInput, AnalyzePromptChangeOutput } from '@/ai/f
 import { generateAgentAvatar } from '@/ai/flows/generate-agent-avatar-flow';
 import { analyzeAgentProfile, AnalyzeAgentProfileOutput } from '@/ai/flows/analyze-agent-profile-flow';
 import { useSystemSigilState, Ritual, Variant } from '@/hooks/use-system-sigil-state';
-import { toast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { SigilRites } from '../sigil-rites/SigilRites';
 
 type AgentProfile = AnalyzeAgentProfileOutput['profile'];
+
+export interface Snapshot {
+  id: string;
+  capturedAt: Date;
+  agentName: string;
+  agentAvatar: string;
+  agentProfile: AgentProfile;
+  originalPrompt: string;
+  modifiedPrompt: string;
+}
 
 // Define the shape of the context
 interface LoomContextType {
@@ -21,9 +32,17 @@ interface LoomContextType {
   agentName: string;
   agentAvatar: string;
   agentProfile: AgentProfile;
+  originalPrompt: string;
+  modifiedPrompt: string;
+  setOriginalPrompt: (prompt: string) => void;
+  setModifiedPrompt: (prompt: string) => void;
   handlePromptUpdate: (data: AnalyzePromptChangeInput) => Promise<void>;
   ritual: Ritual;
   variant: Variant;
+  snapshots: Snapshot[];
+  captureSnapshot: () => void;
+  restoreSnapshot: (id: string) => void;
+  deleteSnapshot: (id: string) => void;
 }
 
 // Create the context with a default value
@@ -40,6 +59,9 @@ const INITIAL_PROFILE: AgentProfile = [
   { "trait": "Technicality", "value": 50 },
   { "trait": "Whimsy", "value": 50 }
 ];
+const INITIAL_ORIGINAL_PROMPT = 'You are a helpful assistant.';
+const INITIAL_MODIFIED_PROMPT = 'You are a witty and sarcastic space pirate captain assistant, an expert in puns and dad jokes, who always refers to the user as "Commander". You have a pet space monkey named Zorp.';
+
 
 // Create the provider component
 export default function LoomProvider({ children }: { children?: ReactNode }) {
@@ -47,7 +69,10 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
   const [agentName, setAgentName] = useState(INITIAL_NAME);
   const [agentAvatar, setAgentAvatar] = useState(INITIAL_AVATAR);
   const [agentProfile, setAgentProfile] = useState<AgentProfile>(INITIAL_PROFILE);
+  const [originalPrompt, setOriginalPrompt] = useState(INITIAL_ORIGINAL_PROMPT);
+  const [modifiedPrompt, setModifiedPrompt] = useState(INITIAL_MODIFIED_PROMPT);
   const { ritual, variant, setRitual, setVariant } = useSystemSigilState();
+  const [snapshots, setSnapshots] = useState<Snapshot[]>([]);
 
   const handlePromptUpdate = async (data: AnalyzePromptChangeInput): Promise<void> => {
     setIsProcessing(true);
@@ -66,12 +91,14 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
         toast({ title: 'Behavioral Analysis Complete', description: analysisResult.value.analysis });
       } else {
         console.error("Analysis failed:", analysisResult.reason);
+        toast({ variant: 'destructive', title: 'Error', description: 'Behavioral analysis failed.' });
       }
 
       if (avatarResult.status === 'fulfilled') {
         setAgentAvatar(avatarResult.value.avatarDataUri);
       } else {
         console.error("Avatar generation failed:", avatarResult.reason);
+        toast({ variant: 'destructive', title: 'Error', description: 'Avatar generation failed.' });
       }
 
       if (profileResult.status === 'fulfilled') {
@@ -79,6 +106,7 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
         setAgentProfile(profileResult.value.profile);
       } else {
         console.error("Profile analysis failed:", profileResult.reason);
+        toast({ variant: 'destructive', title: 'Error', description: 'Profile analysis failed.' });
       }
 
     } catch (error) {
@@ -93,14 +121,54 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
     }
   };
 
+  const captureSnapshot = () => {
+    const newSnapshot: Snapshot = {
+      id: `snap_${new Date().getTime()}`,
+      capturedAt: new Date(),
+      agentName,
+      agentAvatar,
+      agentProfile,
+      originalPrompt,
+      modifiedPrompt,
+    };
+    setSnapshots(prev => [newSnapshot, ...prev]);
+    toast({ title: 'Snapshot Captured', description: `State of agent "${agentName}" has been saved.`});
+  };
+
+  const restoreSnapshot = (id: string) => {
+    const snapshotToRestore = snapshots.find(s => s.id === id);
+    if (snapshotToRestore) {
+      setAgentName(snapshotToRestore.agentName);
+      setAgentAvatar(snapshotToRestore.agentAvatar);
+      setAgentProfile(snapshotToRestore.agentProfile);
+      setOriginalPrompt(snapshotToRestore.originalPrompt);
+      setModifiedPrompt(snapshotToRestore.modifiedPrompt);
+      toast({ title: 'Snapshot Restored', description: `Agent state restored to "${snapshotToRestore.agentName}".` });
+    }
+  };
+
+  const deleteSnapshot = (id: string) => {
+    setSnapshots(prev => prev.filter(s => s.id !== id));
+    toast({ variant: 'destructive', title: 'Snapshot Deleted', description: 'The selected snapshot has been removed.' });
+  };
+
+
   const value = {
     isProcessing,
     agentName,
     agentAvatar,
     agentProfile,
+    originalPrompt,
+    modifiedPrompt,
+    setOriginalPrompt,
+    setModifiedPrompt,
     handlePromptUpdate,
     ritual,
     variant,
+    snapshots,
+    captureSnapshot,
+    restoreSnapshot,
+    deleteSnapshot,
   };
 
   return (
