@@ -7,15 +7,17 @@ import IncantationEditor from '@/components/loom/incantation-editor';
 import EventTimeline from '@/components/loom/event-timeline';
 
 import { analyzePromptChange } from '@/ai/flows/analyze-prompt-change-flow';
-import type { AnalyzePromptChangeInput, AnalyzePromptChangeOutput } from '@/ai/flows/analyze-prompt-change-schema';
+import type { AnalyzePromptChangeInput } from '@/ai/flows/analyze-prompt-change-schema';
 import { generateAgentAvatar } from '@/ai/flows/generate-agent-avatar-flow';
 import { analyzeAgentProfile, AnalyzeAgentProfileOutput } from '@/ai/flows/analyze-agent-profile-flow';
 import { useSystemSigilState, Ritual, Variant } from '@/hooks/use-system-sigil-state';
 import { useToast } from '@/hooks/use-toast';
 import { SigilRites } from '../sigil-rites/SigilRites';
 import { INITIAL_AVATAR, INITIAL_MODIFIED_PROMPT, INITIAL_NAME, INITIAL_ORIGINAL_PROMPT, INITIAL_PROFILE } from './loom-constants';
+import HallOfEchoes, { type NodeState } from './hall-of-echoes';
 
 type AgentProfile = AnalyzeAgentProfileOutput['profile'];
+type MainView = 'sigil' | 'hall';
 
 export interface Snapshot {
   id: string;
@@ -58,6 +60,10 @@ interface LoomContextType {
   fastForward: () => void;
   runSimulation: () => void;
   resetSimulation: () => void;
+  
+  // Hall of Echoes state
+  mainView: MainView;
+  workflowNodes: NodeState[];
 }
 
 // Create the context with a default value
@@ -75,6 +81,10 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
   const { ritual, variant, setRitual, setVariant } = useSystemSigilState();
   const [snapshots, setSnapshots] = useState<Snapshot[]>([]);
   const { toast } = useToast();
+  
+  // View state
+  const [mainView, setMainView] = useState<MainView>('sigil');
+  const [workflowNodes, setWorkflowNodes] = useState<NodeState[]>([]);
 
   // Timeline State
   const [timelineProgress, setTimelineProgress] = useState(0);
@@ -86,12 +96,14 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
     setIsPlaying(true);
     setIsFinished(false);
     setTimelineProgress(0);
+    setMainView('hall');
   }, []);
 
   const resetSimulation = useCallback(() => {
     setIsPlaying(false);
     setIsFinished(false);
     setTimelineProgress(0);
+    setMainView('sigil');
   }, []);
 
   const play = useCallback(() => {
@@ -125,6 +137,7 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
   const handlePromptUpdate = async (data: AnalyzePromptChangeInput): Promise<void> => {
     setIsProcessing(true);
     setRitual('summon');
+    setMainView('sigil');
 
     try {
       const results = await Promise.allSettled([
@@ -232,7 +245,10 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
     rewind,
     fastForward,
     runSimulation,
-    resetSimulation
+    resetSimulation,
+
+    mainView,
+    workflowNodes,
   };
 
   return (
@@ -244,7 +260,11 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
                 <Header />
                 <main className="flex-1 p-6 lg:p-8 grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8 overflow-y-auto">
                     <div className="flex items-center justify-center">
-                      <SigilRites ritual={ritual} variant={variant} onRitualComplete={() => setRitual('idle')} />
+                      {mainView === 'sigil' ? (
+                        <SigilRites ritual={ritual} variant={variant} onRitualComplete={() => setRitual('idle')} />
+                      ) : (
+                        <HallOfEchoes />
+                      )}
                     </div>
                     <div className="xl:col-span-1">
                         <IncantationEditor />
