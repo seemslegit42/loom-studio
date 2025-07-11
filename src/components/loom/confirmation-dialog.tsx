@@ -77,7 +77,7 @@ export function ConfirmationDialog({ children, title, description, actionLabel =
                 <div className="flex items-center space-x-2 my-4">
                     <Checkbox id="confirm-reset" checked={isConfirmed} onCheckedChange={(checked) => setIsConfirmed(checked as boolean)} />
                     <Label htmlFor="confirm-reset" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                        I understand this action is irreversible.
+                        I understand this action may be irreversible.
                     </Label>
                 </div>
                 <AlertDialogFooter>
