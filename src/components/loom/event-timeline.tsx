@@ -73,8 +73,6 @@ export default function EventTimeline() {
   }
   const status = getStatus();
 
-  if(isProcessing) return null;
-
   return (
     <footer className="border-t-2 border-primary/20 bg-card/50 backdrop-blur-lg shrink-0">
       <div className="px-6 py-3 flex items-center justify-between gap-6">
@@ -117,7 +115,7 @@ export default function EventTimeline() {
                   RESET
               </Button>
             ) : (
-              <Button onClick={runSimulation} disabled={isPlaying} className="bg-gilded-accent text-black rounded-full w-28 font-bold glow-gilded disabled:bg-muted disabled:text-muted-foreground disabled:opacity-50 disabled:shadow-none">
+              <Button onClick={runSimulation} disabled={isPlaying || isProcessing} className="bg-gilded-accent text-black rounded-full w-28 font-bold glow-gilded disabled:bg-muted disabled:text-muted-foreground disabled:opacity-50 disabled:shadow-none">
                   <span className="font-headline">RUN</span>
               </Button>
             )}

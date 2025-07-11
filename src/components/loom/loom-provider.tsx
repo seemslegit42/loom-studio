@@ -12,7 +12,6 @@ import { generateAgentAvatar } from '@/ai/flows/generate-agent-avatar-flow';
 import { analyzeAgentProfile, AnalyzeAgentProfileOutput } from '@/ai/flows/analyze-agent-profile-flow';
 import { useSystemSigilState, Ritual, Variant } from '@/hooks/use-system-sigil-state';
 import { useToast } from '@/hooks/use-toast';
-import { SigilRites } from '../sigil-rites/SigilRites';
 import { INITIAL_AVATAR, INITIAL_MODIFIED_PROMPT, INITIAL_NAME, INITIAL_ORIGINAL_PROMPT, INITIAL_PROFILE } from './loom-constants';
 import HallOfEchoes, { type NodeState } from './hall-of-echoes';
 
@@ -291,18 +290,18 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
             <div className="flex flex-1 overflow-hidden">
                 <Sidebar />
                 <div className="flex-1 flex flex-col overflow-hidden">
-                <Header />
-                <main className="flex-1 p-6 lg:p-8 grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8 overflow-y-auto">
-                    <div className="flex items-center justify-center xl:col-span-2">
-                       <HallOfEchoes />
-                    </div>
-                    <div className="xl:col-span-2">
-                        <IncantationEditor />
-                    </div>
-                </main>
+                  <Header />
+                  <main className="flex-1 p-6 lg:p-8 flex flex-col gap-6 lg:gap-8 overflow-y-auto">
+                      <div className="flex items-center justify-center">
+                         <HallOfEchoes />
+                      </div>
+                      <div className="flex-1 flex flex-col">
+                          <IncantationEditor />
+                      </div>
+                  </main>
                 </div>
             </div>
-            {isProcessing ? null : <EventTimeline />}
+            <EventTimeline />
         </div>
     </LoomContext.Provider>
   );
