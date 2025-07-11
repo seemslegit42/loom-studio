@@ -12,12 +12,7 @@ import { analyzeAgentProfile, AnalyzeAgentProfileOutput } from '@/ai/flows/analy
 import { useToast } from '@/hooks/use-toast';
 import { INITIAL_AVATAR, INITIAL_MODIFIED_PROMPT, INITIAL_NAME, INITIAL_ORIGINAL_PROMPT, INITIAL_PROFILE } from './loom-constants';
 import HallOfEchoes, { type NodeState } from './hall-of-echoes';
-import { SigilRites } from '../sigil-rites/SigilRites';
-import { useSystemSigilState } from '@/hooks/use-system-sigil-state';
 import Sidebar from './sidebar';
-import { ConfirmationDialog } from './confirmation-dialog';
-import { Button } from '../ui/button';
-import { FilePlus2 } from 'lucide-react';
 
 type AgentProfile = AnalyzeAgentProfileOutput['profile'];
 
@@ -96,7 +91,6 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
   
   // View state
   const [workflowNodes, setWorkflowNodes] = useState<NodeState[]>(INITIAL_WORKFLOW_NODES);
-  const { variant, ritual, setRitual } = useSystemSigilState();
 
   // Engine Tuning State
   const [creativity, setCreativity] = useState(65);
@@ -110,30 +104,26 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
   const timelineDuration = 90; // in seconds
 
   const runSimulation = useCallback(() => {
-    setRitual('summon');
     setIsPlaying(true);
     setIsFinished(false);
     setTimelineProgress(0);
-  }, [setRitual]);
+  }, []);
 
   const resetSimulation = useCallback(() => {
-    setRitual('idle');
     setIsPlaying(false);
     setIsFinished(false);
     setTimelineProgress(0);
-  }, [setRitual]);
+  }, []);
 
   const play = useCallback(() => {
     if (!isFinished) {
       setIsPlaying(true);
-      setRitual('orchestrate');
     }
-  }, [isFinished, setRitual]);
+  }, [isFinished]);
 
   const pause = useCallback(() => {
     setIsPlaying(false);
-    setRitual('idle');
-  }, [setRitual]);
+  }, []);
 
   const rewind = useCallback(() => {
     setTimelineProgress(prev => Math.max(0, prev - 5));
@@ -143,7 +133,7 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
     setTimelineProgress(prev => Math.min(timelineDuration, prev + 5));
   }, [timelineDuration]);
 
-  const resetToInitialState = () => {
+  const resetToInitialState = useCallback(() => {
     setIsProcessing(false);
     setAgentName(INITIAL_NAME);
     setAgentAvatar(INITIAL_AVATAR);
@@ -153,7 +143,7 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
     setWorkflowNodes(INITIAL_WORKFLOW_NODES);
     resetSimulation();
     toast({ title: "Workspace Cleared", description: "Ready to create a new agent." });
-  };
+  }, [resetSimulation, toast]);
 
   const handlePromptUpdate = async (data: AnalyzePromptChangeInput): Promise<void> => {
     setIsProcessing(true);
