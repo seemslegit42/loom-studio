@@ -30,10 +30,7 @@ export default function Header() {
   return (
     <header className="flex h-20 items-center justify-between border-b border-border/50 px-6 lg:px-8 shrink-0 bg-card/20 backdrop-blur-sm">
       <div>
-        <h1 className="text-2xl font-bold font-headline text-foreground">
-          Good Afternoon, Commander
-        </h1>
-        <p className="text-muted-foreground font-code tracking-widest text-sm">InnovΛtΞ. ΛutomΛtΞ. DominΛtΞ.</p>
+        <p className="text-muted-foreground font-code tracking-widest text-lg uppercase">InnovΛtΞ. ΛutomΛtΞ. DominΛtΞ.</p>
       </div>
       <div className="flex items-center gap-4">
         <Button variant="outline" className="border-accent text-accent hover:bg-accent hover:text-accent-foreground">
