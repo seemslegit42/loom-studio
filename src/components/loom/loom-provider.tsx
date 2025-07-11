@@ -2,7 +2,6 @@
 'use client';
 import React, { createContext, useContext, useState, ReactNode, useCallback } from 'react';
 import Header from '@/components/loom/header';
-import Sidebar from '@/components/loom/sidebar';
 import IncantationEditor from '@/components/loom/incantation-editor';
 import EventTimeline from '@/components/loom/event-timeline';
 
@@ -12,7 +11,7 @@ import { generateAgentAvatar } from '@/ai/flows/generate-agent-avatar-flow';
 import { analyzeAgentProfile, AnalyzeAgentProfileOutput } from '@/ai/flows/analyze-agent-profile-flow';
 import { useToast } from '@/hooks/use-toast';
 import { INITIAL_AVATAR, INITIAL_MODIFIED_PROMPT, INITIAL_NAME, INITIAL_ORIGINAL_PROMPT, INITIAL_PROFILE } from './loom-constants';
-import HallOfEchoes, { type NodeState } from './hall-of-echoes';
+import { type NodeState } from './hall-of-echoes';
 import { SigilRites } from '../sigil-rites/SigilRites';
 import { useSystemSigilState } from '@/hooks/use-system-sigil-state';
 
@@ -288,19 +287,16 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
   return (
     <LoomContext.Provider value={value}>
         <div className="bg-transparent text-foreground min-h-screen flex flex-col font-body">
-            <div className="flex flex-1 overflow-hidden">
-                <Sidebar />
-                <div className="flex-1 flex flex-col overflow-hidden">
-                  <Header />
-                  <main className="flex-1 p-6 lg:p-8 flex flex-col gap-6 lg:gap-8 overflow-y-auto">
-                      <div className="flex items-center justify-center">
-                         <SigilRites variant={variant} ritual={ritual} onRitualComplete={() => setRitual('idle')} />
-                      </div>
-                      <div className="flex-1 flex flex-col">
-                          <IncantationEditor />
-                      </div>
-                  </main>
-                </div>
+            <Header />
+            <div className="flex-1 flex flex-col overflow-hidden pt-24">
+                <main className="flex-1 p-6 lg:p-8 flex flex-col gap-6 lg:gap-8 overflow-y-auto">
+                    <div className="flex items-center justify-center">
+                        <SigilRites variant={variant} ritual={ritual} onRitualComplete={() => setRitual('idle')} />
+                    </div>
+                    <div className="flex-1 flex flex-col">
+                        <IncantationEditor />
+                    </div>
+                </main>
             </div>
             <EventTimeline />
         </div>

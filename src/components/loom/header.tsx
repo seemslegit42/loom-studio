@@ -1,119 +1,28 @@
 
 'use client';
-import { PlusCircle, UploadCloud, Settings, LogOut, User, LifeBuoy } from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { useLoom } from './loom-provider';
-import { Skeleton } from '../ui/skeleton';
-import { ConfirmationDialog } from './confirmation-dialog';
+import { Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 
 export default function Header() {
-  const { agentAvatar, isProcessing, resetToInitialState } = useLoom();
-
   return (
-    <header className="flex h-20 items-center justify-between border-b border-border/50 px-6 lg:px-8 shrink-0 bg-card/20 backdrop-blur-sm">
-      <div>
-        <p className="text-muted-foreground font-code tracking-widest text-lg uppercase">INNOVΛTΞ. ΛUTOMΛTΞ. DOMINΛTΞ.</p>
-      </div>
-      <div className="flex items-center gap-4">
-        <Button variant="outline" className="border-accent text-accent hover:bg-accent hover:text-accent-foreground">
-          <UploadCloud />
-          Load Snapshot
-        </Button>
-        <ConfirmationDialog
-            title="Create New Agent?"
-            description="This will reset the current agent's prompts, profile, and avatar to their default state. This action cannot be undone."
-            onConfirm={resetToInitialState}
-            actionLabel="Create New Agent"
-        >
-            <Button className="bg-primary hover:bg-primary/90 glow-primary">
-                <PlusCircle />
-                New Agent
-            </Button>
-        </ConfirmationDialog>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <div className="cursor-pointer relative">
-              {isProcessing ? (
-                <Skeleton className="h-12 w-12 rounded-full" />
-              ) : (
-                <Avatar className="h-12 w-12 border-2 border-primary/50">
-                  <AvatarImage src={agentAvatar} alt="Commander" data-ai-hint="person avatar" />
-                  <AvatarFallback>C</AvatarFallback>
-                </Avatar>
-              )}
+    <header className="fixed top-4 left-1/2 -translate-x-1/2 w-[95%] max-w-4xl z-50">
+        <div className="w-full h-16 p-4 rounded-full border border-primary/20 bg-card/50 backdrop-blur-lg flex items-center justify-between gap-4 shadow-lg shadow-primary/10">
+            <div className="flex items-center gap-2 pl-2">
+                <span className="font-headline text-lg tracking-widest text-primary">ΛΞVON</span>
             </div>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56" align="end">
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-                <Dialog>
-                    <DialogTrigger asChild>
-                        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                            <User />
-                            <span>Profile</span>
-                        </DropdownMenuItem>
-                    </DialogTrigger>
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>User Profile</DialogTitle>
-                            <DialogDescription>
-                                This is a placeholder for the user profile settings.
-                            </DialogDescription>
-                        </DialogHeader>
-                    </DialogContent>
-                </Dialog>
-                <Dialog>
-                    <DialogTrigger asChild>
-                        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                            <Settings />
-                            <span>Settings</span>
-                        </DropdownMenuItem>
-                    </DialogTrigger>
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>Application Settings</DialogTitle>
-                            <DialogDescription>
-                                This is a placeholder for application settings.
-                            </DialogDescription>
-                        </DialogHeader>
-                    </DialogContent>
-                </Dialog>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <LifeBuoy />
-              <span>Support</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem disabled>
-              API
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <LogOut />
-              <span>Log out</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+            
+            <div className="flex-1 max-w-lg relative">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <Input 
+                    placeholder="BEEP™ Command Strip // Forge your next command..."
+                    className="w-full bg-background/50 rounded-full h-10 pl-12 pr-4 border-primary/30 focus-visible:ring-primary/80 glow-primary"
+                />
+            </div>
+
+            <div>
+                {/* Reserved for future contextual instruments */}
+            </div>
+        </div>
     </header>
   );
 }
