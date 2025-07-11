@@ -316,5 +316,3 @@ export const useLoom = (): LoomContextType => {
   }
   return context;
 };
-
-    
