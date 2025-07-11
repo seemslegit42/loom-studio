@@ -30,7 +30,7 @@ import {
 import { LoomStudioLogo } from './logo';
 import { useLoom } from './loom-provider';
 import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, Radar, Tooltip } from 'recharts';
-import { ChartTooltipContent } from '../ui/chart';
+import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '../ui/chart';
 
 const agentData = {
   certification: 'AIC Certified',
@@ -53,6 +53,14 @@ const snapshots = [
   { id: 'post_v2', name: 'Post-Finetune_v2', date: '2024-07-23 15:00 UTC' },
   { id: 'experiment_x', name: 'Experiment-X7', date: '2024-07-24 11:00 UTC' },
 ];
+
+const chartConfig = {
+  value: {
+    label: 'Value',
+    color: 'hsl(var(--primary))',
+  },
+} satisfies ChartConfig;
+
 
 export default function Sidebar() {
   const { agentName, agentProfile } = useLoom();
@@ -93,14 +101,16 @@ export default function Sidebar() {
                 </div>
 
                 <div className="w-full h-52">
+                  <ChartContainer config={chartConfig} className="w-full h-full">
                     <ResponsiveContainer width="100%" height="100%">
                         <RadarChart data={agentProfile} margin={{ top: 20, right: 30, bottom: 20, left: 30 }}>
                             <PolarGrid stroke="hsl(var(--border) / 0.5)" />
                             <PolarAngleAxis dataKey="trait" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} />
                             <Radar name="Profile" dataKey="value" stroke="hsl(var(--primary))" fill="hsl(var(--primary) / 0.4)" fillOpacity={0.6} />
-                             <Tooltip content={<ChartTooltipContent />} cursor={{fill: 'hsl(var(--primary) / 0.1)'}}/>
+                             <ChartTooltip content={<ChartTooltipContent />} cursor={{fill: 'hsl(var(--primary) / 0.1)'}}/>
                         </RadarChart>
                     </ResponsiveContainer>
+                   </ChartContainer>
                 </div>
 
                 <div className="space-y-3">
