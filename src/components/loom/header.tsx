@@ -33,7 +33,7 @@ export default function Header() {
         <h1 className="text-2xl font-bold font-headline text-foreground">
           Good Afternoon, Commander
         </h1>
-        <p className="text-muted-foreground">Here is the current state of your agentic systems.</p>
+        <p className="text-muted-foreground font-code tracking-widest text-sm">InnovΛtΞ. ΛutomΛtΞ. DominΛtΞ.</p>
       </div>
       <div className="flex items-center gap-4">
         <Button variant="outline" className="border-accent text-accent hover:bg-accent hover:text-accent-foreground">
