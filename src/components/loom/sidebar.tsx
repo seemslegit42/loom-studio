@@ -27,7 +27,6 @@ import {
   Bot,
   TestTube2,
   Settings2,
-  Pointer,
 } from 'lucide-react';
 import { LoomStudioLogo } from './logo';
 import { useLoom } from './loom-provider';
