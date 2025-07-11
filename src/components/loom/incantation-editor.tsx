@@ -18,7 +18,7 @@ import { Form, FormControl, FormField, FormItem, FormMessage } from '../ui/form'
 import { analyzePromptChange } from '@/ai/flows/analyze-prompt-change-flow';
 import type { AnalyzePromptChangeInput } from '@/ai/flows/analyze-prompt-change-schema';
 import { useToast } from '@/hooks/use-toast';
-import React from 'react';
+import { useLoom } from './loom-provider';
 
 const incantationSchema = z.object({
   originalPrompt: z.string().min(10, 'Original prompt is too short.'),
@@ -29,21 +29,20 @@ type IncantationForm = z.infer<typeof incantationSchema>;
 
 export default function IncantationEditor() {
   const { toast } = useToast();
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const { isProcessing, handlePromptUpdate } = useLoom();
 
   const form = useForm<IncantationForm>({
     resolver: zodResolver(incantationSchema),
     defaultValues: {
       originalPrompt: 'You are a helpful assistant.',
       modifiedPrompt:
-        'You are a witty and sarcastic assistant, an expert in puns and dad jokes.',
+        'You are a witty and sarcastic space pirate captain assistant, an expert in puns and dad jokes, who always refers to the user as "Commander". You have a pet space monkey named Zorp.',
     },
   });
 
   const onSubmit = async (data: AnalyzePromptChangeInput) => {
-    setIsSubmitting(true);
     try {
-      const result = await analyzePromptChange(data);
+      const result = await handlePromptUpdate(data);
       toast({
         title: 'Behavioral Analysis Complete',
         description: result.analysis,
@@ -56,8 +55,6 @@ export default function IncantationEditor() {
         description:
           'Could not analyze the prompt change. Please try again.',
       });
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -121,9 +118,9 @@ export default function IncantationEditor() {
             <Button
               type="submit"
               className="w-full glow-primary"
-              disabled={isSubmitting}
+              disabled={isProcessing}
             >
-              {isSubmitting ? (
+              {isProcessing ? (
                 <LoaderCircle className="animate-spin" />
               ) : (
                 <ArrowRight />

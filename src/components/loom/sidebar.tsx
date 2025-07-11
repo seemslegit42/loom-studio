@@ -28,9 +28,11 @@ import {
   Settings2,
 } from 'lucide-react';
 import { LoomStudioLogo } from './logo';
+import { useLoom } from './loom-provider';
+import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, Radar, Tooltip } from 'recharts';
+import { ChartTooltipContent } from '../ui/chart';
 
 const agentData = {
-  name: 'Prometheus-7',
   certification: 'AIC Certified',
   dna: {
     coreCapabilities: [
@@ -53,6 +55,8 @@ const snapshots = [
 ];
 
 export default function Sidebar() {
+  const { agentName, agentProfile } = useLoom();
+
   return (
     <aside className="w-80 shrink-0 bg-card/30 border-r-2 border-gilded-accent/20 glow-gilded flex flex-col">
       <div className="h-20 flex items-center gap-3 px-6 border-b border-border/50">
@@ -78,7 +82,7 @@ export default function Sidebar() {
                 <div className="flex justify-between items-center">
                   <div className="text-lg flex items-center gap-2 font-semibold">
                     <Bot />
-                    {agentData.name}
+                    {agentName}
                   </div>
                   <Badge
                     variant="outline"
@@ -87,6 +91,18 @@ export default function Sidebar() {
                     {agentData.certification}
                   </Badge>
                 </div>
+
+                <div className="w-full h-52">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <RadarChart data={agentProfile} margin={{ top: 20, right: 30, bottom: 20, left: 30 }}>
+                            <PolarGrid stroke="hsl(var(--border) / 0.5)" />
+                            <PolarAngleAxis dataKey="trait" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} />
+                            <Radar name="Profile" dataKey="value" stroke="hsl(var(--primary))" fill="hsl(var(--primary) / 0.4)" fillOpacity={0.6} />
+                             <Tooltip content={<ChartTooltipContent />} cursor={{fill: 'hsl(var(--primary) / 0.1)'}}/>
+                        </RadarChart>
+                    </ResponsiveContainer>
+                </div>
+
                 <div className="space-y-3">
                   <h4 className="font-semibold text-sm text-muted-foreground">
                     Core Capabilities

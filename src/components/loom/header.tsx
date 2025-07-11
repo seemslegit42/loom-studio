@@ -10,8 +10,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useLoom } from './loom-provider';
+import { Skeleton } from '../ui/skeleton';
 
 export default function Header() {
+  const { agentAvatar, isProcessing } = useLoom();
+
   return (
     <header className="flex h-20 items-center justify-between border-b border-border/50 px-6 lg:px-8 shrink-0 bg-card/20 backdrop-blur-sm">
       <div>
@@ -31,10 +35,16 @@ export default function Header() {
         </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Avatar className="cursor-pointer">
-              <AvatarImage src="https://placehold.co/100x100.png" alt="Commander" data-ai-hint="person avatar" />
-              <AvatarFallback>C</AvatarFallback>
-            </Avatar>
+            <div className="cursor-pointer relative">
+              {isProcessing ? (
+                <Skeleton className="h-12 w-12 rounded-full" />
+              ) : (
+                <Avatar className="h-12 w-12 border-2 border-primary/50">
+                  <AvatarImage src={agentAvatar} alt="Commander" data-ai-hint="person avatar" />
+                  <AvatarFallback>C</AvatarFallback>
+                </Avatar>
+              )}
+            </div>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-56" align="end">
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
