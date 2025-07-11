@@ -6,6 +6,12 @@ import { ConfirmationDialog } from './confirmation-dialog';
 import { Button } from '../ui/button';
 import { useLoom } from './loom-provider';
 
+/**
+ * The main header component for Loom Studio, styled as a floating glassmorphic panel.
+ * It provides the application logo and the BEEP™ Command Strip for primary navigation and control.
+ * It also contains the "New Agent" action, protected by a confirmation dialog.
+ * @returns {JSX.Element} The rendered header component.
+ */
 export default function Header() {
   const { resetToInitialState } = useLoom();
 

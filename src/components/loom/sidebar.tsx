@@ -61,6 +61,13 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 
+/**
+ * The main sidebar component for Loom Studio.
+ * It serves as the primary control panel, providing access to the core instruments:
+ * Agent DNA Viewer, The Chronoscope (for snapshots), The Loom of Fates (engine tuning),
+ * and The Aegis Anvil (security).
+ * @returns {JSX.Element} The rendered sidebar component.
+ */
 export default function Sidebar() {
   const { 
     agentName, 

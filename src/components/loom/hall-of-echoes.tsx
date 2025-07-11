@@ -6,6 +6,15 @@ import { SigilRites } from "../sigil-rites/SigilRites";
 import { useSystemSigilState } from "@/hooks/use-system-sigil-state";
 import { useEffect, useState } from "react";
 
+/**
+ * @interface NodeState
+ * @description Defines the shape of a single node within the workflow visualization.
+ * @property {string} id - A unique identifier for the node.
+ * @property {string} title - The title of the node displayed in its header.
+ * @property {NodeStatus} status - The current execution status of the node.
+ * @property {React.ReactNode} content - The content to be displayed within the node's body.
+ * @property {boolean} [isImage] - If true, the content is treated as an image data URI.
+ */
 export interface NodeState {
     id: string;
     title: string;
@@ -14,11 +23,17 @@ export interface NodeState {
     isImage?: boolean;
 }
 
+/**
+ * The main content canvas for Loom Studio.
+ * It displays either the ceremonial `SigilRites` animation when the system is idle,
+ * or the `WorkflowNode` grid showing the real-time results of an active workflow execution.
+ * @returns {JSX.Element} The rendered Hall of Echoes component.
+ */
 const HallOfEchoes = () => {
     const { workflowNodes, timelineProgress, isPlaying, isFinished } = useLoom();
     const { variant, ritual, setRitual } = useSystemSigilState();
     
-    // Determine the current ritual based on timeline state
+    // Determine the current ritual for the SigilRites component based on timeline state.
     useEffect(() => {
         if (isFinished) {
             setRitual('idle');

@@ -1,3 +1,10 @@
+/**
+ * Renders the Loom Studio vector logo.
+ * The logo is styled using CSS variables for theming and includes a gradient definition.
+ * @param {{ className?: string }} props - The props for the component.
+ * @param {string} [props.className] - Optional CSS classes to apply to the SVG element.
+ * @returns {JSX.Element} The rendered SVG logo.
+ */
 export function LoomStudioLogo({ className }: { className?: string }) {
     return (
       <svg

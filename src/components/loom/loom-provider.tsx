@@ -23,6 +23,18 @@ const INITIAL_WORKFLOW_NODES: NodeState[] = [
   { id: 'profile', title: 'Profile Personality', status: 'idle', content: 'Awaiting profiling.' },
 ];
 
+/**
+ * @interface Snapshot
+ * @description Defines the data structure for a behavioral snapshot of an agent.
+ * It captures the complete state of an agent at a specific point in time.
+ * @property {string} id - A unique identifier for the snapshot.
+ * @property {Date} capturedAt - The timestamp when the snapshot was taken.
+ * @property {string} agentName - The name of the agent at the time of the snapshot.
+ * @property {string} agentAvatar - The data URI of the agent's avatar.
+ * @property {AgentProfile} agentProfile - The personality profile of the agent.
+ * @property {string} originalPrompt - The original prompt state.
+ * @property {string} modifiedPrompt - The modified prompt state.
+ */
 export interface Snapshot {
   id: string;
   capturedAt: Date;
@@ -33,45 +45,81 @@ export interface Snapshot {
   modifiedPrompt: string;
 }
 
-// Define the shape of the context
+/**
+ * @interface LoomContextType
+ * @description Defines the shape of the context provided by LoomProvider.
+ * This context manages all the core state for the Loom Studio application.
+ */
 interface LoomContextType {
+  /** Global loading state for AI operations. */
   isProcessing: boolean;
+  /** The current name of the agent. */
   agentName: string;
+  /** The data URI for the agent's current avatar. */
   agentAvatar: string;
+  /** The agent's current personality profile. */
   agentProfile: AgentProfile;
+  /** The original prompt text. */
   originalPrompt: string;
+  /** The modified prompt text. */
   modifiedPrompt: string;
+  /** Setter for the original prompt. */
   setOriginalPrompt: (prompt: string) => void;
+  /** Setter for the modified prompt. */
   setModifiedPrompt: (prompt: string) => void;
+  /** Handler function to process prompt updates and trigger AI flows. */
   handlePromptUpdate: (data: AnalyzePromptChangeInput) => Promise<void>;
+  /** An array of captured agent state snapshots. */
   snapshots: Snapshot[];
+  /** Function to capture the current agent state as a new snapshot. */
   captureSnapshot: () => void;
+  /** Function to restore the agent state from a specific snapshot. */
   restoreSnapshot: (id: string) => void;
+  /** Function to delete a specific snapshot. */
   deleteSnapshot: (id: string) => void;
+  /** Function to reset the entire workspace to its initial state. */
   resetToInitialState: () => void;
 
   // Engine Tuning State
+  /** The creativity parameter for the engine (0-100). */
   creativity: number;
+  /** Setter for the creativity parameter. */
   setCreativity: (value: number) => void;
+  /** The risk aversion parameter for the engine (0-100). */
   riskAversion: number;
+  /** Setter for the risk aversion parameter. */
   setRiskAversion: (value: number) => void;
+  /** The transmutation tithe parameter for the engine (0-100). */
   transmutationTithe: number;
+  /** Setter for the transmutation tithe parameter. */
   setTransmutationTithe: (value: number) => void;
 
   // Timeline State
+  /** The current progress of the simulation timeline (in seconds). */
   timelineProgress: number;
+  /** Setter for the timeline progress. */
   setTimelineProgress: (progress: number) => void;
+  /** The total duration of the simulation timeline (in seconds). */
   timelineDuration: number;
+  /** Boolean indicating if the timeline is currently playing. */
   isPlaying: boolean;
+  /** Boolean indicating if the timeline has finished. */
   isFinished: boolean;
+  /** Function to start or resume timeline playback. */
   play: () => void;
+  /** Function to pause timeline playback. */
   pause: () => void;
+  /** Function to rewind the timeline by a small amount. */
   rewind: () => void;
+  /** Function to fast-forward the timeline by a small amount. */
   fastForward: () => void;
+  /** Function to run the full simulation from the beginning. */
   runSimulation: () => void;
+  /** Function to reset the simulation to its initial state. */
   resetSimulation: () => void;
   
   // Hall of Echoes state
+  /** The array of nodes representing the current state of the workflow visualization. */
   workflowNodes: NodeState[];
 }
 
@@ -79,7 +127,13 @@ interface LoomContextType {
 const LoomContext = createContext<LoomContextType | undefined>(undefined);
 
 
-// Create the provider component
+/**
+ * The main application provider for Loom Studio.
+ * It encapsulates all core state management and business logic, providing them
+ * to the rest of the application via the LoomContext.
+ * @param {{ children?: ReactNode }} props - The props for the component.
+ * @returns {JSX.Element} The rendered provider component.
+ */
 export default function LoomProvider({ children }: { children?: ReactNode }) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [agentName, setAgentName] = useState(INITIAL_NAME);
@@ -317,7 +371,13 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
   );
 }
 
-// Create a custom hook to use the context
+/**
+ * Custom hook to consume the LoomContext.
+ * Provides a convenient and type-safe way to access the application's global state.
+ * This hook must be used within a component wrapped by the LoomProvider.
+ * @returns {LoomContextType} The context value.
+ * @throws {Error} If used outside of a LoomProvider.
+ */
 export const useLoom = (): LoomContextType => {
   const context = useContext(LoomContext);
   if (context === undefined) {

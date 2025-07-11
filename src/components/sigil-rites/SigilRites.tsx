@@ -1,11 +1,36 @@
+
 'use client';
 import { useEffect } from "react";
 import clsx from "clsx";
 import './sigil-rites.css';
 
+/**
+ * @typedef Variant
+ * @description The visual theme variant of the sigil.
+ * @property {'aegis'}
+ * @property {'klepsydra'}
+ * @property {'genesis'}
+ */
 export type Variant = 'aegis' | 'klepsydra' | 'genesis';
+/**
+ * @typedef Ritual
+ * @description The animation state or "ritual" the sigil is performing.
+ * @property {'summon'} - The initial, high-energy activation animation.
+ * @property {'orchestrate'} - An active, processing state animation.
+ * @property {'transmute'} - (Future use) A state for transformation animations.
+ * @property {'idle'} - The default, low-energy ambient state.
+ */
 export type Ritual = 'summon' | 'orchestrate' | 'transmute' | 'idle';
 
+/**
+ * @interface ISigilRitesProps
+ * @description Props for the SigilRites component.
+ * @extends React.HTMLAttributes<HTMLDivElement>
+ * @property {Variant} variant - The visual variant of the sigil.
+ * @property {Ritual} ritual - The current animation ritual to perform.
+ * @property {() => void} [onRitualComplete] - Callback fired when a ritual animation completes.
+ * @property {boolean} [sonicSignature] - If true, logs that sound should be played.
+ */
 interface ISigilRitesProps extends React.HTMLAttributes<HTMLDivElement> {
   variant: Variant;
   ritual: Ritual;
@@ -13,6 +38,13 @@ interface ISigilRitesProps extends React.HTMLAttributes<HTMLDivElement> {
   sonicSignature?: boolean;
 }
 
+/**
+ * Renders a complex, animated SVG sigil that represents the core orchestration engine.
+ * The sigil's appearance and animation are controlled by `variant` and `ritual` props,
+ * allowing it to visually represent different system states (e.g., idle, processing).
+ * @param {ISigilRitesProps} props - The props for the component.
+ * @returns {JSX.Element} The rendered sigil component.
+ */
 export function SigilRites({
   variant = 'aegis',
   ritual = 'idle',

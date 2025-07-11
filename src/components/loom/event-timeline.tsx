@@ -8,6 +8,12 @@ import { useLoom } from './loom-provider';
 import { useEffect, useRef, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 
+/**
+ * Represents the Event Timeline and transport controls for the simulation.
+ * It provides functionality to play, pause, rewind, fast-forward, and scrub through
+ * the agent workflow execution timeline. It also displays the current status and time.
+ * @returns {JSX.Element} The rendered event timeline component.
+ */
 export default function EventTimeline() {
   const {
     timelineProgress,
@@ -27,6 +33,10 @@ export default function EventTimeline() {
   const requestRef = useRef<number>();
   const lastTimeRef = useRef<number>(0);
 
+  /**
+   * The main animation loop for the timeline, driven by `requestAnimationFrame`.
+   * It updates the timeline progress smoothly when in a playing state.
+   */
   const animate = useCallback((time: number) => {
     if (lastTimeRef.current === 0) {
       lastTimeRef.current = time;
@@ -65,12 +75,21 @@ export default function EventTimeline() {
   }, [isPlaying, animate]);
 
 
+  /**
+   * Formats a given number of seconds into a MM:SS string.
+   * @param {number} seconds - The time in seconds.
+   * @returns {string} The formatted time string.
+   */
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
   };
   
+  /**
+   * Handles changes from the timeline slider, updating the progress and pausing playback.
+   * @param {number[]} value - The new value from the slider, as an array.
+   */
   const handleSliderChange = (value: number[]) => {
       setTimelineProgress(value[0]);
       if (isPlaying) {
@@ -81,6 +100,10 @@ export default function EventTimeline() {
   const isRunning = isPlaying && !isFinished;
   const isSimulationStarted = timelineProgress > 0 || isPlaying || isFinished;
 
+  /**
+   * Determines the current status text and styling for the timeline display.
+   * @returns {{ text: string, className: string }} The status text and associated CSS class.
+   */
   const getStatus = () => {
     if (isFinished || timelineProgress >= timelineDuration) return { text: "COMPLETED", className: "text-muted-foreground" };
     if (isRunning) return { text: "STREAMING", className: "text-accent animate-pulse" };

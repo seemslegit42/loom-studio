@@ -16,6 +16,13 @@ import { useLoom } from './loom-provider';
 import type { AnalyzePromptChangeInput } from '@/ai/flows/analyze-prompt-change-schema';
 
 
+/**
+ * The Incantation Editor component provides a side-by-side view for editing and comparing
+ * an "original" and a "modified" agent prompt. It allows the architect to submit these
+ * prompts for analysis, which triggers the AI flows to diff the behaviors, generate a new
+ * avatar, and create a new personality profile.
+ * @returns {JSX.Element} The rendered incantation editor component.
+ */
 export default function IncantationEditor() {
   const { 
     isProcessing, 
@@ -27,6 +34,10 @@ export default function IncantationEditor() {
   } = useLoom();
 
 
+  /**
+   * Handles the form submission, packaging the prompts and calling the update handler.
+   * @param {React.FormEvent} e - The form event.
+   */
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const data: AnalyzePromptChangeInput = { originalPrompt, modifiedPrompt };
