@@ -1,7 +1,7 @@
 
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { LoaderCircle, CheckCircle2, XCircle, CircleSlash, History } from "lucide-react";
+import { LoaderCircle, CheckCircle2, XCircle, History } from "lucide-react";
 import Image from "next/image";
 
 export type NodeStatus = "idle" | "running" | "success" | "error";
@@ -20,7 +20,7 @@ const statusIcons: Record<NodeStatus, React.ReactNode> = {
   error: <XCircle className="text-destructive" />,
 };
 
-const statusBorder: Record<NodeStatus, string> = {
+const statusStyles: Record<NodeStatus, string> = {
     idle: 'border-muted/20',
     running: 'border-primary/50 animate-pulse-glow shadow-primary/20',
     success: 'border-green-500/50',
@@ -31,7 +31,7 @@ export function WorkflowNode({ title, status, children, isImage = false }: Workf
   return (
     <Card className={cn(
         "w-full h-full flex flex-col transition-all duration-300 bg-card/50 backdrop-blur-sm", 
-        statusBorder[status]
+        statusStyles[status]
     )}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">{title}</CardTitle>
