@@ -1,13 +1,24 @@
 'use client';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowRight, LoaderCircle, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '../ui/form';
+import { analyzePromptChange } from '@/ai/flows/analyze-prompt-change-flow';
+import type { AnalyzePromptChangeInput } from '@/ai/flows/analyze-prompt-change-schema';
+import { useToast } from '@/hooks/use-toast';
+import React from 'react';
 
 const incantationSchema = z.object({
   originalPrompt: z.string().min(10, 'Original prompt is too short.'),
@@ -17,17 +28,37 @@ const incantationSchema = z.object({
 type IncantationForm = z.infer<typeof incantationSchema>;
 
 export default function IncantationEditor() {
+  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+
   const form = useForm<IncantationForm>({
     resolver: zodResolver(incantationSchema),
     defaultValues: {
-      originalPrompt: "You are a helpful assistant.",
-      modifiedPrompt: "You are a witty and sarcastic assistant, an expert in puns and dad jokes."
-    }
+      originalPrompt: 'You are a helpful assistant.',
+      modifiedPrompt:
+        'You are a witty and sarcastic assistant, an expert in puns and dad jokes.',
+    },
   });
 
-  const onSubmit = (data: IncantationForm) => {
-    console.log('Applying changes:', data);
-    // Here you would call your AI service to apply the new prompt
+  const onSubmit = async (data: AnalyzePromptChangeInput) => {
+    setIsSubmitting(true);
+    try {
+      const result = await analyzePromptChange(data);
+      toast({
+        title: 'Behavioral Analysis Complete',
+        description: result.analysis,
+      });
+    } catch (error) {
+      console.error('Error analyzing prompt change:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Analysis Failed',
+        description:
+          'Could not analyze the prompt change. Please try again.',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -37,21 +68,28 @@ export default function IncantationEditor() {
           <Sparkles className="w-6 h-6" />
           Incantation Editor
         </CardTitle>
-        <CardDescription>Diff changes to agent behavior in real-time.</CardDescription>
+        <CardDescription>
+          Diff changes to agent behavior in real-time.
+        </CardDescription>
       </CardHeader>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col flex-1">
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="flex flex-col flex-1"
+        >
           <CardContent className="flex-1 grid grid-cols-1 gap-4">
             <FormField
               control={form.control}
               name="originalPrompt"
               render={({ field }) => (
                 <FormItem className="grid gap-2">
-                  <Label htmlFor="original-prompt" className="text-muted-foreground">Original Prompt</Label>
+                  <Label htmlFor="original-prompt" className="text-muted-foreground">
+                    Original Prompt
+                  </Label>
                   <FormControl>
-                    <Textarea 
+                    <Textarea
                       id="original-prompt"
-                      className="h-full bg-background/50 text-base flex-1 resize-none" 
+                      className="h-full bg-background/50 text-base flex-1 resize-none"
                       {...field}
                     />
                   </FormControl>
@@ -64,11 +102,13 @@ export default function IncantationEditor() {
               name="modifiedPrompt"
               render={({ field }) => (
                 <FormItem className="grid gap-2">
-                  <Label htmlFor="modified-prompt" className="text-accent">Modified Prompt</Label>
-                   <FormControl>
-                    <Textarea 
+                  <Label htmlFor="modified-prompt" className="text-accent">
+                    Modified Prompt
+                  </Label>
+                  <FormControl>
+                    <Textarea
                       id="modified-prompt"
-                      className="h-full bg-accent/5 border-accent/50 focus-visible:ring-accent text-base flex-1 resize-none" 
+                      className="h-full bg-accent/5 border-accent/50 focus-visible:ring-accent text-base flex-1 resize-none"
                       {...field}
                     />
                   </FormControl>
@@ -78,9 +118,17 @@ export default function IncantationEditor() {
             />
           </CardContent>
           <CardFooter>
-            <Button type="submit" className="w-full glow-primary">
-              Apply Changes
-              <ArrowRight className="ml-2 h-4 w-4" />
+            <Button
+              type="submit"
+              className="w-full glow-primary"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <LoaderCircle className="animate-spin" />
+              ) : (
+                <ArrowRight />
+              )}
+              Apply & Analyze Changes
             </Button>
           </CardFooter>
         </form>

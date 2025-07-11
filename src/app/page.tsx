@@ -11,7 +11,7 @@ export default function Home() {
         <Sidebar />
         <div className="flex-1 flex flex-col overflow-hidden">
           <Header />
-          <main className="flex-1 p-6 lg:p-8 grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8 overflow-auto">
+          <main className="flex-1 p-6 lg:p-8 grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8 overflow-y-auto">
             <div className="xl:col-span-2 flex flex-col gap-8">
               <VisualWeaver />
             </div>
