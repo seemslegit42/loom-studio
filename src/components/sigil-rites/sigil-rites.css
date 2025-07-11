@@ -1,0 +1,126 @@
+/* === BASE SETUP === */
+.sigil-rites-container {
+    width: 300px;
+    height: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+  
+.sigil-rites {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    color: hsl(var(--primary));
+    transition: color 0.5s ease;
+}
+
+.sigil-core {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+
+.sigil-core * {
+    fill: none;
+    stroke-width: 2;
+    stroke: currentColor;
+    transition: all 0.5s ease-in-out;
+    transform-origin: 100px 100px; /* Center of the 200x200 SVG */
+}
+
+/* === VARIANTS === */
+.variant-klepsydra { color: hsl(var(--primary)); }
+.variant-aegis { color: hsl(var(--accent)); }
+.variant-genesis { color: hsl(var(--gilded-accent)); }
+
+/* === RITUALS (Animation States) === */
+
+/* --- IDLE --- */
+.ritual-idle .base-ring {
+    opacity: 0.2;
+}
+.ritual-idle .arc-1, .ritual-idle .arc-2 {
+    opacity: 0.3;
+    stroke-dasharray: 5 15;
+    animation: spin 30s linear infinite;
+}
+.ritual-idle .arc-2 {
+    animation-direction: reverse;
+}
+.ritual-idle .core-pulse {
+    stroke: none;
+    fill: currentColor;
+    opacity: 0.1;
+    animation: pulse 4s ease-in-out infinite;
+}
+.ritual-idle .agent-glyphs {
+    opacity: 0.4;
+    transform: scale(0.95);
+    animation: spin 45s linear infinite;
+}
+
+/* --- SUMMON --- */
+.ritual-summon .base-ring {
+    opacity: 1;
+    stroke-width: 3;
+    animation: summon-glow 1.5s ease-out;
+}
+.ritual-summon .arc-1, .ritual-summon .arc-2 {
+    stroke-dasharray: 180 300; /* Almost a full circle */
+    stroke-width: 4;
+    opacity: 1;
+    animation: spin-fast 1s ease-in-out, summon-glow 1.5s ease-out;
+}
+.ritual-summon .arc-2 {
+    animation-direction: reverse;
+}
+.ritual-summon .core-pulse {
+    stroke: none;
+    fill: currentColor;
+    opacity: 1;
+    animation: pulse-intense 1s ease-in-out, summon-glow 1.5s ease-out;
+}
+.ritual-summon .agent-glyphs {
+    opacity: 1;
+    animation: glyph-activate 1s ease-out forwards, summon-glow 1.5s ease-out;
+}
+.ritual-summon .agent-glyphs rect {
+    stroke: none;
+    fill: currentColor;
+}
+
+
+/* === KEYFRAMES === */
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes spin-fast {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(720deg); }
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 0.1; }
+    50% { transform: scale(1.1); opacity: 0.2; }
+}
+
+@keyframes pulse-intense {
+    0% { transform: scale(1); opacity: 0.5; }
+    50% { transform: scale(1.3); opacity: 1; }
+    100% { transform: scale(1); opacity: 0.5; }
+}
+
+@keyframes glyph-activate {
+    0% { transform: scale(0.95) rotate(0deg); }
+    50% { transform: scale(1.1) rotate(180deg); }
+    100% { transform: scale(1) rotate(360deg); }
+}
+
+@keyframes summon-glow {
+    0% { filter: drop-shadow(0 0 1px currentColor); }
+    50% { filter: drop-shadow(0 0 15px currentColor); }
+    100% { filter: drop-shadow(0 0 2px currentColor); }
+}

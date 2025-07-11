@@ -10,6 +10,7 @@ import { analyzePromptChange } from '@/ai/flows/analyze-prompt-change-flow';
 import type { AnalyzePromptChangeInput, AnalyzePromptChangeOutput } from '@/ai/flows/analyze-prompt-change-schema';
 import { generateAgentAvatar } from '@/ai/flows/generate-agent-avatar-flow';
 import { analyzeAgentProfile, AnalyzeAgentProfileOutput } from '@/ai/flows/analyze-agent-profile-flow';
+import { useSystemSigilState, Ritual, Variant } from '@/hooks/use-system-sigil-state';
 
 type AgentProfile = AnalyzeAgentProfileOutput['profile'];
 
@@ -20,6 +21,8 @@ interface LoomContextType {
   agentAvatar: string;
   agentProfile: AgentProfile;
   handlePromptUpdate: (data: AnalyzePromptChangeInput) => Promise<AnalyzePromptChangeOutput>;
+  ritual: Ritual;
+  variant: Variant;
 }
 
 // Create the context with a default value
@@ -43,9 +46,11 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
   const [agentName, setAgentName] = useState(INITIAL_NAME);
   const [agentAvatar, setAgentAvatar] = useState(INITIAL_AVATAR);
   const [agentProfile, setAgentProfile] = useState<AgentProfile>(INITIAL_PROFILE);
+  const { ritual, variant, setRitual, setVariant } = useSystemSigilState();
 
   const handlePromptUpdate = async (data: AnalyzePromptChangeInput): Promise<AnalyzePromptChangeOutput> => {
     setIsProcessing(true);
+    setRitual('summon');
     try {
       // Kick off all AI calls in parallel
       const analysisPromise = analyzePromptChange(data);
@@ -74,6 +79,7 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
       throw error; // Re-throw to be caught by the calling component
     } finally {
       setIsProcessing(false);
+      setRitual('idle');
     }
   };
 
@@ -83,6 +89,8 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
     agentAvatar,
     agentProfile,
     handlePromptUpdate,
+    ritual,
+    variant,
   };
 
   return (
