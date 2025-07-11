@@ -14,6 +14,7 @@ import { INITIAL_AVATAR, INITIAL_MODIFIED_PROMPT, INITIAL_NAME, INITIAL_ORIGINAL
 import { type NodeState } from './hall-of-echoes';
 import { SigilRites } from '../sigil-rites/SigilRites';
 import { useSystemSigilState } from '@/hooks/use-system-sigil-state';
+import Sidebar from './sidebar';
 
 type AgentProfile = AnalyzeAgentProfileOutput['profile'];
 
@@ -287,18 +288,21 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
   return (
     <LoomContext.Provider value={value}>
         <div className="bg-transparent text-foreground min-h-screen flex flex-col font-body">
-            <Header />
-            <div className="flex-1 flex flex-col overflow-hidden pt-24">
-                <main className="flex-1 p-6 lg:p-8 flex flex-col gap-6 lg:gap-8 overflow-y-auto">
-                    <div className="flex items-center justify-center">
-                        <SigilRites variant={variant} ritual={ritual} onRitualComplete={() => setRitual('idle')} />
-                    </div>
-                    <div className="flex-1 flex flex-col">
-                        <IncantationEditor />
-                    </div>
-                </main>
+            <div className="flex-1 flex flex-row overflow-hidden">
+                <Sidebar />
+                <div className="flex-1 flex flex-col overflow-hidden">
+                    <Header />
+                    <main className="flex-1 p-6 lg:p-8 flex flex-col gap-6 lg:gap-8 overflow-y-auto pt-24">
+                        <div className="flex items-center justify-center">
+                            <SigilRites variant={variant} ritual={ritual} onRitualComplete={() => setRitual('idle')} />
+                        </div>
+                        <div className="flex-1 flex flex-col">
+                            <IncantationEditor />
+                        </div>
+                    </main>
+                    <EventTimeline />
+                </div>
             </div>
-            <EventTimeline />
         </div>
     </LoomContext.Provider>
   );
