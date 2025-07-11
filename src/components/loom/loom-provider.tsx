@@ -11,10 +11,13 @@ import { generateAgentAvatar } from '@/ai/flows/generate-agent-avatar-flow';
 import { analyzeAgentProfile, AnalyzeAgentProfileOutput } from '@/ai/flows/analyze-agent-profile-flow';
 import { useToast } from '@/hooks/use-toast';
 import { INITIAL_AVATAR, INITIAL_MODIFIED_PROMPT, INITIAL_NAME, INITIAL_ORIGINAL_PROMPT, INITIAL_PROFILE } from './loom-constants';
-import { type NodeState } from './hall-of-echoes';
+import HallOfEchoes, { type NodeState } from './hall-of-echoes';
 import { SigilRites } from '../sigil-rites/SigilRites';
 import { useSystemSigilState } from '@/hooks/use-system-sigil-state';
 import Sidebar from './sidebar';
+import { ConfirmationDialog } from './confirmation-dialog';
+import { Button } from '../ui/button';
+import { FilePlus2 } from 'lucide-react';
 
 type AgentProfile = AnalyzeAgentProfileOutput['profile'];
 
@@ -293,9 +296,7 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
                 <div className="flex-1 flex flex-col overflow-hidden">
                     <Header />
                     <main className="flex-1 p-6 lg:p-8 flex flex-col gap-6 lg:gap-8 overflow-y-auto pt-24">
-                        <div className="flex items-center justify-center">
-                            <SigilRites variant={variant} ritual={ritual} onRitualComplete={() => setRitual('idle')} />
-                        </div>
+                        <HallOfEchoes />
                         <div className="flex-1 flex flex-col">
                             <IncantationEditor />
                         </div>
