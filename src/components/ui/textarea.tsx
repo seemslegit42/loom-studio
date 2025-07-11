@@ -2,7 +2,23 @@ import * as React from 'react';
 
 import {cn} from '@/lib/utils';
 
-const Textarea = React.forwardRef<HTMLTextAreaElement, React.ComponentProps<'textarea'>>(
+/**
+ * @interface TextareaProps
+ * @description Extends standard HTMLTextAreaElement attributes for the Textarea component.
+ */
+export interface TextareaProps
+  extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {}
+
+/**
+ * A themed, resizable textarea component for multiline text input.
+ * This component is a fundamental building block for any interface requiring user input,
+ * such as the Incantation Editor for crafting agent prompts. It is styled to seamlessly
+ * integrate with the "Ancient Roman Glass" aesthetic of the application.
+ *
+ * @param {TextareaProps} props - The props for the component.
+ * @returns {JSX.Element} The rendered textarea element.
+ */
+const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
   ({className, ...props}, ref) => {
     return (
       <textarea
