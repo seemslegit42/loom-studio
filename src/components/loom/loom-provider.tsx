@@ -13,6 +13,8 @@ import { analyzeAgentProfile, AnalyzeAgentProfileOutput } from '@/ai/flows/analy
 import { useToast } from '@/hooks/use-toast';
 import { INITIAL_AVATAR, INITIAL_MODIFIED_PROMPT, INITIAL_NAME, INITIAL_ORIGINAL_PROMPT, INITIAL_PROFILE } from './loom-constants';
 import HallOfEchoes, { type NodeState } from './hall-of-echoes';
+import { SigilRites } from '../sigil-rites/SigilRites';
+import { useSystemSigilState } from '@/hooks/use-system-sigil-state';
 
 type AgentProfile = AnalyzeAgentProfileOutput['profile'];
 
@@ -91,6 +93,7 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
   
   // View state
   const [workflowNodes, setWorkflowNodes] = useState<NodeState[]>(INITIAL_WORKFLOW_NODES);
+  const { variant, ritual, setRitual } = useSystemSigilState();
 
   // Engine Tuning State
   const [creativity, setCreativity] = useState(65);
@@ -104,24 +107,30 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
   const timelineDuration = 90; // in seconds
 
   const runSimulation = useCallback(() => {
+    setRitual('summon');
     setIsPlaying(true);
     setIsFinished(false);
     setTimelineProgress(0);
-  }, []);
+  }, [setRitual]);
 
   const resetSimulation = useCallback(() => {
+    setRitual('idle');
     setIsPlaying(false);
     setIsFinished(false);
     setTimelineProgress(0);
-  }, []);
+  }, [setRitual]);
 
   const play = useCallback(() => {
-    if (!isFinished) setIsPlaying(true);
-  }, [isFinished]);
+    if (!isFinished) {
+      setIsPlaying(true);
+      setRitual('orchestrate');
+    }
+  }, [isFinished, setRitual]);
 
   const pause = useCallback(() => {
     setIsPlaying(false);
-  }, []);
+    setRitual('idle');
+  }, [setRitual]);
 
   const rewind = useCallback(() => {
     setTimelineProgress(prev => Math.max(0, prev - 5));
@@ -285,7 +294,7 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
                   <Header />
                   <main className="flex-1 p-6 lg:p-8 flex flex-col gap-6 lg:gap-8 overflow-y-auto">
                       <div className="flex items-center justify-center">
-                         <HallOfEchoes />
+                         <SigilRites variant={variant} ritual={ritual} onRitualComplete={() => setRitual('idle')} />
                       </div>
                       <div className="flex-1 flex flex-col">
                           <IncantationEditor />
@@ -307,3 +316,5 @@ export const useLoom = (): LoomContextType => {
   }
   return context;
 };
+
+    
