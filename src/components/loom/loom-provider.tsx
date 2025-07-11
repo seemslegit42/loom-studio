@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import Header from '@/components/loom/header';
 import Sidebar from '@/components/loom/sidebar';
-import VisualWeaver from '@/components/loom/visual-weaver';
+import VisualWeaver, { WorkflowState } from '@/components/loom/visual-weaver';
 import IncantationEditor from '@/components/loom/incantation-editor';
 import EventTimeline from '@/components/loom/event-timeline';
 
@@ -11,6 +11,7 @@ import type { AnalyzePromptChangeInput, AnalyzePromptChangeOutput } from '@/ai/f
 import { generateAgentAvatar } from '@/ai/flows/generate-agent-avatar-flow';
 import { analyzeAgentProfile, AnalyzeAgentProfileOutput } from '@/ai/flows/analyze-agent-profile-flow';
 import { useSystemSigilState, Ritual, Variant } from '@/hooks/use-system-sigil-state';
+import { toast } from '@/hooks/use-toast';
 
 type AgentProfile = AnalyzeAgentProfileOutput['profile'];
 
@@ -20,9 +21,10 @@ interface LoomContextType {
   agentName: string;
   agentAvatar: string;
   agentProfile: AgentProfile;
-  handlePromptUpdate: (data: AnalyzePromptChangeInput) => Promise<AnalyzePromptChangeOutput>;
+  handlePromptUpdate: (data: AnalyzePromptChangeInput) => Promise<void>;
   ritual: Ritual;
   variant: Variant;
+  workflowState: WorkflowState;
 }
 
 // Create the context with a default value
@@ -40,43 +42,77 @@ const INITIAL_PROFILE: AgentProfile = [
   { "trait": "Whimsy", "value": 50 }
 ];
 
+const INITIAL_WORKFLOW_STATE: WorkflowState = {
+    analysis: { title: 'Analyze Behavior', status: 'idle', content: null },
+    avatar: { title: 'Generate Avatar', status: 'idle', content: null },
+    profile: { title: 'Profile Personality', status: 'idle', content: null },
+};
+
+
 // Create the provider component
 export default function LoomProvider({ children }: { children?: ReactNode }) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [agentName, setAgentName] = useState(INITIAL_NAME);
   const [agentAvatar, setAgentAvatar] = useState(INITIAL_AVATAR);
   const [agentProfile, setAgentProfile] = useState<AgentProfile>(INITIAL_PROFILE);
+  const [workflowState, setWorkflowState] = useState<WorkflowState>(INITIAL_WORKFLOW_STATE);
   const { ritual, variant, setRitual, setVariant } = useSystemSigilState();
 
-  const handlePromptUpdate = async (data: AnalyzePromptChangeInput): Promise<AnalyzePromptChangeOutput> => {
+  const handlePromptUpdate = async (data: AnalyzePromptChangeInput): Promise<void> => {
     setIsProcessing(true);
     setRitual('summon');
-    try {
-      // Kick off all AI calls in parallel
-      const analysisPromise = analyzePromptChange(data);
-      const avatarPromise = generateAgentAvatar({ prompt: data.modifiedPrompt });
-      const profilePromise = analyzeAgentProfile({ prompt: data.modifiedPrompt });
+    setWorkflowState({
+        analysis: { ...INITIAL_WORKFLOW_STATE.analysis, status: 'running' },
+        avatar: { ...INITIAL_WORKFLOW_STATE.avatar, status: 'running' },
+        profile: { ...INITIAL_WORKFLOW_STATE.profile, status: 'running' },
+    });
 
-      // Await all results
-      const [analysisResult, avatarResult, profileResult] = await Promise.all([
-        analysisPromise,
-        avatarPromise,
-        profilePromise
+    try {
+      const results = await Promise.allSettled([
+        analyzePromptChange(data),
+        generateAgentAvatar({ prompt: data.modifiedPrompt }),
+        analyzeAgentProfile({ prompt: data.modifiedPrompt })
       ]);
       
-      // Update state with the new results
-      setAgentAvatar(avatarResult.avatarDataUri);
-      setAgentName(profileResult.name);
-      setAgentProfile(profileResult.profile);
+      const [analysisResult, avatarResult, profileResult] = results;
 
-      return analysisResult;
+      if (analysisResult.status === 'fulfilled') {
+        toast({ title: 'Behavioral Analysis Complete', description: analysisResult.value.analysis });
+        setWorkflowState(prev => ({ ...prev, analysis: { ...prev.analysis, status: 'success', content: analysisResult.value.analysis }}));
+      } else {
+        console.error("Analysis failed:", analysisResult.reason);
+        setWorkflowState(prev => ({ ...prev, analysis: { ...prev.analysis, status: 'error', content: 'Analysis failed' }}));
+      }
+
+      if (avatarResult.status === 'fulfilled') {
+        setAgentAvatar(avatarResult.value.avatarDataUri);
+        setWorkflowState(prev => ({ ...prev, avatar: { ...prev.avatar, status: 'success', content: avatarResult.value.avatarDataUri }}));
+      } else {
+        console.error("Avatar generation failed:", avatarResult.reason);
+        setWorkflowState(prev => ({ ...prev, avatar: { ...prev.avatar, status: 'error', content: 'Avatar generation failed' }}));
+      }
+
+      if (profileResult.status === 'fulfilled') {
+        setAgentName(profileResult.value.name);
+        setAgentProfile(profileResult.value.profile);
+        setWorkflowState(prev => ({ ...prev, profile: { ...prev.profile, status: 'success', content: `${profileResult.value.name} profile updated` }}));
+      } else {
+        console.error("Profile analysis failed:", profileResult.reason);
+        setWorkflowState(prev => ({ ...prev, profile: { ...prev.profile, status: 'error', content: 'Profile analysis failed' }}));
+      }
+
     } catch (error) {
       console.error("An error occurred during prompt update processing:", error);
-      // Optionally reset to a safe state or show an error
+      toast({ variant: 'destructive', title: 'System Error', description: 'A critical error occurred.' });
+      setWorkflowState({
+        analysis: { ...INITIAL_WORKFLOW_STATE.analysis, status: 'error', content: 'System Error' },
+        avatar: { ...INITIAL_WORKFLOW_STATE.avatar, status: 'error', content: 'System Error' },
+        profile: { ...INITIAL_WORKFLOW_STATE.profile, status: 'error', content: 'System Error' },
+      });
+      // Optionally reset to a safe state
       setAgentAvatar(INITIAL_AVATAR);
       setAgentName(INITIAL_NAME);
       setAgentProfile(INITIAL_PROFILE);
-      throw error; // Re-throw to be caught by the calling component
     } finally {
       setIsProcessing(false);
       setRitual('idle');
@@ -91,6 +127,7 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
     handlePromptUpdate,
     ritual,
     variant,
+    workflowState,
   };
 
   return (
@@ -100,11 +137,13 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
                 <Sidebar />
                 <div className="flex-1 flex flex-col overflow-hidden">
                 <Header />
-                <main className="flex-1 p-6 lg:p-8 grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8 overflow-y-auto">
-                    <div className="xl:col-span-2 flex flex-col gap-8">
+                <main className="flex-1 p-6 lg:p-8 grid grid-cols-1 xl:grid-cols-5 gap-6 lg:gap-8 overflow-y-auto">
+                    <div className="xl:col-span-3 flex flex-col gap-8">
                     <VisualWeaver />
                     </div>
-                    <IncantationEditor />
+                    <div className="xl:col-span-2">
+                        <IncantationEditor />
+                    </div>
                 </main>
                 </div>
             </div>

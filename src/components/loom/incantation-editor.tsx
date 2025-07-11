@@ -15,7 +15,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '../ui/form';
-import { useToast } from '@/hooks/use-toast';
 import { useLoom } from './loom-provider';
 import type { AnalyzePromptChangeInput } from '@/ai/flows/analyze-prompt-change-schema';
 
@@ -28,7 +27,6 @@ const incantationSchema = z.object({
 type IncantationForm = z.infer<typeof incantationSchema>;
 
 export default function IncantationEditor() {
-  const { toast } = useToast();
   const { isProcessing, handlePromptUpdate } = useLoom();
 
   const form = useForm<IncantationForm>({
@@ -41,21 +39,7 @@ export default function IncantationEditor() {
   });
 
   const onSubmit = async (data: AnalyzePromptChangeInput) => {
-    try {
-      const result = await handlePromptUpdate(data);
-      toast({
-        title: 'Behavioral Analysis Complete',
-        description: result.analysis,
-      });
-    } catch (error) {
-      console.error('Error analyzing prompt change:', error);
-      toast({
-        variant: 'destructive',
-        title: 'Analysis Failed',
-        description:
-          'Could not analyze the prompt change. Please try again.',
-      });
-    }
+    await handlePromptUpdate(data);
   };
 
   return (
@@ -79,7 +63,7 @@ export default function IncantationEditor() {
               control={form.control}
               name="originalPrompt"
               render={({ field }) => (
-                <FormItem className="grid gap-2">
+                <FormItem className="grid gap-2 h-full">
                   <Label htmlFor="original-prompt" className="text-muted-foreground">
                     Original Prompt
                   </Label>
@@ -98,7 +82,7 @@ export default function IncantationEditor() {
               control={form.control}
               name="modifiedPrompt"
               render={({ field }) => (
-                <FormItem className="grid gap-2">
+                <FormItem className="grid gap-2 h-full">
                   <Label htmlFor="modified-prompt" className="text-accent">
                     Modified Prompt
                   </Label>
