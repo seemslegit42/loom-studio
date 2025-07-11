@@ -1,6 +1,6 @@
 
 'use client';
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useCallback } from 'react';
 import Header from '@/components/loom/header';
 import Sidebar from '@/components/loom/sidebar';
 import IncantationEditor from '@/components/loom/incantation-editor';
@@ -45,6 +45,19 @@ interface LoomContextType {
   restoreSnapshot: (id: string) => void;
   deleteSnapshot: (id: string) => void;
   resetToInitialState: () => void;
+
+  // Timeline State
+  timelineProgress: number;
+  setTimelineProgress: (progress: number) => void;
+  timelineDuration: number;
+  isPlaying: boolean;
+  isFinished: boolean;
+  play: () => void;
+  pause: () => void;
+  rewind: () => void;
+  fastForward: () => void;
+  runSimulation: () => void;
+  resetSimulation: () => void;
 }
 
 // Create the context with a default value
@@ -63,6 +76,40 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
   const [snapshots, setSnapshots] = useState<Snapshot[]>([]);
   const { toast } = useToast();
 
+  // Timeline State
+  const [timelineProgress, setTimelineProgress] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isFinished, setIsFinished] = useState(false);
+  const timelineDuration = 90; // in seconds
+
+  const runSimulation = useCallback(() => {
+    setIsPlaying(true);
+    setIsFinished(false);
+    setTimelineProgress(0);
+  }, []);
+
+  const resetSimulation = useCallback(() => {
+    setIsPlaying(false);
+    setIsFinished(false);
+    setTimelineProgress(0);
+  }, []);
+
+  const play = useCallback(() => {
+    if (!isFinished) setIsPlaying(true);
+  }, [isFinished]);
+
+  const pause = useCallback(() => {
+    setIsPlaying(false);
+  }, []);
+
+  const rewind = useCallback(() => {
+    setTimelineProgress(prev => Math.max(0, prev - 5));
+  }, []);
+
+  const fastForward = useCallback(() => {
+    setTimelineProgress(prev => Math.min(timelineDuration, prev + 5));
+  }, [timelineDuration]);
+
   const resetToInitialState = () => {
     setIsProcessing(false);
     setRitual('idle');
@@ -71,6 +118,7 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
     setAgentProfile(INITIAL_PROFILE);
     setOriginalPrompt(INITIAL_ORIGINAL_PROMPT);
     setModifiedPrompt(INITIAL_MODIFIED_PROMPT);
+    resetSimulation();
     toast({ title: "Workspace Cleared", description: "Ready to create a new agent." });
   };
 
@@ -173,6 +221,18 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
     restoreSnapshot,
     deleteSnapshot,
     resetToInitialState,
+
+    timelineProgress,
+    setTimelineProgress,
+    timelineDuration,
+    isPlaying,
+    isFinished,
+    play,
+    pause,
+    rewind,
+    fastForward,
+    runSimulation,
+    resetSimulation
   };
 
   return (
