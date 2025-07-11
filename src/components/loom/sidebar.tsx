@@ -60,7 +60,20 @@ const chartConfig = {
 
 
 export default function Sidebar() {
-  const { agentName, agentProfile, snapshots, captureSnapshot, restoreSnapshot, deleteSnapshot } = useLoom();
+  const { 
+    agentName, 
+    agentProfile, 
+    snapshots, 
+    captureSnapshot, 
+    restoreSnapshot, 
+    deleteSnapshot,
+    creativity,
+    setCreativity,
+    riskAversion,
+    setRiskAversion,
+    transmutationTithe,
+    setTransmutationTithe,
+  } = useLoom();
 
   return (
     <aside className="w-80 shrink-0 bg-card/30 border-r-2 border-gilded-accent/20 glow-gilded flex flex-col">
@@ -152,15 +165,15 @@ export default function Sidebar() {
                 <div className="space-y-6">
                   <div className="grid gap-2">
                     <Label htmlFor="creativity">Creativity</Label>
-                    <Slider id="creativity" defaultValue={[65]} max={100} step={1} />
+                    <Slider id="creativity" value={[creativity]} onValueChange={([val]) => setCreativity(val)} max={100} step={1} />
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="risk-aversion">Risk Aversion</Label>
-                    <Slider id="risk-aversion" defaultValue={[20]} max={100} step={1} />
+                    <Slider id="risk-aversion" value={[riskAversion]} onValueChange={([val]) => setRiskAversion(val)} max={100} step={1} />
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="transmutation-tithe">Transmutation Tithe</Label>
-                    <Slider id="transmutation-tithe" defaultValue={[10]} max={100} step={1} />
+                    <Slider id="transmutation-tithe" value={[transmutationTithe]} onValueChange={([val]) => setTransmutationTithe(val)} max={100} step={1} />
                   </div>
                 </div>
               </AccordionContent>

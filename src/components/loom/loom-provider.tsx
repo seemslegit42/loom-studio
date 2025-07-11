@@ -48,6 +48,14 @@ interface LoomContextType {
   deleteSnapshot: (id: string) => void;
   resetToInitialState: () => void;
 
+  // Engine Tuning State
+  creativity: number;
+  setCreativity: (value: number) => void;
+  riskAversion: number;
+  setRiskAversion: (value: number) => void;
+  transmutationTithe: number;
+  setTransmutationTithe: (value: number) => void;
+
   // Timeline State
   timelineProgress: number;
   setTimelineProgress: (progress: number) => void;
@@ -85,6 +93,11 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
   // View state
   const [mainView, setMainView] = useState<MainView>('sigil');
   const [workflowNodes, setWorkflowNodes] = useState<NodeState[]>([]);
+
+  // Engine Tuning State
+  const [creativity, setCreativity] = useState(65);
+  const [riskAversion, setRiskAversion] = useState(20);
+  const [transmutationTithe, setTransmutationTithe] = useState(10);
 
   // Timeline State
   const [timelineProgress, setTimelineProgress] = useState(0);
@@ -234,6 +247,13 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
     restoreSnapshot,
     deleteSnapshot,
     resetToInitialState,
+
+    creativity,
+    setCreativity: (val: number) => setCreativity(val),
+    riskAversion,
+    setRiskAversion: (val: number) => setRiskAversion(val),
+    transmutationTithe,
+    setTransmutationTithe: (val: number) => setTransmutationTithe(val),
 
     timelineProgress,
     setTimelineProgress,
