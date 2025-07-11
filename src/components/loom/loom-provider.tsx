@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { INITIAL_AVATAR, INITIAL_MODIFIED_PROMPT, INITIAL_NAME, INITIAL_ORIGINAL_PROMPT, INITIAL_PROFILE } from './loom-constants';
 import HallOfEchoes, { type NodeState } from './hall-of-echoes';
 import Sidebar from './sidebar';
+import { cn } from '@/lib/utils';
 
 type AgentProfile = AnalyzeAgentProfileOutput['profile'];
 
@@ -101,6 +102,8 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
   const timelineDuration = 90; // in seconds
+
+  const [isSandboxMode, setIsSandboxMode] = useState(true);
 
   useEffect(() => {
     if (timelineProgress >= timelineDuration) {
@@ -290,7 +293,10 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
 
   return (
     <LoomContext.Provider value={value}>
-        <div className="bg-transparent text-foreground min-h-screen flex flex-col font-body">
+        <div className={cn(
+          "bg-transparent text-foreground min-h-screen flex flex-col font-body transition-shadow duration-500",
+          isSandboxMode && "sandbox-mode"
+        )}>
             <div className="flex-1 flex flex-row overflow-hidden">
                 <Sidebar />
                 <div className="flex-1 flex flex-col overflow-hidden">
