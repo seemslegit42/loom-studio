@@ -27,12 +27,15 @@ import {
   Bot,
   TestTube2,
   Settings2,
+  Shield,
+  History,
 } from 'lucide-react';
 import { LoomStudioLogo } from './logo';
 import { useLoom } from './loom-provider';
 import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, Radar } from 'recharts';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '../ui/chart';
 import { formatDistanceToNow } from 'date-fns';
+import { ConfirmationDialog } from './confirmation-dialog';
 
 const agentData = {
   certification: 'AIC Certified',
@@ -85,7 +88,7 @@ export default function Sidebar() {
       <ScrollArea className="flex-1">
         <Accordion
           type="multiple"
-          defaultValue={['dna', 'tuning', 'snapshots']}
+          defaultValue={['dna', 'chronoscope', 'loom-of-fates']}
           className="w-full"
         >
           <AccordionItem value="dna" className="border-b-0">
@@ -150,50 +153,24 @@ export default function Sidebar() {
             </Card>
           </AccordionItem>
 
-          <AccordionItem value="tuning" className="border-b-0">
+          <AccordionItem value="chronoscope" className="border-b-0">
             <Card className="rounded-none border-0 border-b border-border/50 bg-transparent">
               <CardHeader className="p-0">
                 <AccordionTrigger className="p-4 font-headline text-lg hover:no-underline flex items-center gap-2">
-                  <Settings2 /> Engine Tuning
-                </AccordionTrigger>
-              </CardHeader>
-              <AccordionContent className="p-4 pt-0">
-                <CardDescription className="mb-4">
-                  Tune the KLEPSYDRA Engine's parameters.
-                </CardDescription>
-                <div className="space-y-6">
-                  <div className="grid gap-2">
-                    <Label htmlFor="creativity">Creativity</Label>
-                    <Slider id="creativity" value={[creativity]} onValueChange={([val]) => setCreativity(val)} max={100} step={1} />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="risk-aversion">Risk Aversion</Label>
-                    <Slider id="risk-aversion" value={[riskAversion]} onValueChange={([val]) => setRiskAversion(val)} max={100} step={1} />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="transmutation-tithe">Transmutation Tithe</Label>
-                    <Slider id="transmutation-tithe" value={[transmutationTithe]} onValueChange={([val]) => setTransmutationTithe(val)} max={100} step={1} />
-                  </div>
-                </div>
-              </AccordionContent>
-            </Card>
-          </AccordionItem>
-
-          <AccordionItem value="snapshots" className="border-b-0">
-            <Card className="rounded-none border-0 border-b border-border/50 bg-transparent">
-              <CardHeader className="p-0">
-                <AccordionTrigger className="p-4 font-headline text-lg hover:no-underline">
-                  Behavioral Snapshots
+                  <History /> The Chronoscope
                 </AccordionTrigger>
               </CardHeader>
               <AccordionContent className="p-4 pt-0 space-y-3">
+                <CardDescription className="mb-4">
+                  Capture and replay the agent's state to analyze behavior.
+                </CardDescription>
                 <Button variant="outline" className="w-full" onClick={captureSnapshot}>
                   <Camera className="mr-2 h-4 w-4" />
-                  Capture New Snapshot
+                  Capture Behavioral Snapshot
                 </Button>
                 <div className="space-y-2">
                   {snapshots.length === 0 && (
-                    <p className="text-xs text-muted-foreground text-center p-4">No snapshots captured yet.</p>
+                    <p className="text-xs text-muted-foreground text-center p-4">No snapshots captured.</p>
                   )}
                   {snapshots.map(snapshot => (
                     <div
@@ -206,34 +183,73 @@ export default function Sidebar() {
                           {formatDistanceToNow(snapshot.capturedAt, { addSuffix: true })}
                         </p>
                       </button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => deleteSnapshot(snapshot.id)}
-                        className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                       <ConfirmationDialog
+                          title="Delete Snapshot?"
+                          description={`Are you sure you want to delete the snapshot for "${snapshot.agentName}"? This action cannot be undone.`}
+                          onConfirm={() => deleteSnapshot(snapshot.id)}
+                          actionLabel="Delete"
+                       >
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                       </ConfirmationDialog>
                     </div>
                   ))}
                 </div>
               </AccordionContent>
             </Card>
           </AccordionItem>
-          <AccordionItem value="experiments" className="border-b-0">
+          
+          <AccordionItem value="loom-of-fates" className="border-b-0">
+            <Card className="rounded-none border-0 border-b border-border/50 bg-transparent">
+              <CardHeader className="p-0">
+                <AccordionTrigger className="p-4 font-headline text-lg hover:no-underline flex items-center gap-2">
+                  <Settings2 /> The Loom of Fates
+                </AccordionTrigger>
+              </CardHeader>
+              <AccordionContent className="p-4 pt-0">
+                <CardDescription className="mb-4">
+                  Tune the Profit Dials of the KLEPSYDRA Engine.
+                </CardDescription>
+                <div className="space-y-6">
+                  <div className="grid gap-2">
+                    <Label htmlFor="creativity">Base RTR</Label>
+                    <Slider id="creativity" value={[creativity]} onValueChange={([val]) => setCreativity(val)} max={100} step={1} />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="risk-aversion">Pity Boon Threshold</Label>
+                    <Slider id="risk-aversion" value={[riskAversion]} onValueChange={([val]) => setRiskAversion(val)} max={100} step={1} />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="transmutation-tithe">Transmutation Tithe</Label>
+                    <Slider id="transmutation-tithe" value={[transmutationTithe]} onValueChange={([val]) => setTransmutationTithe(val)} max={100} step={1} />
+                  </div>
+                </div>
+              </AccordionContent>
+            </Card>
+          </AccordionItem>
+
+          <AccordionItem value="aegis-anvil" className="border-b-0">
             <Card className="rounded-none border-0 bg-transparent">
               <CardHeader className="p-0">
-                <AccordionTrigger className="p-4 font-headline text-lg hover:no-underline">
-                  Experiments
+                <AccordionTrigger className="p-4 font-headline text-lg hover:no-underline flex items-center gap-2">
+                  <Shield /> The Aegis Anvil
                 </AccordionTrigger>
               </CardHeader>
               <AccordionContent className="p-4 pt-0 space-y-3">
+                <CardDescription className="mb-4">
+                  Forge automated SOAR playbooks to secure the system.
+                </CardDescription>
                 <Button
                   variant="outline"
                   className="w-full border-accent/50 text-accent hover:bg-accent/20"
                 >
                   <TestTube2 className="mr-2 h-4 w-4" />
-                  Start New Experiment
+                  Design New Playbook
                 </Button>
               </AccordionContent>
             </Card>
