@@ -21,7 +21,8 @@ export function SigilRites({
   ...props
 }: ISigilRitesProps) {
   useEffect(() => {
-    // Ritual lifecycle hooks (stubbed)
+    if (ritual === 'idle') return;
+
     console.log(`Ritual started: ${ritual}`);
     if (sonicSignature) {
       console.log(`⚡️ Sonic Signature Activated: ${variant} + ${ritual}`);
@@ -29,9 +30,12 @@ export function SigilRites({
     }
     
     const sigilCore = document.querySelector('.sigil-core');
-    const handleAnimationEnd = () => {
-      onRitualComplete?.();
-      console.log(`Ritual completed: ${ritual}`);
+    const handleAnimationEnd = (event: AnimationEvent) => {
+      // Ensure we only trigger completion on the intended animation
+      if (event.animationName === 'summon-glow') {
+        onRitualComplete?.();
+        console.log(`Ritual completed: ${ritual}`);
+      }
     };
 
     sigilCore?.addEventListener('animationend', handleAnimationEnd);

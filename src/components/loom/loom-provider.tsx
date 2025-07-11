@@ -73,6 +73,7 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
   const [modifiedPrompt, setModifiedPrompt] = useState(INITIAL_MODIFIED_PROMPT);
   const { ritual, variant, setRitual, setVariant } = useSystemSigilState();
   const [snapshots, setSnapshots] = useState<Snapshot[]>([]);
+  const { toast } = useToast();
 
   const handlePromptUpdate = async (data: AnalyzePromptChangeInput): Promise<void> => {
     setIsProcessing(true);
@@ -98,6 +99,7 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
         setAgentAvatar(avatarResult.value.avatarDataUri);
       } else {
         console.error("Avatar generation failed:", avatarResult.reason);
+        setAgentAvatar(INITIAL_AVATAR);
         toast({ variant: 'destructive', title: 'Error', description: 'Avatar generation failed.' });
       }
 
@@ -106,6 +108,8 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
         setAgentProfile(profileResult.value.profile);
       } else {
         console.error("Profile analysis failed:", profileResult.reason);
+        setAgentName(INITIAL_NAME);
+        setAgentProfile(INITIAL_PROFILE);
         toast({ variant: 'destructive', title: 'Error', description: 'Profile analysis failed.' });
       }
 
@@ -117,7 +121,7 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
       setAgentProfile(INITIAL_PROFILE);
     } finally {
       setIsProcessing(false);
-      setRitual('idle');
+      // The ritual state will be set back to 'idle' by the onRitualComplete callback in SigilRites
     }
   };
 
@@ -149,7 +153,7 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
 
   const deleteSnapshot = (id: string) => {
     setSnapshots(prev => prev.filter(s => s.id !== id));
-    toast({ variant: 'destructive', title: 'Snapshot Deleted', description: 'The selected snapshot has been removed.' });
+    toast({ title: 'Snapshot Deleted', description: 'The selected snapshot has been removed.' });
   };
 
 
@@ -180,7 +184,7 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
                 <Header />
                 <main className="flex-1 p-6 lg:p-8 grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8 overflow-y-auto">
                     <div className="flex items-center justify-center">
-                      <SigilRites ritual={ritual} variant={variant} />
+                      <SigilRites ritual={ritual} variant={variant} onRitualComplete={() => setRitual('idle')} />
                     </div>
                     <div className="xl:col-span-1">
                         <IncantationEditor />
