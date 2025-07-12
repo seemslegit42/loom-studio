@@ -10,6 +10,7 @@ import { WorkflowNodePalette } from "./workflow-node-palette";
 import { WorkflowNode } from "./workflow-node";
 import { SigilRites } from "../sigil-rites/SigilRites";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
+import { AgentTaskConfig } from "./agent-task-config";
 
 /**
  * The centerpiece of Loom Studio, providing the Agent Orchestration Canvas
@@ -122,10 +123,14 @@ export default function WorkflowDesigner() {
                             </Alert>
                         </div>
                     ) : (
-                        <div className="space-y-4">
-                           <p className="text-sm text-muted-foreground">
-                                Configuration for <span className="text-accent">{selectedNode}</span> will appear here.
-                           </p>
+                        <div>
+                            {selectedNode === 'Agent Task' ? (
+                                <AgentTaskConfig />
+                            ) : (
+                                <p className="text-sm text-muted-foreground">
+                                    Configuration for <span className="text-accent">{selectedNode}</span> will appear here.
+                               </p>
+                            )}
                         </div>
                     )}
                 </div>
