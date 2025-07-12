@@ -1,4 +1,4 @@
-import { Cpu, PlayCircle, Waypoints, Zap } from "lucide-react";
+import { Cpu, PlayCircle, Waypoints, Zap, Split, Webhook, Combine, MessageSquarePlus } from "lucide-react";
 import { PaletteNode } from "./palette-node";
 import { ScrollArea } from "../ui/scroll-area";
 
@@ -12,11 +12,29 @@ export function WorkflowNodePalette() {
     return (
         <ScrollArea className="h-full">
             <div className="flex flex-col gap-3 pr-4">
+                {/* Flow Control */}
                 <PaletteNode 
                     icon={PlayCircle} 
                     title="Start Node" 
                     description="The initiation point of a workflow." 
                 />
+                 <PaletteNode 
+                    icon={Waypoints} 
+                    title="End Node" 
+                    description="The termination point of a workflow." 
+                />
+                 <PaletteNode 
+                    icon={Split} 
+                    title="Condition" 
+                    description="Branch logic based on data evaluation." 
+                />
+                <PaletteNode 
+                    icon={Webhook} 
+                    title="Trigger" 
+                    description="Initiate workflow from an external event." 
+                />
+
+                {/* Agent & Actions */}
                  <PaletteNode 
                     icon={Cpu} 
                     title="Agent Task" 
@@ -27,10 +45,17 @@ export function WorkflowNodePalette() {
                     title="API Call" 
                     description="Interact with an external API." 
                 />
-                 <PaletteNode 
-                    icon={Waypoints} 
-                    title="End Node" 
-                    description="The termination point of a workflow." 
+
+                {/* Data & Prompts */}
+                <PaletteNode 
+                    icon={Combine} 
+                    title="Data Transform" 
+                    description="Manipulate data within the workflow." 
+                />
+                <PaletteNode 
+                    icon={MessageSquarePlus} 
+                    title="Prompt" 
+                    description="Directly inject or modify LLM prompts." 
                 />
             </div>
         </ScrollArea>
