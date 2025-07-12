@@ -1,13 +1,13 @@
 
 'use client';
 
-import { SigilRites } from "../sigil-rites/SigilRites";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
-import { ChevronDown, Terminal } from "lucide-react";
+import { ChevronDown, Terminal, PlayCircle, Cpu, Waypoints } from "lucide-react";
 import { useState } from "react";
 import { WorkflowNodePalette } from "./workflow-node-palette";
+import { WorkflowNode } from "./workflow-node";
 
 /**
  * The centerpiece of Loom Studio, providing the Agent Orchestration Canvas
@@ -31,7 +31,24 @@ export default function WorkflowDesigner() {
                         {/* The Canvas */}
                         <div className="h-full w-full flex items-center justify-center p-8 bg-background relative overflow-hidden">
                              <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.3),rgba(255,255,255,0))]"></div>
-                            <SigilRites ritual="idle" variant="klepsydra" />
+                             {/* Workflow Nodes */}
+                            <div className="relative flex items-center gap-16">
+                                <WorkflowNode icon={PlayCircle} title="Start Node" />
+                                
+                                <svg width="64" height="2" viewBox="0 0 64 2" fill="none" xmlns="http://www.w3.org/2000/svg" className="absolute left-[192px] stroke-border/80">
+                                    <path d="M0 1H64" stroke="currentColor" strokeWidth="2" strokeDasharray="4 4"/>
+                                    <path d="M56 -6L66 1L56 8" stroke="currentColor" strokeWidth="2"/>
+                                </svg>
+
+                                <WorkflowNode icon={Cpu} title="Agent Task" />
+
+                                <svg width="64" height="2" viewBox="0 0 64 2" fill="none" xmlns="http://www.w3.org/2000/svg" className="absolute left-[448px] stroke-border/80">
+                                    <path d="M0 1H64" stroke="currentColor" strokeWidth="2" strokeDasharray="4 4"/>
+                                    <path d="M56 -6L66 1L56 8" stroke="currentColor" strokeWidth="2"/>
+                                </svg>
+
+                                <WorkflowNode icon={Waypoints} title="End Node" />
+                            </div>
                         </div>
                     </ResizablePanel>
                     <ResizableHandle withHandle className={cn(!isConsoleOpen && "hidden")}/>
@@ -66,3 +83,4 @@ export default function WorkflowDesigner() {
         </div>
     );
 }
+
