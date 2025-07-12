@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { ChevronDown, Terminal } from "lucide-react";
 import { useState } from "react";
+import { WorkflowNodePalette } from "./workflow-node-palette";
 
 /**
  * The centerpiece of Loom Studio, providing the Agent Orchestration Canvas
@@ -18,11 +19,9 @@ export default function WorkflowDesigner() {
     return (
         <div className="h-full w-full grid grid-cols-[300px_1fr_350px] bg-background/80">
             {/* Palette Panel */}
-            <aside className="h-full bg-card/30 border-r border-border/50 p-4">
+            <aside className="h-full bg-card/30 border-r border-border/50 p-4 flex flex-col gap-4">
                 <h2 className="text-lg font-headline text-muted-foreground">Palette</h2>
-                <div className="mt-4 text-sm text-center text-muted-foreground/50">
-                    Drag-and-drop nodes will appear here.
-                </div>
+                <WorkflowNodePalette />
             </aside>
 
             {/* Main Canvas & Console Area */}
