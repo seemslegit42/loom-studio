@@ -1,6 +1,6 @@
 
 'use client';
-import { Bot, History, Settings2, Shield, FilePlus2 } from "lucide-react";
+import { Bot, History, Settings2, Shield, FilePlus2, TestTube2 } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetDescription } from "../ui/sheet";
 import { Button } from "../ui/button";
 import { AegisAnvilPanel, AgentDnaPanel, ChronoscopePanel, LoomOfFatesPanel } from "./instrument-panels";
