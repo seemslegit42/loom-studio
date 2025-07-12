@@ -22,6 +22,9 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } f
 import { formatDistanceToNow } from 'date-fns';
 import { ConfirmationDialog } from './confirmation-dialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
+import { AnalyzeAgentProfileOutput } from "@/ai/flows/analyze-agent-profile-flow";
+
+type AgentProfile = AnalyzeAgentProfileOutput['profile'];
 
 const agentData = {
   certification: 'AIC Certified',
@@ -46,12 +49,15 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
+interface AgentDnaPanelProps {
+  agentName: string;
+  agentProfile: AgentProfile;
+}
+
 /**
  * A panel displaying the agent's core identity and personality profile.
  */
-export function AgentDnaPanel() {
-  const { agentName, agentProfile } = useLoom();
-  
+export function AgentDnaPanel({ agentName, agentProfile }: AgentDnaPanelProps) {
   return (
     <>
       <div className="flex justify-between items-center">

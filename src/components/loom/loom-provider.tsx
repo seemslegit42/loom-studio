@@ -6,7 +6,7 @@ import IncantationEditor from '@/components/loom/incantation-editor';
 import EventTimeline from '@/components/loom/event-timeline';
 
 import { analyzePromptChange } from '@/ai/flows/analyze-prompt-change-flow';
-import type { AnalyzePromptChangeInput, AnalyzePromptChangeOutput } from '@/ai/flows/analyze-prompt-change-schema';
+import type { AnalyzePromptChangeOutput } from '@/ai/flows/analyze-prompt-change-schema';
 import { generateAgentAvatar, GenerateAgentAvatarOutput } from '@/ai/flows/generate-agent-avatar-flow';
 import { analyzeAgentProfile, AnalyzeAgentProfileOutput } from '@/ai/flows/analyze-agent-profile-flow';
 import { useToast } from '@/hooks/use-toast';
@@ -67,16 +67,6 @@ interface LoomContextType {
   agentAvatar: string;
   /** The agent's current personality profile. */
   agentProfile: AgentProfile;
-  /** The original prompt text. */
-  originalPrompt: string;
-  /** The modified prompt text. */
-  modifiedPrompt: string;
-  /** Setter for the original prompt. */
-  setOriginalPrompt: (prompt: string) => void;
-  /** Setter for the modified prompt. */
-  setModifiedPrompt: (prompt: string) => void;
-  /** Handler function to process prompt updates and trigger AI flows. */
-  handlePromptUpdate: (data: AnalyzePromptChangeInput) => Promise<void>;
   /** An array of captured agent state snapshots. */
   snapshots: Snapshot[];
   /** Function to capture the current agent state as a new snapshot. */
@@ -147,8 +137,6 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
   const [agentName, setAgentName] = useState(INITIAL_NAME);
   const [agentAvatar, setAgentAvatar] = useState(INITIAL_AVATAR);
   const [agentProfile, setAgentProfile] = useState<AgentProfile>(INITIAL_PROFILE);
-  const [originalPrompt, setOriginalPrompt] = useState(INITIAL_ORIGINAL_PROMPT);
-  const [modifiedPrompt, setModifiedPrompt] = useState(INITIAL_MODIFIED_PROMPT);
   const [snapshots, setSnapshots] = useState<Snapshot[]>([]);
   const { toast } = useToast();
   
@@ -217,59 +205,17 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
     setIsFinished(false);
     setTimelineProgress(0); // Start from beginning
     setFinalWorkflowResults(null);
+    setIsProcessing(true);
     
     // Set all nodes to running state immediately
     setWorkflowNodes(prev => prev.map(node => ({ ...node, status: 'running', content: 'Processing...' })));
     
     // Trigger the prompt update automatically
-    await handlePromptUpdate({ originalPrompt, modifiedPrompt });
-  }, [originalPrompt, modifiedPrompt]);
-
-  const resetSimulation = useCallback(() => {
-    setIsPlaying(false);
-    setIsFinished(false);
-    setTimelineProgress(0);
-    setWorkflowNodes(INITIAL_WORKFLOW_NODES);
-    setFinalWorkflowResults(null);
-  }, []);
-
-  const play = useCallback(() => {
-    if (!isFinished) {
-      setIsPlaying(true);
-    }
-  }, [isFinished]);
-
-  const pause = useCallback(() => {
-    setIsPlaying(false);
-  }, []);
-
-  const rewind = useCallback(() => {
-    setTimelineProgress(prev => Math.max(0, prev - 5));
-  }, []);
-
-  const fastForward = useCallback(() => {
-    setTimelineProgress(prev => Math.min(timelineDuration, prev + 5));
-  }, [timelineDuration]);
-
-  const resetToInitialState = useCallback(() => {
-    setIsProcessing(false);
-    setAgentName(INITIAL_NAME);
-    setAgentAvatar(INITIAL_AVATAR);
-    setAgentProfile(INITIAL_PROFILE);
-    setOriginalPrompt(INITIAL_ORIGINAL_PROMPT);
-    setModifiedPrompt(INITIAL_MODIFIED_PROMPT);
-    resetSimulation();
-    toast({ title: "Workspace Cleared", description: "Ready to create a new agent." });
-  }, [resetSimulation, toast]);
-
-  const handlePromptUpdate = async (data: AnalyzePromptChangeInput): Promise<void> => {
-    setIsProcessing(true);
-    
     try {
       const results = await Promise.allSettled([
-        analyzePromptChange(data),
-        generateAgentAvatar({ prompt: data.modifiedPrompt }),
-        analyzeAgentProfile({ prompt: data.modifiedPrompt })
+        analyzePromptChange({ originalPrompt: INITIAL_ORIGINAL_PROMPT, modifiedPrompt: INITIAL_MODIFIED_PROMPT }),
+        generateAgentAvatar({ prompt: INITIAL_MODIFIED_PROMPT }),
+        analyzeAgentProfile({ prompt: INITIAL_MODIFIED_PROMPT })
       ]);
       
       const [analysisResult, avatarResult, profileResult] = results;
@@ -281,7 +227,6 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
       };
 
       if (analysisResult.status === 'fulfilled') {
-        const { analysis } = analysisResult.value;
         finalResults.analysis = analysisResult.value;
       } else {
         console.error("Analysis failed:", analysisResult.reason);
@@ -322,7 +267,42 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
     } finally {
       setIsProcessing(false);
     }
-  };
+  }, []);
+
+  const resetSimulation = useCallback(() => {
+    setIsPlaying(false);
+    setIsFinished(false);
+    setTimelineProgress(0);
+    setWorkflowNodes(INITIAL_WORKFLOW_NODES);
+    setFinalWorkflowResults(null);
+  }, []);
+
+  const play = useCallback(() => {
+    if (!isFinished) {
+      setIsPlaying(true);
+    }
+  }, [isFinished]);
+
+  const pause = useCallback(() => {
+    setIsPlaying(false);
+  }, []);
+
+  const rewind = useCallback(() => {
+    setTimelineProgress(prev => Math.max(0, prev - 5));
+  }, []);
+
+  const fastForward = useCallback(() => {
+    setTimelineProgress(prev => Math.min(timelineDuration, prev + 5));
+  }, [timelineDuration]);
+
+  const resetToInitialState = useCallback(() => {
+    setIsProcessing(false);
+    setAgentName(INITIAL_NAME);
+    setAgentAvatar(INITIAL_AVATAR);
+    setAgentProfile(INITIAL_PROFILE);
+    resetSimulation();
+    toast({ title: "Workspace Cleared", description: "Ready to create a new agent." });
+  }, [resetSimulation, toast]);
 
   const captureSnapshot = () => {
     const newSnapshot: Snapshot = {
@@ -331,8 +311,8 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
       agentName,
       agentAvatar,
       agentProfile,
-      originalPrompt,
-      modifiedPrompt,
+      originalPrompt: INITIAL_ORIGINAL_PROMPT, // Placeholder
+      modifiedPrompt: INITIAL_MODIFIED_PROMPT, // Placeholder
     };
     setSnapshots(prev => [newSnapshot, ...prev]);
     toast({ title: 'Snapshot Captured', description: `State of agent "${agentName}" has been saved.`});
@@ -344,8 +324,6 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
       setAgentName(snapshotToRestore.agentName);
       setAgentAvatar(snapshotToRestore.agentAvatar);
       setAgentProfile(snapshotToRestore.agentProfile);
-      setOriginalPrompt(snapshotToRestore.originalPrompt);
-      setModifiedPrompt(snapshotToRestore.modifiedPrompt);
       resetSimulation();
       toast({ title: 'Snapshot Restored', description: `Agent state restored to "${snapshotToRestore.agentName}".` });
     }
@@ -362,11 +340,6 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
     agentName,
     agentAvatar,
     agentProfile,
-    originalPrompt,
-    modifiedPrompt,
-    setOriginalPrompt,
-    setModifiedPrompt,
-    handlePromptUpdate,
     snapshots,
     captureSnapshot,
     restoreSnapshot,

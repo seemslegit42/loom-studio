@@ -33,7 +33,7 @@ import { useLoom } from './loom-provider';
  * @returns {JSX.Element} The rendered sidebar component.
  */
 export default function Sidebar() {
-  const { resetToInitialState } = useLoom();
+  const { resetToInitialState, agentName, agentProfile } = useLoom();
 
   return (
     <aside className="hidden lg:flex w-80 shrink-0 bg-card/30 border-r-2 border-gilded-accent/20 glow-gilded flex-col">
@@ -70,7 +70,7 @@ export default function Sidebar() {
                 </AccordionTrigger>
               </CardHeader>
               <AccordionContent className="p-4 pt-0 space-y-4">
-                <AgentDnaPanel />
+                <AgentDnaPanel agentName={agentName} agentProfile={agentProfile} />
               </AccordionContent>
             </Card>
           </AccordionItem>
