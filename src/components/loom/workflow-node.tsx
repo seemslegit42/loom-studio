@@ -1,11 +1,15 @@
 import { cn } from "@/lib/utils";
 import type { LucideIcon } from "lucide-react";
+import Image from 'next/image';
 
 interface WorkflowNodeProps {
     icon: LucideIcon;
     title: string;
     children?: React.ReactNode;
     className?: string;
+    isSelected?: boolean;
+    onClick?: () => void;
+    content?: string;
 }
 
 /**
@@ -14,21 +18,47 @@ interface WorkflowNodeProps {
  * @param {WorkflowNodeProps} props - The props for the component.
  * @returns {JSX.Element} The rendered workflow node.
  */
-export function WorkflowNode({ icon: Icon, title, children, className }: WorkflowNodeProps) {
+export function WorkflowNode({ icon: Icon, title, children, className, isSelected, onClick, content }: WorkflowNodeProps) {
+    const isAvatar = content?.startsWith('data:image');
+
     return (
-        <div className={cn(
-            "relative flex flex-col items-center justify-center w-48 h-24 p-4 rounded-lg border-2 border-border/60 bg-card/60 backdrop-blur-sm shadow-lg",
-            "transition-all duration-200 hover:border-primary/80 hover:shadow-primary/20 hover:shadow-2xl",
-            className
-        )}>
+        <div 
+            className={cn(
+                "relative flex flex-col items-center justify-center w-48 h-24 p-4 rounded-lg border-2 bg-card/60 backdrop-blur-sm shadow-lg cursor-pointer",
+                "transition-all duration-200",
+                isSelected 
+                    ? "border-primary/80 shadow-primary/20 shadow-2xl" 
+                    : "border-border/60 hover:border-primary/60 hover:shadow-primary/10",
+                className
+            )}
+            onClick={onClick}
+        >
             {/* Input Handle */}
             <div className="absolute -left-[9px] top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-background border-2 border-primary/50" />
 
-            <div className="flex items-center gap-3">
-                <Icon className="h-6 w-6 text-primary" />
-                <h3 className="font-semibold text-foreground text-center">{title}</h3>
-            </div>
+            {isAvatar ? (
+                 <Image 
+                    src={content} 
+                    alt={`${title} Avatar`} 
+                    width={64} 
+                    height={64}
+                    data-ai-hint="avatar"
+                    className="rounded-full object-cover max-h-[90%] w-auto"
+                />
+            ) : (
+                <div className="flex items-center gap-3">
+                    <Icon className="h-6 w-6 text-primary" />
+                    <h3 className="font-semibold text-foreground text-center">{title}</h3>
+                </div>
+            )}
+            
             {children && <div className="mt-2 text-xs text-muted-foreground">{children}</div>}
+
+             {content && !isAvatar && (
+                <p className="text-xs text-muted-foreground mt-2 text-center overflow-hidden text-ellipsis line-clamp-2">
+                    {content}
+                </p>
+            )}
 
             {/* Output Handle */}
             <div className="absolute -right-[9px] top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-background border-2 border-primary/50" />
