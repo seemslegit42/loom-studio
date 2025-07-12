@@ -3,9 +3,11 @@
 
 import { useLoom } from './loom-provider';
 import { Textarea } from '../ui/textarea';
-import { Sparkles, Lightbulb } from 'lucide-react';
+import { Lightbulb } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import { ResonanceField } from './resonance-field';
+import { useState } from 'react';
+import { cn } from '@/lib/utils';
 
 /**
  * An interactive sandbox for crafting and analyzing agent prompts.
@@ -23,6 +25,7 @@ export default function PromptSandbox() {
     analysisResult,
     isAnalyzing,
   } = useLoom();
+  const [isModifiedPromptFocused, setIsModifiedPromptFocused] = useState(false);
 
   const showAnalysis = isAnalyzing || analysisResult;
 
@@ -45,7 +48,12 @@ export default function PromptSandbox() {
               id="modified-prompt"
               value={modifiedPrompt}
               onChange={(e) => setModifiedPrompt(e.target.value)}
-              className="flex-1 bg-background/50 text-base border-primary/50 focus-visible:ring-primary/80 resize-none"
+              onFocus={() => setIsModifiedPromptFocused(true)}
+              onBlur={() => setIsModifiedPromptFocused(false)}
+              className={cn(
+                "flex-1 bg-background/50 text-base border-primary/50 focus-visible:ring-primary/80 resize-none transition-all duration-300",
+                isModifiedPromptFocused && "animate-pulse-glow-green"
+              )}
               placeholder="Craft your new incantation..."
             />
           </div>
