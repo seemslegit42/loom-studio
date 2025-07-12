@@ -113,26 +113,46 @@ export default function EventTimeline() {
   }
   const status = getStatus();
 
+  const transportControls = (
+    <div className="flex items-center gap-1">
+        <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground h-9 w-9" onClick={rewind} disabled={!isSimulationStarted || isProcessing}>
+          <Rewind className="h-5 w-5" />
+        </Button>
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="bg-primary/20 text-primary-foreground rounded-full h-10 w-10 hover:bg-primary/30 disabled:bg-muted disabled:text-muted-foreground"
+          onClick={isPlaying ? pause : play}
+          disabled={isFinished || !isSimulationStarted || isProcessing || timelineProgress >= timelineDuration}
+        >
+          {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+        </Button>
+         <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground h-9 w-9" onClick={fastForward} disabled={!isSimulationStarted || isProcessing}>
+          <FastForward className="h-5 w-5" />
+        </Button>
+    </div>
+  );
+
+  const actionButton = (
+    <>
+      {isFinished || timelineProgress >= timelineDuration ? (
+        <Button onClick={resetSimulation} variant="secondary" className="rounded-full w-28 font-bold flex items-center gap-2">
+            <History className="w-4 h-4" />
+            RESET
+        </Button>
+      ) : (
+        <Button onClick={runSimulation} disabled={isPlaying || isProcessing || isSimulationStarted} className="bg-gilded-accent text-black rounded-full w-28 font-bold glow-gilded disabled:bg-muted disabled:text-muted-foreground disabled:opacity-50 disabled:shadow-none">
+            <span className="font-headline">RUN</span>
+        </Button>
+      )}
+    </>
+  );
+
   return (
     <footer className="border-t-2 border-primary/20 bg-card/50 backdrop-blur-lg shrink-0">
-      <div className="px-6 py-3 flex items-center justify-between gap-6">
-        <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground" onClick={rewind} disabled={!isSimulationStarted || isProcessing}>
-              <Rewind className="h-5 w-5" />
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="bg-primary/20 text-primary-foreground rounded-full h-10 w-10 hover:bg-primary/30 disabled:bg-muted disabled:text-muted-foreground"
-              onClick={isPlaying ? pause : play}
-              disabled={isFinished || !isSimulationStarted || isProcessing || timelineProgress >= timelineDuration}
-            >
-              {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
-            </Button>
-             <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground" onClick={fastForward} disabled={!isSimulationStarted || isProcessing}>
-              <FastForward className="h-5 w-5" />
-            </Button>
-        </div>
+      {/* Desktop Layout */}
+      <div className="hidden lg:flex px-6 py-3 items-center justify-between gap-6">
+        {transportControls}
         <div className="flex-1 flex items-center gap-4 max-w-xl">
             <span className="text-xs font-mono text-muted-foreground">{formatTime(timelineProgress)}</span>
             <Slider 
@@ -149,16 +169,31 @@ export default function EventTimeline() {
                 <Rss className="h-4 w-4" />
                 <span className="font-mono text-sm font-bold tracking-wider">{status.text}</span>
             </div>
-            {isFinished || timelineProgress >= timelineDuration ? (
-              <Button onClick={resetSimulation} className="bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-full w-28 font-bold flex items-center gap-2">
-                  <History className="w-4 h-4" />
-                  RESET
-              </Button>
-            ) : (
-              <Button onClick={runSimulation} disabled={isPlaying || isProcessing || isSimulationStarted} className="bg-gilded-accent text-black rounded-full w-28 font-bold glow-gilded disabled:bg-muted disabled:text-muted-foreground disabled:opacity-50 disabled:shadow-none">
-                  <span className="font-headline">RUN</span>
-              </Button>
-            )}
+            {actionButton}
+        </div>
+      </div>
+      {/* Mobile Layout */}
+      <div className="flex lg:hidden flex-col items-center gap-3 p-4">
+        <div className='w-full flex items-center gap-2'>
+            <span className="text-xs font-mono text-muted-foreground">{formatTime(timelineProgress)}</span>
+              <Slider 
+                value={[timelineProgress]}
+                max={timelineDuration} 
+                step={0.1}
+                onValueChange={handleSliderChange}
+                disabled={!isSimulationStarted || isProcessing}
+              />
+            <span className="text-xs font-mono text-muted-foreground">{formatTime(timelineDuration)}</span>
+        </div>
+        <div className="w-full flex items-center justify-between">
+            {transportControls}
+            <div className={cn("flex items-center gap-2 text-xs", status.className)}>
+                <Rss className="h-4 w-4" />
+                <span className="font-mono font-bold tracking-wider">{status.text}</span>
+            </div>
+            <div className="w-28 flex justify-end">
+              {actionButton}
+            </div>
         </div>
       </div>
     </footer>
