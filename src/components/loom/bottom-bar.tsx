@@ -21,11 +21,18 @@ const instruments = [
  * @returns {JSX.Element} The rendered bottom bar component.
  */
 export default function BottomBar() {
-    const { resetToInitialState } = useLoom();
+    const { resetToInitialState, agentName, agentProfile } = useLoom();
+    
+    // The AgentDnaPanel needs props, so we need to handle it separately
+    const mobileInstruments = [
+        { id: 'dna', title: 'Agent DNA', icon: Bot, panel: <AgentDnaPanel agentName={agentName} agentProfile={agentProfile}/>, description: "View the agent's core identity and personality profile." },
+        ...instruments.filter(i => i.id !== 'dna')
+    ];
+
     return (
         <footer className="lg:hidden fixed bottom-0 left-0 right-0 h-16 bg-card/50 backdrop-blur-lg border-t-2 border-primary/20 z-50">
             <div className="flex justify-around items-center h-full">
-                {instruments.map((instrument) => (
+                {mobileInstruments.map((instrument) => (
                     <Sheet key={instrument.id}>
                         <SheetTrigger asChild>
                             <Button variant="ghost" className="flex flex-col h-full items-center justify-center text-muted-foreground p-2 gap-1">
