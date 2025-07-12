@@ -10,10 +10,11 @@ import { WorkflowNodePalette } from "./workflow-node-palette";
 import { WorkflowNode } from "./workflow-node";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { AgentTaskConfig } from "./agent-task-config";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { useToast } from "@/hooks/use-toast";
-import { analyzeAgentProfile } from "@/ai/flows/analyze-agent-profile-flow";
+import { analyzeAgentProfile, type AnalyzeAgentProfileOutput } from "@/ai/flows/analyze-agent-profile-flow";
 import { generateAgentAvatar } from "@/ai/flows/generate-agent-avatar-flow";
+import { AgentProfileChart } from "./agent-profile-chart";
 
 interface WorkflowDesignerProps {
     isPaletteOpen: boolean;
@@ -37,10 +38,12 @@ export default function WorkflowDesigner({
     const [isConfiguringAgent, setIsConfiguringAgent] = useState(false);
     const [agentName, setAgentName] = useState('Agent Task');
     const [agentAvatar, setAgentAvatar] = useState<string | null>(null);
+    const [agentProfile, setAgentProfile] = useState<AnalyzeAgentProfileOutput['profile'] | null>(null);
     const { toast } = useToast();
 
     const handleConfigureAgent = async (prompt: string) => {
         setIsConfiguringAgent(true);
+        setAgentProfile(null); // Clear previous profile
         try {
             const [profile, avatar] = await Promise.all([
                 analyzeAgentProfile({ prompt }),
@@ -49,6 +52,9 @@ export default function WorkflowDesigner({
 
             if (profile?.name) {
                 setAgentName(profile.name);
+            }
+            if (profile?.profile) {
+                setAgentProfile(profile.profile);
             }
             if (avatar?.avatarDataUri) {
                 setAgentAvatar(avatar.avatarDataUri);
@@ -83,9 +89,9 @@ export default function WorkflowDesigner({
     const InspectorPanel = () => (
         <>
             <h2 className="text-lg font-headline text-muted-foreground">
-                {selectedNode ? `Inspector: ${selectedNode}` : 'Inspector'}
+                {selectedNode ? `Inspector: ${agentName}` : 'Inspector'}
             </h2>
-            <div className="flex-1">
+            <div className="flex-1 mt-4">
                 {!selectedNode ? (
                      <div className="h-full flex items-center justify-center">
                         <Alert className="border-border/40">
@@ -99,7 +105,12 @@ export default function WorkflowDesigner({
                 ) : (
                     <div>
                         {selectedNode === 'Agent Task' ? (
-                            <AgentTaskConfig onConfigure={handleConfigureAgent} isConfiguring={isConfiguringAgent} />
+                            <div className="space-y-6">
+                                <AgentTaskConfig onConfigure={handleConfigureAgent} isConfiguring={isConfiguringAgent} />
+                                {agentProfile && (
+                                     <AgentProfileChart profile={agentProfile} agentName={agentName} />
+                                )}
+                            </div>
                         ) : (
                             <p className="text-sm text-muted-foreground">
                                 Configuration for <span className="text-accent">{selectedNode}</span> will appear here.
