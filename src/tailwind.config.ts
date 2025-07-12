@@ -11,7 +11,7 @@ export default {
     extend: {
       fontFamily: {
         body: ['Lexend', 'sans-serif'],
-        headline: ['Comfortaa', 'sans-serif'],
+        headline: ['Lexend', 'sans-serif'],
         code: ['monospace'],
       },
       colors: {
@@ -49,6 +49,9 @@ export default {
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
         'gilded-accent': 'hsl(var(--gilded-accent))',
+        'resonance-purple': 'hsl(var(--resonance-purple))',
+        'resonance-green': 'hsl(var(--resonance-green))',
+        'resonance-aqua': 'hsl(var(--resonance-aqua))',
         chart: {
           '1': 'hsl(var(--chart-1))',
           '2': 'hsl(var(--chart-2))',

@@ -36,6 +36,7 @@ import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, Radar } fro
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '../ui/chart';
 import { formatDistanceToNow } from 'date-fns';
 import { ConfirmationDialog } from './confirmation-dialog';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 
 const agentData = {
   certification: 'AIC Certified',
@@ -94,8 +95,9 @@ export default function Sidebar() {
       </div>
       <ScrollArea className="flex-1">
         <Accordion
-          type="multiple"
-          defaultValue={['dna', 'chronoscope', 'loom-of-fates']}
+          type="single"
+          defaultValue={'dna'}
+          collapsible
           className="w-full"
         >
           <AccordionItem value="dna" className="border-b-0">
@@ -222,20 +224,43 @@ export default function Sidebar() {
                 <CardDescription className="mb-4">
                   Tune the Profit Dials of the KLEPSYDRA Engine.
                 </CardDescription>
-                <div className="space-y-6">
-                  <div className="grid gap-2">
-                    <Label htmlFor="base-rtr">Base RTR</Label>
-                    <Slider id="base-rtr" value={[baseRTR]} onValueChange={([val]) => setBaseRTR(val)} max={100} step={1} />
+                <TooltipProvider>
+                  <div className="space-y-6">
+                    <div className="grid gap-2">
+                      <Label htmlFor="base-rtr">Base RTR</Label>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Slider id="base-rtr" value={[baseRTR]} onValueChange={([val]) => setBaseRTR(val)} max={100} step={1} />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{baseRTR}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="pity-boon">Pity Boon Threshold</Label>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Slider id="pity-boon" value={[pityBoonThreshold]} onValueChange={([val]) => setPityBoonThreshold(val)} max={100} step={1} />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{pityBoonThreshold}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="transmutation-tithe">Transmutation Tithe</Label>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Slider id="transmutation-tithe" value={[transmutationTithe]} onValueChange={([val]) => setTransmutationTithe(val)} max={100} step={1} />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{transmutationTithe}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
                   </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="pity-boon">Pity Boon Threshold</Label>
-                    <Slider id="pity-boon" value={[pityBoonThreshold]} onValueChange={([val]) => setPityBoonThreshold(val)} max={100} step={1} />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="transmutation-tithe">Transmutation Tithe</Label>
-                    <Slider id="transmutation-tithe" value={[transmutationTithe]} onValueChange={([val]) => setTransmutationTithe(val)} max={100} step={1} />
-                  </div>
-                </div>
+                </TooltipProvider>
               </AccordionContent>
             </Card>
           </AccordionItem>
