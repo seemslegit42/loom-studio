@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Header from "@/components/loom/header";
 import WorkflowDesigner from "@/components/loom/workflow-designer";
+import BottomBar from "@/components/loom/bottom-bar";
 
 export default function Home() {
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
@@ -10,10 +11,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col h-screen">
-      <Header 
-        onTogglePalette={() => setIsPaletteOpen(prev => !prev)} 
-        onToggleInspector={() => setIsInspectorOpen(prev => !prev)} 
-      />
+      <Header />
       <main className="flex-1 overflow-hidden">
         <WorkflowDesigner 
           isPaletteOpen={isPaletteOpen}
@@ -22,6 +20,10 @@ export default function Home() {
           onInspectorChange={setIsInspectorOpen}
         />
       </main>
+      <BottomBar
+        onTogglePalette={() => setIsPaletteOpen(prev => !prev)} 
+        onToggleInspector={() => setIsInspectorOpen(prev => !prev)}
+      />
     </div>
   );
 }
