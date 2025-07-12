@@ -8,7 +8,7 @@ import { ConfirmationDialog } from "./confirmation-dialog";
 import { useLoom } from "./loom-provider";
 
 const instruments = [
-    { id: 'dna', title: 'Agent DNA', icon: Bot, panel: <AgentDnaPanel />, description: "View the agent's core identity and personality profile." },
+    { id: 'dna', title: 'Agent DNA', icon: Bot, panel: <AgentDnaPanel agentName={""} agentProfile={[]}/>, description: "View the agent's core identity and personality profile." },
     { id: 'chronoscope', title: 'The Chronoscope', icon: History, panel: <ChronoscopePanel />, description: "Capture and replay the agent's state to analyze behavior." },
     { id: 'loom', title: 'The Loom of Fates', icon: Settings2, panel: <LoomOfFatesPanel />, description: "Tune the Profit Dials of the KLEPSYDRA Engine." },
     { id: 'aegis', title: 'The Aegis Anvil', icon: Shield, panel: <AegisAnvilPanel />, description: "Forge automated SOAR playbooks to secure the system." },
