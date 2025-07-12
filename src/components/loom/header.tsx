@@ -25,7 +25,7 @@ export default function Header() {
             <div className="flex-1 max-w-lg relative">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground h-5 w-5" />
                 <Input 
-                    placeholder="BEEP™ Command Strip // Forge your next command..."
+                    placeholder="BEEP™ Command Strip: Forge your next command..."
                     className="w-full bg-background/50 rounded-full h-10 pl-12 pr-4 border-primary/30 focus-visible:ring-primary/80 glow-primary"
                 />
             </div>

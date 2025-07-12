@@ -251,7 +251,7 @@ export default function Sidebar() {
                       <Label htmlFor="transmutation-tithe">Transmutation Tithe</Label>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <Slider id="transmutation-tithe" value={[transmutationTithe]} onValue-change={([val]) => setTransmutationTithe(val)} max={100} step={1} />
+                          <Slider id="transmutation-tithe" value={[transmutationTithe]} onValueChange={([val]) => setTransmutationTithe(val)} max={100} step={1} />
                         </TooltipTrigger>
                         <TooltipContent>
                           <p>{transmutationTithe}</p>

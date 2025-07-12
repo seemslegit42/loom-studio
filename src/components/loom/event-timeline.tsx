@@ -1,7 +1,7 @@
 
 'use client';
 
-import { FastForward, Pause, Play, Rewind, Rss, Square, History } from 'lucide-react';
+import { FastForward, Pause, Play, Rewind, Rss, History } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { useLoom } from './loom-provider';
@@ -146,8 +146,8 @@ export default function EventTimeline() {
         </div>
         <div className="flex items-center gap-6">
             <div className={cn("flex items-center gap-2", status.className)}>
-                <Rss />
-                <span className="font-mono text-sm">{status.text}</span>
+                <Rss className="h-4 w-4" />
+                <span className="font-mono text-sm font-bold tracking-wider">{status.text}</span>
             </div>
             {isFinished || timelineProgress >= timelineDuration ? (
               <Button onClick={resetSimulation} className="bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-full w-28 font-bold flex items-center gap-2">
