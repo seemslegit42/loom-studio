@@ -35,17 +35,25 @@ export default function WorkflowDesigner() {
                             <div className="relative flex items-center gap-16">
                                 <WorkflowNode icon={PlayCircle} title="Start Node" />
                                 
-                                <svg width="64" height="2" viewBox="0 0 64 2" fill="none" xmlns="http://www.w3.org/2000/svg" className="absolute left-[192px] stroke-border/80">
-                                    <path d="M0 1H64" stroke="currentColor" strokeWidth="2" strokeDasharray="4 4"/>
-                                    <path d="M56 -6L66 1L56 8" stroke="currentColor" strokeWidth="2"/>
-                                </svg>
+                                <div className="absolute left-[calc(100%_-_2px)] top-1/2 -translate-y-1/2 w-16 h-px bg-transparent">
+                                    <svg width="64" height="2" viewBox="0 0 64 2" fill="none" xmlns="http://www.w3.org/2000/svg" className="absolute left-0 top-1/2 -translate-y-1/2 stroke-border/80">
+                                        <path d="M0 1H64" stroke="currentColor" strokeWidth="2" strokeDasharray="4 4"/>
+                                    </svg>
+                                    <svg width="10" height="12" viewBox="0 0 8 14" fill="none" xmlns="http://www.w3.org/2000/svg" className="absolute right-0 top-1/2 -translate-y-1/2 stroke-border/80">
+                                        <path d="M1 1L7 7L1 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    </svg>
+                                </div>
 
                                 <WorkflowNode icon={Cpu} title="Agent Task" />
 
-                                <svg width="64" height="2" viewBox="0 0 64 2" fill="none" xmlns="http://www.w3.org/2000/svg" className="absolute left-[448px] stroke-border/80">
-                                    <path d="M0 1H64" stroke="currentColor" strokeWidth="2" strokeDasharray="4 4"/>
-                                    <path d="M56 -6L66 1L56 8" stroke="currentColor" strokeWidth="2"/>
-                                </svg>
+                                <div className="absolute left-[calc(200%_+_62px)] top-1/2 -translate-y-1/2 w-16 h-px bg-transparent">
+                                     <svg width="64" height="2" viewBox="0 0 64 2" fill="none" xmlns="http://www.w3.org/2000/svg" className="absolute left-0 top-1/2 -translate-y-1/2 stroke-border/80">
+                                        <path d="M0 1H64" stroke="currentColor" strokeWidth="2" strokeDasharray="4 4"/>
+                                    </svg>
+                                    <svg width="10" height="12" viewBox="0 0 8 14" fill="none" xmlns="http://www.w3.org/2000/svg" className="absolute right-0 top-1/2 -translate-y-1/2 stroke-border/80">
+                                        <path d="M1 1L7 7L1 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    </svg>
+                                </div>
 
                                 <WorkflowNode icon={Waypoints} title="End Node" />
                             </div>
