@@ -460,7 +460,7 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
                           <ResonanceField title="Agent Workflow" color="purple">
                             <HallOfEchoes />
                           </ResonanceField>
-                          <div className="flex-1 flex flex-col">
+                          <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 flex-1">
                               <PromptSandbox />
                           </div>
                         </div>
