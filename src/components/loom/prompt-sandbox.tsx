@@ -2,10 +2,9 @@
 'use client';
 
 import { useLoom } from './loom-provider';
-import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { TestTube2, Sparkles, Lightbulb } from 'lucide-react';
+import { Sparkles, Lightbulb } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 
 /**
@@ -22,9 +21,10 @@ export default function PromptSandbox() {
     modifiedPrompt,
     setModifiedPrompt,
     analysisResult,
-    handlePromptAnalysis,
     isAnalyzing,
   } = useLoom();
+
+  const showAnalysis = isAnalyzing || analysisResult;
 
   return (
     <Card className="h-full flex flex-col bg-card/80 backdrop-blur-sm border-primary/20 shadow-lg shadow-primary/5">
@@ -57,17 +57,13 @@ export default function PromptSandbox() {
             />
           </div>
         </div>
-        <div className="flex flex-col gap-4">
-          <Button onClick={handlePromptAnalysis} disabled={isAnalyzing} className="w-full md:w-auto md:self-end">
-            <TestTube2 className="w-4 h-4 mr-2" />
-            {isAnalyzing ? 'Analyzing...' : 'Analyze Behavioral Change'}
-          </Button>
-          {analysisResult && (
+        <div className="flex flex-col gap-4 min-h-[76px]">
+          {showAnalysis && (
             <Alert>
                 <Lightbulb className="h-4 w-4" />
                 <AlertTitle className='font-headline text-accent'>Analysis</AlertTitle>
                 <AlertDescription className='text-foreground'>
-                    {analysisResult}
+                    {isAnalyzing ? 'Thinking...' : analysisResult}
                 </AlertDescription>
             </Alert>
           )}

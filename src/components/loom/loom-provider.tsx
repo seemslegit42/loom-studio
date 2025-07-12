@@ -376,19 +376,31 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
     toast({ title: 'Snapshot Deleted', description: 'The selected snapshot has been removed.' });
   };
   
-  const handlePromptAnalysis = async () => {
+  const handlePromptAnalysis = useCallback(async () => {
     setIsAnalyzing(true);
-    setAnalysisResult('');
     try {
       const result = await analyzePromptChange({ originalPrompt, modifiedPrompt });
       setAnalysisResult(result.analysis);
     } catch (error) {
       console.error("Prompt analysis failed:", error);
-      toast({ variant: 'destructive', title: 'Error', description: 'Failed to analyze prompt changes.' });
+      // Do not toast on auto-analysis to avoid spamming user
     } finally {
       setIsAnalyzing(false);
     }
-  };
+  }, [originalPrompt, modifiedPrompt]);
+
+  useEffect(() => {
+    // Debounce analysis to avoid excessive API calls
+    const handler = setTimeout(() => {
+        if (modifiedPrompt !== INITIAL_MODIFIED_PROMPT) {
+            handlePromptAnalysis();
+        }
+    }, 500);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [modifiedPrompt, handlePromptAnalysis]);
 
 
   const value = {
@@ -495,5 +507,3 @@ export const useLoom = (): LoomContextType => {
   }
   return context;
 };
-
-    
