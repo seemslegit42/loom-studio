@@ -16,6 +16,7 @@ import Sidebar from './sidebar';
 import { cn } from '@/lib/utils';
 import { ResonanceField } from './resonance-field';
 import BottomBar from './bottom-bar';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 
 type AgentProfile = AnalyzeAgentProfileOutput['profile'];
 
@@ -442,13 +443,33 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
                 <div className="flex-1 flex flex-col overflow-hidden">
                     <Header />
                     <main className="flex-1 p-6 lg:p-8 flex flex-col gap-6 lg:gap-8 overflow-y-auto pt-24 pb-24 lg:pb-8">
-                        <div className='flex-1 flex flex-col gap-6 lg:gap-8'>
+                        {/* Desktop Layout */}
+                        <div className='hidden lg:flex flex-1 flex-col gap-6 lg:gap-8'>
                           <ResonanceField title="Agent Workflow" color="purple">
                             <HallOfEchoes />
                           </ResonanceField>
                           <div className="flex-1 flex flex-col">
                               <PromptSandbox />
                           </div>
+                        </div>
+                        {/* Mobile Layout */}
+                        <div className="lg:hidden flex-1 flex flex-col">
+                            <Tabs defaultValue="workflow" className="w-full flex-1 flex flex-col">
+                                <TabsList className='grid w-full grid-cols-2'>
+                                    <TabsTrigger value="workflow">Workflow</TabsTrigger>
+                                    <TabsTrigger value="sandbox">Sandbox</TabsTrigger>
+                                </TabsList>
+                                <TabsContent value="workflow" className='flex-1 mt-4'>
+                                    <ResonanceField title="Agent Workflow" color="purple" className='h-full'>
+                                        <HallOfEchoes />
+                                    </ResonanceField>
+                                </TabsContent>
+                                <TabsContent value="sandbox" className='flex-1 mt-4'>
+                                    <div className="h-full flex-1 flex flex-col">
+                                        <PromptSandbox />
+                                    </div>
+                                </TabsContent>
+                            </Tabs>
                         </div>
                     </main>
                     <EventTimeline />
@@ -474,3 +495,5 @@ export const useLoom = (): LoomContextType => {
   }
   return context;
 };
+
+    

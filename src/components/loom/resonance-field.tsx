@@ -54,9 +54,13 @@ export function ResonanceField({ title, color, children, className }: ResonanceF
     const styles = colorStyles[color];
 
     return (
-        <div className={cn("rounded-xl p-4 border-2 bg-card/20 backdrop-blur-sm transition-all", styles.border, styles.glow, className)}>
+        <div className={cn("rounded-xl p-4 border-2 bg-card/20 backdrop-blur-sm transition-all flex flex-col", styles.border, styles.glow, className)}>
             <h3 className="mb-4 text-sm font-semibold text-muted-foreground tracking-widest uppercase">{title}</h3>
-            {children}
+            <div className="flex-1">
+                {children}
+            </div>
         </div>
     );
 }
+
+    
