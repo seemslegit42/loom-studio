@@ -4,35 +4,87 @@
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
-import { ChevronDown, Terminal, PlayCircle, Cpu, Waypoints, Info } from "lucide-react";
+import { ChevronDown, Terminal, PlayCircle, Cpu, Waypoints, Info, PanelRight, PanelLeft } from "lucide-react";
 import { useState } from "react";
 import { WorkflowNodePalette } from "./workflow-node-palette";
 import { WorkflowNode } from "./workflow-node";
-import { SigilRites } from "../sigil-rites/SigilRites";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { AgentTaskConfig } from "./agent-task-config";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+
+interface WorkflowDesignerProps {
+    isPaletteOpen: boolean;
+    onPaletteChange: (open: boolean) => void;
+    isInspectorOpen: boolean;
+    onInspectorChange: (open: boolean) => void;
+}
 
 /**
  * The centerpiece of Loom Studio, providing the Agent Orchestration Canvas
  * and its surrounding UI panels for building agentic workflows.
  */
-export default function WorkflowDesigner() {
+export default function WorkflowDesigner({ 
+    isPaletteOpen, 
+    onPaletteChange, 
+    isInspectorOpen, 
+    onInspectorChange 
+}: WorkflowDesignerProps) {
     const [isConsoleOpen, setIsConsoleOpen] = useState(true);
     const [selectedNode, setSelectedNode] = useState<string | null>(null);
 
-    const nodes = [
-        { id: 'start', title: 'Start Node', icon: PlayCircle },
-        { id: 'agent-task', title: 'Agent Task', icon: Cpu },
-        { id: 'end', title: 'End Node', icon: Waypoints },
-    ];
+    const PalettePanel = () => (
+        <>
+            <h2 className="text-lg font-headline text-muted-foreground p-4 pb-0">Palette</h2>
+            <div className="p-4">
+                <WorkflowNodePalette />
+            </div>
+        </>
+    );
+
+    const InspectorPanel = () => (
+        <>
+            <h2 className="text-lg font-headline text-muted-foreground">
+                {selectedNode ? `Inspector: ${selectedNode}` : 'Inspector'}
+            </h2>
+            <div className="flex-1">
+                {!selectedNode ? (
+                     <div className="h-full flex items-center justify-center">
+                        <Alert className="border-border/40">
+                            <Info className="h-4 w-4" />
+                            <AlertTitle>Nothing Selected</AlertTitle>
+                            <AlertDescription>
+                                Select a node on the canvas to configure its properties.
+                            </AlertDescription>
+                        </Alert>
+                    </div>
+                ) : (
+                    <div>
+                        {selectedNode === 'Agent Task' ? (
+                            <AgentTaskConfig />
+                        ) : (
+                            <p className="text-sm text-muted-foreground">
+                                Configuration for <span className="text-accent">{selectedNode}</span> will appear here.
+                           </p>
+                        )}
+                    </div>
+                )}
+            </div>
+        </>
+    );
     
     return (
-        <div className="h-full w-full grid grid-cols-[300px_1fr_350px] bg-background/80">
-            {/* Palette Panel */}
-            <aside className="h-full bg-card/30 border-r border-border/50 p-4 flex flex-col gap-4">
-                <h2 className="text-lg font-headline text-muted-foreground">Palette</h2>
-                <WorkflowNodePalette />
+        <div className="h-full w-full md:grid md:grid-cols-[300px_1fr_350px] bg-background/80">
+            {/* Palette Panel (Desktop) */}
+            <aside className="h-full bg-card/30 border-r border-border/50 flex-col gap-4 hidden md:flex">
+                <PalettePanel />
             </aside>
+
+             {/* Palette Panel (Mobile) */}
+            <Sheet open={isPaletteOpen} onOpenChange={onPaletteChange}>
+                <SheetContent side="left" className="w-[300px] sm:w-[340px] bg-card/80 backdrop-blur-lg">
+                    <PalettePanel />
+                </SheetContent>
+            </Sheet>
 
             {/* Main Canvas & Console Area */}
             <div className="h-full flex flex-col">
@@ -106,35 +158,17 @@ export default function WorkflowDesigner() {
             </div>
 
 
-            {/* Inspector Panel */}
-            <aside className="h-full bg-card/30 border-l border-border/50 p-4 flex flex-col gap-4">
-                <h2 className="text-lg font-headline text-muted-foreground">
-                    {selectedNode ? `Inspector: ${selectedNode}` : 'Inspector'}
-                </h2>
-                <div className="flex-1">
-                    {!selectedNode ? (
-                         <div className="h-full flex items-center justify-center">
-                            <Alert className="border-border/40">
-                                <Info className="h-4 w-4" />
-                                <AlertTitle>Nothing Selected</AlertTitle>
-                                <AlertDescription>
-                                    Select a node on the canvas to configure its properties.
-                                </AlertDescription>
-                            </Alert>
-                        </div>
-                    ) : (
-                        <div>
-                            {selectedNode === 'Agent Task' ? (
-                                <AgentTaskConfig />
-                            ) : (
-                                <p className="text-sm text-muted-foreground">
-                                    Configuration for <span className="text-accent">{selectedNode}</span> will appear here.
-                               </p>
-                            )}
-                        </div>
-                    )}
-                </div>
+            {/* Inspector Panel (Desktop) */}
+            <aside className="h-full bg-card/30 border-l border-border/50 p-4 flex-col gap-4 hidden md:flex">
+                <InspectorPanel />
             </aside>
+
+             {/* Inspector Panel (Mobile) */}
+            <Sheet open={isInspectorOpen} onOpenChange={onInspectorChange}>
+                <SheetContent side="right" className="w-[300px] sm:w-[340px] bg-card/80 backdrop-blur-lg p-4 flex flex-col gap-4">
+                     <InspectorPanel />
+                </SheetContent>
+            </Sheet>
         </div>
     );
 }
