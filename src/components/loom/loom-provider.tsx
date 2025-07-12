@@ -2,7 +2,7 @@
 'use client';
 import React, { createContext, useContext, useState, ReactNode, useCallback, useEffect } from 'react';
 import Header from '@/components/loom/header';
-import IncantationEditor from '@/components/loom/incantation-editor';
+import PromptSandbox from '@/components/loom/prompt-sandbox';
 import EventTimeline from '@/components/loom/event-timeline';
 
 import { analyzePromptChange } from '@/ai/flows/analyze-prompt-change-flow';
@@ -78,6 +78,22 @@ interface LoomContextType {
   /** Function to reset the entire workspace to its initial state. */
   resetToInitialState: () => void;
 
+  // Prompt Sandbox State
+  /** The original prompt for comparison. */
+  originalPrompt: string;
+  /** Setter for the original prompt. */
+  setOriginalPrompt: (prompt: string) => void;
+  /** The modified prompt being edited. */
+  modifiedPrompt: string;
+  /** Setter for the modified prompt. */
+  setModifiedPrompt: (prompt: string) => void;
+  /** The result of the prompt change analysis. */
+  analysisResult: string;
+  /** Function to trigger the analysis of prompt changes. */
+  handlePromptAnalysis: () => Promise<void>;
+  /** Boolean indicating if the prompt analysis is running. */
+  isAnalyzing: boolean;
+
   // Engine Tuning State
   /** The Base RTR parameter for the engine (0-100). */
   baseRTR: number;
@@ -138,6 +154,13 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
   const [agentAvatar, setAgentAvatar] = useState(INITIAL_AVATAR);
   const [agentProfile, setAgentProfile] = useState<AgentProfile>(INITIAL_PROFILE);
   const [snapshots, setSnapshots] = useState<Snapshot[]>([]);
+  
+  // Prompt Sandbox State
+  const [originalPrompt, setOriginalPrompt] = useState(INITIAL_ORIGINAL_PROMPT);
+  const [modifiedPrompt, setModifiedPrompt] = useState(INITIAL_MODIFIED_PROMPT);
+  const [analysisResult, setAnalysisResult] = useState('');
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+
   const { toast } = useToast();
   
   const [workflowNodes, setWorkflowNodes] = useState<NodeState[]>(INITIAL_WORKFLOW_NODES);
@@ -213,9 +236,9 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
     // Trigger the AI flows
     try {
       const results = await Promise.allSettled([
-        analyzePromptChange({ originalPrompt: INITIAL_ORIGINAL_PROMPT, modifiedPrompt: INITIAL_MODIFIED_PROMPT }),
-        generateAgentAvatar({ prompt: INITIAL_MODIFIED_PROMPT }),
-        analyzeAgentProfile({ prompt: INITIAL_MODIFIED_PROMPT })
+        analyzePromptChange({ originalPrompt, modifiedPrompt }),
+        generateAgentAvatar({ prompt: modifiedPrompt }),
+        analyzeAgentProfile({ prompt: modifiedPrompt })
       ]);
       
       const [analysisResult, avatarResult, profileResult] = results;
@@ -267,7 +290,7 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
     } finally {
       setIsProcessing(false);
     }
-  }, []);
+  }, [originalPrompt, modifiedPrompt, toast]);
 
   const resetSimulation = useCallback(() => {
     setIsPlaying(false);
@@ -300,6 +323,9 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
     setAgentName(INITIAL_NAME);
     setAgentAvatar(INITIAL_AVATAR);
     setAgentProfile(INITIAL_PROFILE);
+    setOriginalPrompt(INITIAL_ORIGINAL_PROMPT);
+    setModifiedPrompt(INITIAL_MODIFIED_PROMPT);
+    setAnalysisResult('');
     resetSimulation();
     toast({ title: "Workspace Cleared", description: "Ready to create a new agent." });
   }, [resetSimulation, toast]);
@@ -311,8 +337,8 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
       agentName,
       agentAvatar,
       agentProfile,
-      originalPrompt: INITIAL_ORIGINAL_PROMPT, // Placeholder for future canvas state
-      modifiedPrompt: INITIAL_MODIFIED_PROMPT, // Placeholder for future canvas state
+      originalPrompt: originalPrompt,
+      modifiedPrompt: modifiedPrompt,
     };
     setSnapshots(prev => [newSnapshot, ...prev]);
     toast({ title: 'Snapshot Captured', description: `State of agent "${agentName}" has been saved.`});
@@ -324,7 +350,9 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
       setAgentName(snapshotToRestore.agentName);
       setAgentAvatar(snapshotToRestore.agentAvatar);
       setAgentProfile(snapshotToRestore.agentProfile);
-      // In the future, this would also restore the full canvas state
+      setOriginalPrompt(snapshotToRestore.originalPrompt);
+      setModifiedPrompt(snapshotToRestore.modifiedPrompt);
+      setAnalysisResult('');
       resetSimulation();
       toast({ title: 'Snapshot Restored', description: `Agent state restored to "${snapshotToRestore.agentName}".` });
     }
@@ -333,6 +361,20 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
   const deleteSnapshot = (id: string) => {
     setSnapshots(prev => prev.filter(s => s.id !== id));
     toast({ title: 'Snapshot Deleted', description: 'The selected snapshot has been removed.' });
+  };
+  
+  const handlePromptAnalysis = async () => {
+    setIsAnalyzing(true);
+    setAnalysisResult('');
+    try {
+      const result = await analyzePromptChange({ originalPrompt, modifiedPrompt });
+      setAnalysisResult(result.analysis);
+    } catch (error) {
+      console.error("Prompt analysis failed:", error);
+      toast({ variant: 'destructive', title: 'Error', description: 'Failed to analyze prompt changes.' });
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
 
@@ -346,6 +388,14 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
     restoreSnapshot,
     deleteSnapshot,
     resetToInitialState,
+
+    originalPrompt,
+    setOriginalPrompt,
+    modifiedPrompt,
+    setModifiedPrompt,
+    analysisResult,
+    handlePromptAnalysis,
+    isAnalyzing,
 
     baseRTR,
     setBaseRTR,
@@ -385,7 +435,7 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
                             <HallOfEchoes />
                           </ResonanceField>
                           <div className="flex-1 flex flex-col">
-                              <IncantationEditor />
+                              <PromptSandbox />
                           </div>
                         </div>
                     </main>
