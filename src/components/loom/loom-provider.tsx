@@ -280,7 +280,6 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
 
       if (analysisResult.status === 'fulfilled') {
         const { analysis } = analysisResult.value;
-        toast({ title: 'Behavioral Analysis Complete', description: analysis });
         finalResults.analysis = analysisResult.value;
       } else {
         console.error("Analysis failed:", analysisResult.reason);

@@ -105,6 +105,7 @@ export default function EventTimeline() {
    * @returns {{ text: string, className: string }} The status text and associated CSS class.
    */
   const getStatus = () => {
+    if (isProcessing && !isFinished) return { text: "FORGING...", className: "text-accent animate-pulse" };
     if (isFinished || timelineProgress >= timelineDuration) return { text: "COMPLETED", className: "text-muted-foreground" };
     if (isRunning) return { text: "STREAMING", className: "text-accent animate-pulse" };
     if (isSimulationStarted && !isPlaying) return { text: "PAUSED", className: "text-muted-foreground" };

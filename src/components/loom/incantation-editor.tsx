@@ -26,23 +26,11 @@ import type { AnalyzePromptChangeInput } from '@/ai/flows/analyze-prompt-change-
 export default function IncantationEditor() {
   const { 
     isProcessing, 
-    handlePromptUpdate,
     originalPrompt,
     modifiedPrompt,
     setOriginalPrompt,
     setModifiedPrompt,
   } = useLoom();
-
-
-  /**
-   * Handles the form submission, packaging the prompts and calling the update handler.
-   * @param {React.FormEvent} e - The form event.
-   */
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const data: AnalyzePromptChangeInput = { originalPrompt, modifiedPrompt };
-    await handlePromptUpdate(data);
-  };
 
   return (
     <Card className="h-full flex flex-col bg-card/80 backdrop-blur-sm border-primary/20 shadow-lg shadow-primary/5">
@@ -52,12 +40,11 @@ export default function IncantationEditor() {
           Incantation Editor
         </CardTitle>
         <CardDescription>
-          Diff changes to agent behavior in real-time.
+          Craft the agent's core identity. Press "RUN" on the timeline to see its effects.
         </CardDescription>
       </CardHeader>
       
-        <form
-          onSubmit={onSubmit}
+        <div
           className="flex flex-col flex-1"
         >
           <CardContent className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -70,6 +57,7 @@ export default function IncantationEditor() {
                 className="h-full bg-background/50 text-base flex-1 resize-none"
                 value={originalPrompt}
                 onChange={(e) => setOriginalPrompt(e.target.value)}
+                disabled={isProcessing}
               />
             </div>
             <div className="grid gap-2 h-full">
@@ -81,26 +69,16 @@ export default function IncantationEditor() {
                 className="h-full bg-accent/5 border-accent/50 focus-visible:ring-accent text-base flex-1 resize-none"
                 value={modifiedPrompt}
                 onChange={(e) => setModifiedPrompt(e.target.value)}
+                disabled={isProcessing}
               />
             </div>
           </CardContent>
           <CardFooter>
-            <Button
-              type="submit"
-              className="w-full glow-primary"
-              disabled={isProcessing}
-            >
-              {isProcessing ? (
-                <LoaderCircle className="animate-spin" />
-              ) : (
-                <>
-                  Apply &amp; Analyze Changes
-                  <ArrowRight />
-                </>
-              )}
-            </Button>
+            <p className="text-xs text-muted-foreground text-center w-full">
+              The "RUN" command in the timeline will apply and analyze these changes.
+            </p>
           </CardFooter>
-        </form>
+        </div>
     </Card>
   );
 }
