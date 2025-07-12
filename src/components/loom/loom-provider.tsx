@@ -191,9 +191,21 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
 
   // This effect binds the workflow results to the timeline's progress.
   useEffect(() => {
-    if (!finalWorkflowResults) return;
+    if (!finalWorkflowResults) {
+        // Update node statuses based on timeline even before results are in
+        if (timelineProgress > 0) {
+            setWorkflowNodes(prev => prev.map(n => n.id === 'analysis' ? { ...n, status: 'running', content: 'Processing...' } : n));
+        }
+        if (timelineProgress >= 30) {
+            setWorkflowNodes(prev => prev.map(n => n.id === 'avatar' ? { ...n, status: 'running', content: 'Processing...' } : n));
+        }
+        if (timelineProgress >= 60) {
+            setWorkflowNodes(prev => prev.map(n => n.id === 'profile' ? { ...n, status: 'running', content: 'Processing...' } : n));
+        }
+        return;
+    };
 
-    // Update Analysis Node
+    // Update Analysis Node with results
     if (timelineProgress >= 30) {
       if (finalWorkflowResults.analysis) {
         setWorkflowNodes(prev => prev.map(n => n.id === 'analysis' ? { ...n, status: 'success', content: finalWorkflowResults.analysis!.analysis } : n));
@@ -202,7 +214,7 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
       }
     }
 
-    // Update Avatar Node
+    // Update Avatar Node with results
     if (timelineProgress >= 60) {
       if (finalWorkflowResults.avatar) {
         setWorkflowNodes(prev => prev.map(n => n.id === 'avatar' ? { ...n, status: 'success', content: finalWorkflowResults.avatar!.avatarDataUri } : n));
@@ -211,7 +223,7 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
       }
     }
 
-    // Update Profile Node
+    // Update Profile Node with results
     if (timelineProgress >= 90) {
       if (finalWorkflowResults.profile) {
         setWorkflowNodes(prev => prev.map(n => n.id === 'profile' ? { ...n, status: 'success', content: `Agent name set to "${finalWorkflowResults.profile!.name}". Profile updated.` } : n));
@@ -230,8 +242,8 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
     setFinalWorkflowResults(null);
     setIsProcessing(true);
     
-    // Set all nodes to running state immediately
-    setWorkflowNodes(prev => prev.map(node => ({ ...node, status: 'running', content: 'Processing...' })));
+    // Reset nodes to idle before starting
+    setWorkflowNodes(INITIAL_WORKFLOW_NODES);
     
     // Trigger the AI flows
     try {
