@@ -103,14 +103,13 @@ export default function Sidebar() {
           <AccordionItem value="dna" className="border-b-0">
             <Card className="rounded-none border-0 border-b border-border/50 bg-transparent">
               <CardHeader className="p-0">
-                <AccordionTrigger className="p-4 font-headline text-lg hover:no-underline">
-                  Agent DNA
+                <AccordionTrigger className="p-4 font-headline text-lg hover:no-underline flex items-center gap-2">
+                  <Bot /> Agent DNA
                 </AccordionTrigger>
               </CardHeader>
               <AccordionContent className="p-4 pt-0 space-y-4">
                 <div className="flex justify-between items-center">
                   <div className="text-lg flex items-center gap-2 font-semibold">
-                    <Bot />
                     {agentName}
                   </div>
                   <Badge
@@ -252,7 +251,7 @@ export default function Sidebar() {
                       <Label htmlFor="transmutation-tithe">Transmutation Tithe</Label>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <Slider id="transmutation-tithe" value={[transmutationTithe]} onValueChange={([val]) => setTransmutationTithe(val)} max={100} step={1} />
+                          <Slider id="transmutation-tithe" value={[transmutationTithe]} onValue-change={([val]) => setTransmutationTithe(val)} max={100} step={1} />
                         </TooltipTrigger>
                         <TooltipContent>
                           <p>{transmutationTithe}</p>
