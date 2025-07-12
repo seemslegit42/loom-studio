@@ -9,7 +9,7 @@ interface WorkflowNodeProps {
     className?: string;
     isSelected?: boolean;
     onClick?: () => void;
-    content?: string;
+    content?: string | null;
 }
 
 /**
@@ -36,29 +36,23 @@ export function WorkflowNode({ icon: Icon, title, children, className, isSelecte
             {/* Input Handle */}
             <div className="absolute -left-[9px] top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-background border-2 border-primary/50" />
 
-            {isAvatar ? (
-                 <Image 
-                    src={content} 
-                    alt={`${title} Avatar`} 
-                    width={64} 
-                    height={64}
-                    data-ai-hint="avatar"
-                    className="rounded-full object-cover max-h-[90%] w-auto"
-                />
-            ) : (
-                <div className="flex items-center gap-3">
+            <div className="flex flex-col items-center justify-center gap-2 text-center">
+                 {isAvatar ? (
+                     <Image 
+                        src={content} 
+                        alt={`${title} Avatar`} 
+                        width={48} 
+                        height={48}
+                        data-ai-hint="avatar"
+                        className="rounded-full object-cover"
+                    />
+                ) : (
                     <Icon className="h-6 w-6 text-primary" />
-                    <h3 className="font-semibold text-foreground text-center">{title}</h3>
-                </div>
-            )}
+                )}
+                <h3 className="font-semibold text-foreground text-sm leading-tight line-clamp-2">{title}</h3>
+            </div>
             
             {children && <div className="mt-2 text-xs text-muted-foreground">{children}</div>}
-
-             {content && !isAvatar && (
-                <p className="text-xs text-muted-foreground mt-2 text-center overflow-hidden text-ellipsis line-clamp-2">
-                    {content}
-                </p>
-            )}
 
             {/* Output Handle */}
             <div className="absolute -right-[9px] top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-background border-2 border-primary/50" />

@@ -4,13 +4,16 @@
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
-import { ChevronDown, Terminal, PlayCircle, Cpu, Waypoints, Info, PanelRight, PanelLeft } from "lucide-react";
+import { ChevronDown, Terminal, PlayCircle, Cpu, Waypoints, Info, PanelRight, PanelLeft, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { WorkflowNodePalette } from "./workflow-node-palette";
 import { WorkflowNode } from "./workflow-node";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { AgentTaskConfig } from "./agent-task-config";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { useToast } from "@/hooks/use-toast";
+import { analyzeAgentProfile } from "@/ai/flows/analyze-agent-profile-flow";
+import { generateAgentAvatar } from "@/ai/flows/generate-agent-avatar-flow";
 
 interface WorkflowDesignerProps {
     isPaletteOpen: boolean;
@@ -31,6 +34,42 @@ export default function WorkflowDesigner({
 }: WorkflowDesignerProps) {
     const [isConsoleOpen, setIsConsoleOpen] = useState(true);
     const [selectedNode, setSelectedNode] = useState<string | null>(null);
+    const [isConfiguringAgent, setIsConfiguringAgent] = useState(false);
+    const [agentName, setAgentName] = useState('Agent Task');
+    const [agentAvatar, setAgentAvatar] = useState<string | null>(null);
+    const { toast } = useToast();
+
+    const handleConfigureAgent = async (prompt: string) => {
+        setIsConfiguringAgent(true);
+        try {
+            const [profile, avatar] = await Promise.all([
+                analyzeAgentProfile({ prompt }),
+                generateAgentAvatar({ prompt })
+            ]);
+
+            if (profile?.name) {
+                setAgentName(profile.name);
+            }
+            if (avatar?.avatarDataUri) {
+                setAgentAvatar(avatar.avatarDataUri);
+            }
+            
+            toast({
+                title: "Agent Forged",
+                description: `New agent "${profile.name}" has been configured.`,
+            });
+
+        } catch (error) {
+            console.error("Agent configuration failed:", error);
+            toast({
+                variant: "destructive",
+                title: "Error Forging Agent",
+                description: "The agent's identity could not be forged. Please try again.",
+            });
+        } finally {
+            setIsConfiguringAgent(false);
+        }
+    }
 
     const PalettePanel = () => (
         <>
@@ -60,7 +99,7 @@ export default function WorkflowDesigner({
                 ) : (
                     <div>
                         {selectedNode === 'Agent Task' ? (
-                            <AgentTaskConfig />
+                            <AgentTaskConfig onConfigure={handleConfigureAgent} isConfiguring={isConfiguringAgent} />
                         ) : (
                             <p className="text-sm text-muted-foreground">
                                 Configuration for <span className="text-accent">{selectedNode}</span> will appear here.
@@ -113,7 +152,8 @@ export default function WorkflowDesigner({
 
                                 <WorkflowNode 
                                     icon={Cpu} 
-                                    title="Agent Task"
+                                    title={agentName}
+                                    content={agentAvatar}
                                     isSelected={selectedNode === 'Agent Task'}
                                     onClick={() => setSelectedNode('Agent Task')}
                                 />
