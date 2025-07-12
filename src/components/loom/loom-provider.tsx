@@ -192,19 +192,18 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
 
   // This effect binds the workflow results to the timeline's progress.
   useEffect(() => {
-    if (!finalWorkflowResults) {
-        // Update node statuses based on timeline even before results are in
-        if (timelineProgress > 0) {
-            setWorkflowNodes(prev => prev.map(n => n.id === 'analysis' ? { ...n, status: 'running', content: 'Processing...' } : n));
-        }
-        if (timelineProgress >= 30) {
-            setWorkflowNodes(prev => prev.map(n => n.id === 'avatar' ? { ...n, status: 'running', content: 'Processing...' } : n));
-        }
-        if (timelineProgress >= 60) {
-            setWorkflowNodes(prev => prev.map(n => n.id === 'profile' ? { ...n, status: 'running', content: 'Processing...' } : n));
-        }
-        return;
-    };
+    // Update node statuses based on timeline even before results are in
+    if (timelineProgress > 0 && timelineProgress < 30) {
+        setWorkflowNodes(prev => prev.map(n => n.id === 'analysis' ? { ...n, status: 'running', content: 'Processing...' } : n));
+    }
+    if (timelineProgress >= 30 && timelineProgress < 60) {
+        setWorkflowNodes(prev => prev.map(n => n.id === 'avatar' ? { ...n, status: 'running', content: 'Processing...' } : n));
+    }
+    if (timelineProgress >= 60 && timelineProgress < 90) {
+        setWorkflowNodes(prev => prev.map(n => n.id === 'profile' ? { ...n, status: 'running', content: 'Processing...' } : n));
+    }
+
+    if (!finalWorkflowResults) return;
 
     // Update Analysis Node with results
     if (timelineProgress >= 30) {
@@ -392,7 +391,7 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
   useEffect(() => {
     // Debounce analysis to avoid excessive API calls
     const handler = setTimeout(() => {
-        if (modifiedPrompt !== INITIAL_MODIFIED_PROMPT) {
+        if (modifiedPrompt !== INITIAL_MODIFIED_PROMPT && originalPrompt !== modifiedPrompt) {
             handlePromptAnalysis();
         }
     }, 500);
@@ -400,7 +399,7 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
     return () => {
       clearTimeout(handler);
     };
-  }, [modifiedPrompt, handlePromptAnalysis]);
+  }, [modifiedPrompt, originalPrompt, handlePromptAnalysis]);
 
 
   const value = {
