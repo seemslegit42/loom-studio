@@ -76,10 +76,10 @@ export default function Sidebar() {
     captureSnapshot, 
     restoreSnapshot, 
     deleteSnapshot,
-    creativity,
-    setCreativity,
-    riskAversion,
-    setRiskAversion,
+    baseRTR,
+    setBaseRTR,
+    pityBoonThreshold,
+    setPityBoonThreshold,
     transmutationTithe,
     setTransmutationTithe,
   } = useLoom();
@@ -224,12 +224,12 @@ export default function Sidebar() {
                 </CardDescription>
                 <div className="space-y-6">
                   <div className="grid gap-2">
-                    <Label htmlFor="creativity">Base RTR</Label>
-                    <Slider id="creativity" value={[creativity]} onValueChange={([val]) => setCreativity(val)} max={100} step={1} />
+                    <Label htmlFor="base-rtr">Base RTR</Label>
+                    <Slider id="base-rtr" value={[baseRTR]} onValueChange={([val]) => setBaseRTR(val)} max={100} step={1} />
                   </div>
                   <div className="grid gap-2">
-                    <Label htmlFor="risk-aversion">Pity Boon Threshold</Label>
-                    <Slider id="risk-aversion" value={[riskAversion]} onValueChange={([val]) => setRiskAversion(val)} max={100} step={1} />
+                    <Label htmlFor="pity-boon">Pity Boon Threshold</Label>
+                    <Slider id="pity-boon" value={[pityBoonThreshold]} onValueChange={([val]) => setPityBoonThreshold(val)} max={100} step={1} />
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="transmutation-tithe">Transmutation Tithe</Label>

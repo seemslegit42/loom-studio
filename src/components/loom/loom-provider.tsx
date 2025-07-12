@@ -81,17 +81,17 @@ interface LoomContextType {
   resetToInitialState: () => void;
 
   // Engine Tuning State
-  /** The creativity parameter for the engine (0-100). */
-  creativity: number;
-  /** Setter for the creativity parameter. */
-  setCreativity: (value: number) => void;
-  /** The risk aversion parameter for the engine (0-100). */
-  riskAversion: number;
-  /** Setter for the risk aversion parameter. */
-  setRiskAversion: (value: number) => void;
-  /** The transmutation tithe parameter for the engine (0-100). */
+  /** The Base RTR parameter for the engine (0-100). */
+  baseRTR: number;
+  /** Setter for the Base RTR parameter. */
+  setBaseRTR: (value: number) => void;
+  /** The Pity Boon Threshold parameter for the engine (0-100). */
+  pityBoonThreshold: number;
+  /** Setter for the Pity Boon Threshold parameter. */
+  setPityBoonThreshold: (value: number) => void;
+  /** The Transmutation Tithe parameter for the engine (0-100). */
   transmutationTithe: number;
-  /** Setter for the transmutation tithe parameter. */
+  /** Setter for the Transmutation Tithe parameter. */
   setTransmutationTithe: (value: number) => void;
 
   // Timeline State
@@ -147,8 +147,8 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
   const [workflowNodes, setWorkflowNodes] = useState<NodeState[]>(INITIAL_WORKFLOW_NODES);
 
   // Engine Tuning State
-  const [creativity, setCreativity] = useState(65);
-  const [riskAversion, setRiskAversion] = useState(20);
+  const [baseRTR, setBaseRTR] = useState(65);
+  const [pityBoonThreshold, setPityBoonThreshold] = useState(20);
   const [transmutationTithe, setTransmutationTithe] = useState(10);
 
   // Timeline State
@@ -323,12 +323,12 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
     deleteSnapshot,
     resetToInitialState,
 
-    creativity,
-    setCreativity: (val: number) => setCreativity(val),
-    riskAversion,
-    setRiskAversion: (val: number) => setRiskAversion(val),
+    baseRTR,
+    setBaseRTR,
+    pityBoonThreshold,
+    setPityBoonThreshold,
     transmutationTithe,
-    setTransmutationTithe: (val: number) => setTransmutationTithe(val),
+    setTransmutationTithe,
 
     timelineProgress,
     setTimelineProgress,
