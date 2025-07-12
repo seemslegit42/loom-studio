@@ -6,17 +6,12 @@
 'use server';
 
 import { ai } from '@/ai/genkit';
-import { z } from 'zod';
-
-const GenerateAgentAvatarInputSchema = z.object({
-  prompt: z.string().describe('The agent prompt to base the avatar on.'),
-});
-type GenerateAgentAvatarInput = z.infer<typeof GenerateAgentAvatarInputSchema>;
-
-const GenerateAgentAvatarOutputSchema = z.object({
-  avatarDataUri: z.string().describe('The generated avatar image as a data URI.'),
-});
-type GenerateAgentAvatarOutput = z.infer<typeof GenerateAgentAvatarOutputSchema>;
+import { 
+    GenerateAgentAvatarInputSchema, 
+    GenerateAgentAvatarOutputSchema, 
+    type GenerateAgentAvatarInput,
+    type GenerateAgentAvatarOutput
+} from './generate-agent-avatar-schema';
 
 const prompt = ai.definePrompt({
     name: 'generateAgentAvatarPrompt',
@@ -57,5 +52,3 @@ const generateAgentAvatarFlow = ai.defineFlow(
 export async function generateAgentAvatar(input: GenerateAgentAvatarInput): Promise<GenerateAgentAvatarOutput> {
   return generateAgentAvatarFlow(input);
 }
-
-export type { GenerateAgentAvatarInput, GenerateAgentAvatarOutput };

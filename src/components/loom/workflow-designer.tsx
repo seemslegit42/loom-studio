@@ -12,9 +12,9 @@ import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { AgentTaskConfig } from "./agent-task-config";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { useToast } from "@/hooks/use-toast";
-import { analyzeAgentProfile, type AnalyzeAgentProfileOutput } from "@/ai/flows/analyze-agent-profile-flow";
-import { generateAgentAvatar } from "@/ai/flows/generate-agent-avatar-flow";
+import type { AnalyzeAgentProfileOutput } from "@/ai/flows/analyze-agent-profile-flow";
 import { AgentProfileChart } from "./agent-profile-chart";
+import { forgeAgentIdentity } from "@/ai/flows/forge-agent-identity-flow";
 
 interface WorkflowDesignerProps {
     isPaletteOpen: boolean;
@@ -45,24 +45,21 @@ export default function WorkflowDesigner({
         setIsConfiguringAgent(true);
         setAgentProfile(null); // Clear previous profile
         try {
-            const [profile, avatar] = await Promise.all([
-                analyzeAgentProfile({ prompt }),
-                generateAgentAvatar({ prompt })
-            ]);
+            const result = await forgeAgentIdentity({ prompt });
 
-            if (profile?.name) {
-                setAgentName(profile.name);
+            if (result?.name) {
+                setAgentName(result.name);
             }
-            if (profile?.profile) {
-                setAgentProfile(profile.profile);
+            if (result?.profile) {
+                setAgentProfile(result.profile);
             }
-            if (avatar?.avatarDataUri) {
-                setAgentAvatar(avatar.avatarDataUri);
+            if (result?.avatarDataUri) {
+                setAgentAvatar(result.avatarDataUri);
             }
             
             toast({
                 title: "Agent Forged",
-                description: `New agent "${profile.name}" has been configured.`,
+                description: `New agent "${result.name}" has been configured.`,
             });
 
         } catch (error) {

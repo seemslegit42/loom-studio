@@ -2,3 +2,4 @@
 import './flows/analyze-prompt-change-flow';
 import './flows/generate-agent-avatar-flow';
 import './flows/analyze-agent-profile-flow';
+import './flows/forge-agent-identity-flow';
