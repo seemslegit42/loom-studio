@@ -15,6 +15,7 @@ import HallOfEchoes, { type NodeState } from './hall-of-echoes';
 import Sidebar from './sidebar';
 import { cn } from '@/lib/utils';
 import { ResonanceField } from './resonance-field';
+import BottomBar from './bottom-bar';
 
 type AgentProfile = AnalyzeAgentProfileOutput['profile'];
 
@@ -404,7 +405,7 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
                 <Sidebar />
                 <div className="flex-1 flex flex-col overflow-hidden">
                     <Header />
-                    <main className="flex-1 p-6 lg:p-8 flex flex-col gap-6 lg:gap-8 overflow-y-auto pt-24">
+                    <main className="flex-1 p-6 lg:p-8 flex flex-col gap-6 lg:gap-8 overflow-y-auto pt-24 pb-24 lg:pb-8">
                         <div className='flex-1 flex flex-col gap-6 lg:gap-8'>
                           <ResonanceField title="Agent Workflow" color="purple">
                             <HallOfEchoes />
@@ -415,6 +416,7 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
                         </div>
                     </main>
                     <EventTimeline />
+                    <BottomBar />
                 </div>
             </div>
         </div>
