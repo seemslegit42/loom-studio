@@ -6,8 +6,8 @@ import IncantationEditor from '@/components/loom/incantation-editor';
 import EventTimeline from '@/components/loom/event-timeline';
 
 import { analyzePromptChange } from '@/ai/flows/analyze-prompt-change-flow';
-import type { AnalyzePromptChangeInput } from '@/ai/flows/analyze-prompt-change-schema';
-import { generateAgentAvatar } from '@/ai/flows/generate-agent-avatar-flow';
+import type { AnalyzePromptChangeInput, AnalyzePromptChangeOutput } from '@/ai/flows/analyze-prompt-change-schema';
+import { generateAgentAvatar, GenerateAgentAvatarOutput } from '@/ai/flows/generate-agent-avatar-flow';
 import { analyzeAgentProfile, AnalyzeAgentProfileOutput } from '@/ai/flows/analyze-agent-profile-flow';
 import { useToast } from '@/hooks/use-toast';
 import { INITIAL_AVATAR, INITIAL_MODIFIED_PROMPT, INITIAL_NAME, INITIAL_ORIGINAL_PROMPT, INITIAL_PROFILE } from './loom-constants';
@@ -43,6 +43,12 @@ export interface Snapshot {
   agentProfile: AgentProfile;
   originalPrompt: string;
   modifiedPrompt: string;
+}
+
+interface FinalWorkflowResults {
+  analysis: AnalyzePromptChangeOutput | null;
+  avatar: GenerateAgentAvatarOutput | null;
+  profile: AnalyzeAgentProfileOutput | null;
 }
 
 /**
@@ -145,6 +151,8 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
   const { toast } = useToast();
   
   const [workflowNodes, setWorkflowNodes] = useState<NodeState[]>(INITIAL_WORKFLOW_NODES);
+  const [finalWorkflowResults, setFinalWorkflowResults] = useState<FinalWorkflowResults | null>(null);
+
 
   // Engine Tuning State
   const [baseRTR, setBaseRTR] = useState(65);
@@ -160,7 +168,7 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
   const [isSandboxMode, setIsSandboxMode] = useState(true);
 
   useEffect(() => {
-    if (timelineProgress >= timelineDuration) {
+    if (timelineProgress >= timelineDuration && timelineDuration > 0) {
       setIsFinished(true);
       setIsPlaying(false);
     } else {
@@ -168,10 +176,49 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
     }
   }, [timelineProgress, timelineDuration]);
 
+  // This effect binds the workflow results to the timeline's progress.
+  useEffect(() => {
+    if (!finalWorkflowResults) return;
+
+    // Update Analysis Node
+    if (timelineProgress >= 30) {
+      if (finalWorkflowResults.analysis) {
+        setWorkflowNodes(prev => prev.map(n => n.id === 'analysis' ? { ...n, status: 'success', content: finalWorkflowResults.analysis!.analysis } : n));
+      } else {
+        setWorkflowNodes(prev => prev.map(n => n.id === 'analysis' ? { ...n, status: 'error', content: 'Analysis failed.' } : n));
+      }
+    }
+
+    // Update Avatar Node
+    if (timelineProgress >= 60) {
+      if (finalWorkflowResults.avatar) {
+        setWorkflowNodes(prev => prev.map(n => n.id === 'avatar' ? { ...n, status: 'success', content: finalWorkflowResults.avatar!.avatarDataUri } : n));
+      } else {
+        setWorkflowNodes(prev => prev.map(n => n.id === 'avatar' ? { ...n, status: 'error', content: 'Generation failed.' } : n));
+      }
+    }
+
+    // Update Profile Node
+    if (timelineProgress >= 90) {
+      if (finalWorkflowResults.profile) {
+        setWorkflowNodes(prev => prev.map(n => n.id === 'profile' ? { ...n, status: 'success', content: `Agent name set to "${finalWorkflowResults.profile!.name}". Profile updated.` } : n));
+      } else {
+        setWorkflowNodes(prev => prev.map(n => n.id === 'profile' ? { ...n, status: 'error', content: 'Profiling failed.' } : n));
+      }
+    }
+
+  }, [timelineProgress, finalWorkflowResults]);
+
+
   const runSimulation = useCallback(async () => {
     setIsPlaying(true);
     setIsFinished(false);
     setTimelineProgress(0); // Start from beginning
+    setFinalWorkflowResults(null);
+    
+    // Set all nodes to running state immediately
+    setWorkflowNodes(prev => prev.map(node => ({ ...node, status: 'running', content: 'Processing...' })));
+    
     // Trigger the prompt update automatically
     await handlePromptUpdate({ originalPrompt, modifiedPrompt });
   }, [originalPrompt, modifiedPrompt]);
@@ -181,6 +228,7 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
     setIsFinished(false);
     setTimelineProgress(0);
     setWorkflowNodes(INITIAL_WORKFLOW_NODES);
+    setFinalWorkflowResults(null);
   }, []);
 
   const play = useCallback(() => {
@@ -215,9 +263,6 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
   const handlePromptUpdate = async (data: AnalyzePromptChangeInput): Promise<void> => {
     setIsProcessing(true);
     
-    // Set all nodes to running state immediately
-    setWorkflowNodes(prev => prev.map(node => ({ ...node, status: 'running', content: 'Processing...' })));
-
     try {
       const results = await Promise.allSettled([
         analyzePromptChange(data),
@@ -227,39 +272,44 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
       
       const [analysisResult, avatarResult, profileResult] = results;
 
+      const finalResults: FinalWorkflowResults = {
+        analysis: null,
+        avatar: null,
+        profile: null,
+      };
+
       if (analysisResult.status === 'fulfilled') {
         const { analysis } = analysisResult.value;
         toast({ title: 'Behavioral Analysis Complete', description: analysis });
-        setWorkflowNodes(prev => prev.map(n => n.id === 'analysis' ? { ...n, status: 'success', content: analysis } : n));
+        finalResults.analysis = analysisResult.value;
       } else {
         console.error("Analysis failed:", analysisResult.reason);
         toast({ variant: 'destructive', title: 'Error', description: 'Behavioral analysis failed.' });
-        setWorkflowNodes(prev => prev.map(n => n.id === 'analysis' ? { ...n, status: 'error', content: 'Analysis failed.' } : n));
       }
 
       if (avatarResult.status === 'fulfilled') {
         const { avatarDataUri } = avatarResult.value;
         setAgentAvatar(avatarDataUri);
-        setWorkflowNodes(prev => prev.map(n => n.id === 'avatar' ? { ...n, status: 'success', content: avatarDataUri } : n));
+        finalResults.avatar = avatarResult.value;
       } else {
         console.error("Avatar generation failed:", avatarResult.reason);
         setAgentAvatar(INITIAL_AVATAR);
         toast({ variant: 'destructive', title: 'Error', description: 'Avatar generation failed.' });
-        setWorkflowNodes(prev => prev.map(n => n.id === 'avatar' ? { ...n, status: 'error', content: 'Generation failed.' } : n));
       }
 
       if (profileResult.status === 'fulfilled') {
         const { name, profile } = profileResult.value;
         setAgentName(name);
         setAgentProfile(profile);
-        setWorkflowNodes(prev => prev.map(n => n.id === 'profile' ? { ...n, status: 'success', content: `Agent name set to "${name}". Profile updated.` } : n));
+        finalResults.profile = profileResult.value;
       } else {
         console.error("Profile analysis failed:", profileResult.reason);
         setAgentName(INITIAL_NAME);
         setAgentProfile(INITIAL_PROFILE);
         toast({ variant: 'destructive', title: 'Error', description: 'Profile analysis failed.' });
-        setWorkflowNodes(prev => prev.map(n => n.id === 'profile' ? { ...n, status: 'error', content: 'Profiling failed.' } : n));
       }
+      
+      setFinalWorkflowResults(finalResults);
 
     } catch (error) {
       console.error("An error occurred during prompt update processing:", error);
@@ -295,7 +345,6 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
       setAgentProfile(snapshotToRestore.agentProfile);
       setOriginalPrompt(snapshotToRestore.originalPrompt);
       setModifiedPrompt(snapshotToRestore.modifiedPrompt);
-      setWorkflowNodes(INITIAL_WORKFLOW_NODES);
       resetSimulation();
       toast({ title: 'Snapshot Restored', description: `Agent state restored to "${snapshotToRestore.agentName}".` });
     }
