@@ -16,6 +16,8 @@ import {
   Microscope,
   Bot,
   TestTube2,
+  Fingerprint,
+  Wrench
 } from 'lucide-react';
 import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, Radar } from 'recharts';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '../ui/chart';
@@ -29,15 +31,16 @@ type AgentProfile = AnalyzeAgentProfileOutput['profile'];
 const agentData = {
   certification: 'AIC Certified',
   dna: {
-    coreCapabilities: [
+    actions: [
       { id: 'reasoning', name: 'Advanced Reasoning', icon: BrainCircuit },
-      { id: 'econ', name: 'Economic Analysis', icon: DollarSign },
-      { id: 'search', name: 'Vector Search', icon: Microscope },
-      { id: 'code', name: 'Code Generation', icon: Bot },
+      { id: 'vector_search', name: 'Vector Search', icon: Microscope },
+      { id: 'code_gen', name: 'Code Generation', icon: Bot },
+      { id: 'api_billing', name: 'API: Billing', icon: DollarSign },
+      { id: 'tool_use', name: 'Use Tools', icon: Wrench },
     ],
-    permissions: [
-      { id: 'billing', name: 'API Access: Billing', icon: KeyRound },
+    profileDirectives: [
       { id: 'aegis', name: 'Aegis Control', icon: ShieldCheck },
+      { id: 'identity', name: 'Maintain Identity', icon: Fingerprint },
     ],
   },
 };
@@ -82,11 +85,11 @@ export function AgentDnaPanel({ agentName, agentProfile }: AgentDnaPanelProps) {
 
       <div className="space-y-3">
         <h4 className="font-semibold text-sm text-muted-foreground">
-          Core Capabilities
+          Profile (The Soul)
         </h4>
         <div className="flex flex-wrap gap-2">
-          {agentData.dna.coreCapabilities.map(cap => (
-            <Badge key={cap.id}>
+          {agentData.dna.profileDirectives.map(cap => (
+            <Badge variant="secondary" key={cap.id}>
               <cap.icon className="w-3 h-3 mr-1.5" />
               {cap.name}
             </Badge>
@@ -95,11 +98,11 @@ export function AgentDnaPanel({ agentName, agentProfile }: AgentDnaPanelProps) {
       </div>
       <div className="space-y-3">
         <h4 className="font-semibold text-sm text-muted-foreground">
-          Permissions
+          Actions (The Body)
         </h4>
         <div className="flex flex-wrap gap-2">
-          {agentData.dna.permissions.map(perm => (
-            <Badge variant="secondary" key={perm.id}>
+          {agentData.dna.actions.map(perm => (
+            <Badge key={perm.id}>
               <perm.icon className="w-3 h-3 mr-1.5" />
               {perm.name}
             </Badge>

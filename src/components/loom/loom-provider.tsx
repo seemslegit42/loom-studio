@@ -210,7 +210,7 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
     // Set all nodes to running state immediately
     setWorkflowNodes(prev => prev.map(node => ({ ...node, status: 'running', content: 'Processing...' })));
     
-    // Trigger the prompt update automatically
+    // Trigger the AI flows
     try {
       const results = await Promise.allSettled([
         analyzePromptChange({ originalPrompt: INITIAL_ORIGINAL_PROMPT, modifiedPrompt: INITIAL_MODIFIED_PROMPT }),
@@ -311,8 +311,8 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
       agentName,
       agentAvatar,
       agentProfile,
-      originalPrompt: INITIAL_ORIGINAL_PROMPT, // Placeholder
-      modifiedPrompt: INITIAL_MODIFIED_PROMPT, // Placeholder
+      originalPrompt: INITIAL_ORIGINAL_PROMPT, // Placeholder for future canvas state
+      modifiedPrompt: INITIAL_MODIFIED_PROMPT, // Placeholder for future canvas state
     };
     setSnapshots(prev => [newSnapshot, ...prev]);
     toast({ title: 'Snapshot Captured', description: `State of agent "${agentName}" has been saved.`});
@@ -324,6 +324,7 @@ export default function LoomProvider({ children }: { children?: ReactNode }) {
       setAgentName(snapshotToRestore.agentName);
       setAgentAvatar(snapshotToRestore.agentAvatar);
       setAgentProfile(snapshotToRestore.agentProfile);
+      // In the future, this would also restore the full canvas state
       resetSimulation();
       toast({ title: 'Snapshot Restored', description: `Agent state restored to "${snapshotToRestore.agentName}".` });
     }
