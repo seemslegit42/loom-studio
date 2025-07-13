@@ -126,16 +126,41 @@ export default function Home() {
     setRitual('idle');
   };
 
-  const handleUpdateNode = (nodeId: string, newPrompt: string) => {
-    setNodes(currentNodes => 
-      currentNodes.map(node => 
-        node.id === nodeId ? { ...node, prompt: newPrompt } : node
-      )
-    );
-     toast({
-        title: "Agent Updated",
-        description: "The agent's incantation has been successfully refined.",
-    });
+  const handleUpdateNode = async (nodeId: string, newPrompt: string) => {
+    try {
+        const newProfile = await analyzeAgentProfile({ prompt: newPrompt });
+        
+        let updatedNode: WorkflowNodeData | undefined;
+
+        setNodes(currentNodes =>
+            currentNodes.map(node => {
+                if (node.id === nodeId) {
+                    updatedNode = {
+                        ...node,
+                        prompt: newPrompt,
+                        profile: newProfile.profile,
+                        name: newProfile.name, // Also update name in case it changes
+                    };
+                    return updatedNode;
+                }
+                return node;
+            })
+        );
+        
+        if (updatedNode) {
+            toast({
+                title: "Agent Refined",
+                description: `The personality matrix for ${updatedNode.name} has been recalibrated.`,
+            });
+        }
+    } catch (error) {
+        console.error("Failed to update and re-analyze node:", error);
+        toast({
+            variant: "destructive",
+            title: "Refinement Failed",
+            description: "The AI could not re-analyze the new incantation. Please try again.",
+        });
+    }
   };
 
   const handleSummonNode = async (codexNode: CodexNode) => {
