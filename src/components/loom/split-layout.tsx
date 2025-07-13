@@ -4,7 +4,7 @@
 import { cn } from "@/lib/utils";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import { WorkflowNodePalette } from "./workflow-node-palette";
-import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { AgentProfileChart } from "./agent-profile-chart";
 import { SigilRites, type Ritual } from "../sigil-rites/SigilRites";
 import { WorkflowCanvas } from "./workflow-canvas";
@@ -115,8 +115,10 @@ export default function SplitLayout({
 
   const PalettePanel = () => (
     <div className="p-4 h-full flex flex-col">
-      <h2 className="text-lg font-headline text-muted-foreground pb-4">Palette</h2>
-      <WorkflowNodePalette onNodeSelect={onSummonNode} />
+      <h2 className="text-lg font-headline text-muted-foreground pb-4 md:pb-0">Palette</h2>
+      <div className="flex-1 md:mt-4">
+        <WorkflowNodePalette onNodeSelect={onSummonNode} />
+      </div>
     </div>
   );
 
@@ -272,15 +274,15 @@ export default function SplitLayout({
 
       {/* Palette Panel (Mobile) */}
       <Sheet open={isPaletteOpen} onOpenChange={setIsPaletteOpen}>
-        <SheetContent side="left" className="w-[300px] sm:w-[340px] bg-card/80 backdrop-blur-lg flex flex-col">
+        <SheetContent side="left" className="w-[300px] sm:w-[340px] bg-card/80 backdrop-blur-lg flex flex-col p-0">
           <PalettePanel />
         </SheetContent>
       </Sheet>
 
       {/* Inspector Panel (Mobile) */}
       <Sheet open={isInspectorOpen} onOpenChange={setIsInspectorOpen}>
-        <SheetContent side="right" className="w-[300px] sm:w-[340px] bg-card/80 backdrop-blur-lg flex flex-col">
-          <InspectorPanel />
+        <SheetContent side="right" className="w-[300px] sm:w-[340px] bg-card/80 backdrop-blur-lg flex flex-col p-0">
+           <InspectorPanel />
         </SheetContent>
       </Sheet>
     </>

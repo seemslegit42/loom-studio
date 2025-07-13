@@ -36,8 +36,8 @@ export function WorkflowNodePalette({ onNodeSelect }: WorkflowNodePaletteProps) 
 
     return (
         <div className="h-full flex flex-col">
-            <ScrollArea className="flex-1">
-                <div className="flex flex-col gap-6 pr-4">
+            <ScrollArea className="flex-1 -mr-4 pr-4">
+                <div className="flex flex-col gap-6">
                     {pantheonOrder.map(pantheon => (
                         pantheons[pantheon] && pantheons[pantheon].length > 0 && (
                             <div key={pantheon} className="space-y-3">
@@ -60,7 +60,7 @@ export function WorkflowNodePalette({ onNodeSelect }: WorkflowNodePaletteProps) 
                     ))}
                 </div>
             </ScrollArea>
-            <div className="flex items-center space-x-2 p-4 border-t border-border/50">
+            <div className="flex items-center space-x-2 pt-4 border-t border-border/50">
                 <Switch 
                     id="dev-mode" 
                     checked={showDevMode}
