@@ -19,3 +19,13 @@ export interface WorkflowNodeData {
     prompt: string;
     // Future properties: inputs, outputs, etc.
 }
+
+
+/**
+ * Represents a connection (edge) between two nodes.
+ */
+export interface WorkflowConnection {
+    id: string;
+    sourceId: string;
+    targetId: string;
+}

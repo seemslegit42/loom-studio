@@ -6,7 +6,7 @@ import SplitLayout from "@/components/loom/split-layout";
 import BottomBar from "@/components/loom/bottom-bar";
 import { useSystemSigilState } from "@/hooks/use-system-sigil-state";
 import { useState } from "react";
-import type { WorkflowNodeData } from "@/lib/types";
+import type { WorkflowNodeData, WorkflowConnection } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { ForgeDialog, type ForgedAgent } from "@/components/loom/forge-dialog";
 import type { CodexNode } from "@/lib/codex";
@@ -27,8 +27,33 @@ const initialNodes: WorkflowNodeData[] = [
       { trait: 'Technicality', value: 90 },
       { trait: 'Whimsy', value: 20 },
     ],
-    position: { x: 50, y: 50 },
+    position: { x: 25, y: 30 },
     prompt: "You are a helpful and welcoming agent designed to introduce users to Loom Studio."
+  },
+  {
+    id: 'followup_agent_2',
+    name: 'Follow-up Agent',
+    type: "LLM Task Agent",
+    avatarDataUri: `https://placehold.co/96x96.png`,
+    dataAiHint: 'questioning robot',
+    profile: [
+      { trait: 'Creativity', value: 60 },
+      { trait: 'Humor', value: 50 },
+      { trait: 'Formality', value: 70 },
+      { trait: 'Enthusiasm', value: 80 },
+      { trait: 'Technicality', value: 50 },
+      { trait: 'Whimsy', value: 40 },
+    ],
+    position: { x: 75, y: 70 },
+    prompt: "You are a follow-up agent. Your job is to ask the user what they would like to build today."
+  }
+];
+
+const initialConnections: WorkflowConnection[] = [
+  {
+    id: 'conn_1_2',
+    sourceId: 'welcome_agent_1',
+    targetId: 'followup_agent_2',
   }
 ];
 
@@ -44,7 +69,8 @@ export default function Home() {
   const [isInspectorOpen, setIsInspectorOpen] = useState(false);
   
   const [nodes, setNodes] = useState<WorkflowNodeData[]>(initialNodes);
-  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(initialNodes[0]?.id || null);
+  const [connections, setConnections] = useState<WorkflowConnection[]>(initialConnections);
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
 
   const [isForging, setIsForging] = useState(false);
   const [forgePrompt, setForgePrompt] = useState<string>('');
@@ -170,6 +196,7 @@ export default function Home() {
           setIsInspectorOpen={setIsInspectorOpen}
           nodes={nodes}
           setNodes={setNodes}
+          connections={connections}
           selectedNodeId={selectedNodeId}
           setSelectedNodeId={setSelectedNodeId}
           onUpdateNode={handleUpdateNode}

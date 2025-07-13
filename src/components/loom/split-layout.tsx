@@ -8,7 +8,7 @@ import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { AgentProfileChart } from "./agent-profile-chart";
 import { SigilRites, type Ritual } from "../sigil-rites/SigilRites";
 import { WorkflowCanvas } from "./workflow-canvas";
-import type { WorkflowNodeData } from "@/lib/types";
+import type { WorkflowNodeData, WorkflowConnection } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ScrollArea } from "../ui/scroll-area";
 import { AnimatePresence, motion } from "framer-motion";
@@ -24,6 +24,7 @@ interface SplitLayoutProps {
   setIsInspectorOpen: (isOpen: boolean) => void;
   nodes: WorkflowNodeData[];
   setNodes: React.Dispatch<React.SetStateAction<WorkflowNodeData[]>>;
+  connections: WorkflowConnection[];
   selectedNodeId: string | null;
   setSelectedNodeId: (id: string | null) => void;
   onUpdateNode: (nodeId: string, newPrompt: string) => void;
@@ -44,6 +45,7 @@ export default function SplitLayout({
   setIsInspectorOpen,
   nodes,
   setNodes,
+  connections,
   selectedNodeId,
   setSelectedNodeId,
   onUpdateNode,
@@ -131,6 +133,7 @@ export default function SplitLayout({
         <ResizablePanel defaultSize={60}>
             <WorkflowCanvas 
               nodes={nodes}
+              connections={connections}
               selectedNodeId={selectedNodeId}
               onNodeClick={handleNodeClick}
               onNodeDragEnd={handleNodeDragEnd}
@@ -148,6 +151,7 @@ export default function SplitLayout({
        <div className="h-full w-full md:hidden">
          <WorkflowCanvas 
             nodes={nodes}
+            connections={connections}
             selectedNodeId={selectedNodeId}
             onNodeClick={handleNodeClick}
             onNodeDragEnd={handleNodeDragEnd}
