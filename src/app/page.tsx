@@ -28,7 +28,8 @@ const initialNodes: WorkflowNodeData[] = [
       { trait: 'Whimsy', value: 20 },
     ],
     position: { x: 25, y: 30 },
-    prompt: "You are a helpful and welcoming agent designed to introduce users to Loom Studio."
+    prompt: "You are a helpful and welcoming agent designed to introduce users to Loom Studio.",
+    signature: "unsigned"
   },
   {
     id: 'followup_agent_2',
@@ -45,7 +46,8 @@ const initialNodes: WorkflowNodeData[] = [
       { trait: 'Whimsy', value: 40 },
     ],
     position: { x: 75, y: 70 },
-    prompt: "You are a follow-up agent. Your job is to ask the user what they would like to build today."
+    prompt: "You are a follow-up agent. Your job is to ask the user what they would like to build today.",
+    signature: "unsigned"
   }
 ];
 
@@ -100,6 +102,7 @@ export default function Home() {
         y: 45 + (Math.random() * 10),
       },
       prompt: forgedAgent.prompt,
+      signature: forgedAgent.signature,
     };
 
     setNodes(prevNodes => [...prevNodes, newNode]);
@@ -150,7 +153,8 @@ export default function Home() {
           x: 45 + (Math.random() * 10),
           y: 45 + (Math.random() * 10),
         },
-        prompt: `This is the newly summoned "${profile.name}" agent. Its purpose, derived from the "${codexNode.name}" primitive, is to: ${codexNode.subtitle}. Configure its core incantation below.`
+        prompt: `This is the newly summoned "${profile.name}" agent. Its purpose, derived from the "${codexNode.name}" primitive, is to: ${codexNode.subtitle}. Configure its core incantation below.`,
+        signature: 'unsigned',
       };
 
       setNodes(prevNodes => [...prevNodes, newNode]);

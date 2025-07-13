@@ -1,4 +1,3 @@
-
 /**
  * @fileOverview Centralized type definitions for the Loom Studio application.
  */
@@ -17,6 +16,7 @@ export interface WorkflowNodeData {
     profile: AnalyzeAgentProfileOutput['profile'];
     position: { x: number; y: number; };
     prompt: string;
+    signature?: string;
     // Future properties: inputs, outputs, etc.
 }
 

@@ -3,7 +3,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { AnimatePresence, motion } from "framer-motion";
-import { Loader2, RefreshCw, Wand2, Check } from "lucide-react";
+import { Loader2, RefreshCw, Wand2, Check, Fingerprint } from "lucide-react";
 import { AgentProfileChart } from "./agent-profile-chart";
 import Image from 'next/image';
 import { Skeleton } from "../ui/skeleton";
@@ -12,9 +12,12 @@ import { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { analyzeAgentProfile, type AnalyzeAgentProfileOutput } from "@/ai/flows/analyze-agent-profile-flow";
 import { generateAgentAvatar } from "@/ai/flows/generate-agent-avatar-flow";
+import { signAvatarData } from "@/ai/flows/sign-avatar-data-flow";
+import crypto from 'crypto';
+import { Badge } from "../ui/badge";
 
-export type ForgeStep = 'inactive' | 'profiling' | 'reviewing' | 'generatingAvatar' | 'complete';
-export type ForgeData = AnalyzeAgentProfileOutput & { prompt: string, avatarDataUri?: string };
+export type ForgeStep = 'inactive' | 'profiling' | 'reviewing' | 'generatingAvatar' | 'signing' | 'complete';
+export type ForgeData = AnalyzeAgentProfileOutput & { prompt: string, avatarDataUri?: string, signature?: string };
 export type ForgedAgent = ForgeData;
 
 interface ForgeDialogProps {
@@ -66,6 +69,37 @@ export function ForgeDialog({
     }
   }, [isOpen, step, startAnalysis]);
 
+  const generateSignature = useCallback(async (currentData: ForgeData) => {
+    if (!currentData.avatarDataUri) return;
+    setStep('signing');
+
+    try {
+      const personalityProfileHash = crypto
+        .createHash('sha256')
+        .update(JSON.stringify(currentData.profile))
+        .digest('hex');
+
+      const signatureResult = await signAvatarData({
+          agentId: `agent_${Date.now()}`, // Placeholder ID
+          timestamp: Date.now(),
+          architectUid: 'arch_001', // Placeholder UID
+          avatarDataUri: currentData.avatarDataUri,
+          personalityProfileHash,
+      });
+
+      setData(prev => prev ? { ...prev, signature: signatureResult.signature } : null);
+      setStep('complete');
+    } catch (error) {
+      console.error("Avatar signing failed:", error);
+      toast({
+          variant: "destructive",
+          title: "Signature Rejected",
+          description: "The avatar's authenticity could not be sealed. The form is unverified.",
+      });
+      setData(prev => prev ? { ...prev, signature: 'unsigned' } : null);
+      setStep('complete');
+    }
+  }, [toast]);
 
   const handleRerollProfile = async () => {
     if (!data) return;
@@ -90,8 +124,9 @@ export function ForgeDialog({
     setStep('generatingAvatar');
     try {
       const avatarResult = await generateAgentAvatar({ prompt: data.prompt, profile: data.profile });
-      setData(prev => prev ? { ...prev, avatarDataUri: avatarResult.avatarDataUri } : null);
-      setStep('complete');
+      const newData = { ...data, avatarDataUri: avatarResult.avatarDataUri };
+      setData(newData);
+      await generateSignature(newData);
     } catch (error) {
       console.error("Avatar generation failed:", error);
       toast({
@@ -99,8 +134,9 @@ export function ForgeDialog({
         title: "Visual Incoherence",
         description: "The agent's avatar could not be rendered. A default will be assigned.",
       });
-       setData(prev => prev ? { ...prev, avatarDataUri: `https://placehold.co/96x96.png` } : null);
-       setStep('complete');
+       const newData = { ...data, avatarDataUri: `https://placehold.co/96x96.png` };
+       setData(newData);
+       await generateSignature(newData);
     }
   };
 
@@ -109,8 +145,9 @@ export function ForgeDialog({
       setStep('generatingAvatar');
       try {
           const avatarResult = await generateAgentAvatar({ prompt: data.prompt, profile: data.profile });
-          setData(prev => prev ? { ...prev, avatarDataUri: avatarResult.avatarDataUri } : null);
-          setStep('complete');
+          const newData = {...data, avatarDataUri: avatarResult.avatarDataUri };
+          setData(newData);
+          await generateSignature(newData);
       } catch (error) {
           console.error("Avatar re-generation failed:", error);
           toast({
@@ -118,7 +155,7 @@ export function ForgeDialog({
               title: "Visual Incoherence",
               description: "Could not render a new avatar. The previous form remains.",
           });
-          setStep('complete');
+          setStep('complete'); // Go back to complete with old avatar
       }
   };
   
@@ -162,6 +199,14 @@ export function ForgeDialog({
             <p className="text-muted-foreground">Rendering visual form... Binding essence to image...</p>
           </motion.div>
         );
+
+      case 'signing':
+        return (
+          <motion.div key="signing" variants={stepVariants} initial="hidden" animate="visible" exit="exit" className="flex flex-col items-center justify-center text-center gap-4 h-64">
+            <SigilRites variant="genesis" ritual="transmute" />
+            <p className="text-muted-foreground">Sealing avatar with cryptographic signature...</p>
+          </motion.div>
+        );
       
       case 'complete':
         if (!data) return null;
@@ -184,6 +229,16 @@ export function ForgeDialog({
                         )}
                     </div>
                     <h3 className="text-xl font-semibold text-foreground">{data.name}</h3>
+
+                    {data.signature && (
+                      <div className="flex flex-col items-center gap-2 text-center">
+                        <Badge variant="secondary" className="gap-1.5 px-3 py-1 text-xs border-gilded-accent/30 text-gilded-accent/90">
+                          <Fingerprint className="h-3 w-3" />
+                          Sanctification Seal
+                        </Badge>
+                        <p className="text-xs text-muted-foreground font-mono break-all max-w-full">{data.signature}</p>
+                      </div>
+                    )}
                 </div>
                  <DialogFooter className="sm:justify-between gap-2">
                     <Button variant="outline" onClick={handleRerollAvatar}><RefreshCw className="mr-2" />Re-forge Avatar</Button>
