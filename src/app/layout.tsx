@@ -30,7 +30,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={cn("dark", fontBody.variable, fontHeadline.variable)}>
-      <head />
+      <head>
+          <link
+            rel="icon"
+            href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90' fill='hsl(279 70% 58%)'%3EΞ%3C/text%3E%3C/svg%3E"
+          />
+      </head>
       <body className="font-body antialiased flex flex-col h-screen bg-background">
         {children}
         <Toaster />
