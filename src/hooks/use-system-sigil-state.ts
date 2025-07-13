@@ -15,7 +15,7 @@ import type { Ritual, Variant } from '@/components/sigil-rites/SigilRites';
  * }} The sigil state and its update functions.
  */
 export function useSystemSigilState() {
-  const [variant, setVariant] = useState<Variant>('klepsydra');
+  const [variant, setVariant] = useState<Variant>('genesis');
   const [ritual, setRitual] = useState<Ritual>('idle');
 
   return {
