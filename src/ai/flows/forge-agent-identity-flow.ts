@@ -1,7 +1,9 @@
+
 /**
- * @fileOverview An AI flow for forging a complete agent identity, including profile and avatar.
- *
- * - forgeAgentIdentity - A function that orchestrates the agent identity creation.
+ * @fileOverview This file is deprecated. Its functionality has been decoupled
+ * into analyze-agent-profile-flow.ts and generate-agent-avatar-flow.ts
+ * to support interactive agent creation. This file is retained to avoid
+ * breaking changes in a larger refactor but should not be used for new development.
  */
 'use server';
 

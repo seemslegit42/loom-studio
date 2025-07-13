@@ -5,42 +5,64 @@ import { Button } from "@/components/ui/button";
 import { Loader2, Wand2 } from "lucide-react";
 import { usePromptAnalysis } from "@/hooks/use-prompt-analysis";
 import { Skeleton } from "../ui/skeleton";
-import { PersonaGallery } from "./persona-gallery";
+import { useEffect, useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 interface AgentTaskConfigProps {
-    prompt: string;
-    setPrompt: (prompt: string) => void;
-    onConfigure: (prompt: string) => Promise<void>;
-    isConfiguring: boolean;
-    onSelectPersona: (prompt: string) => void;
+    initialPrompt: string;
+    agentId: string;
 }
 
 /**
- * Configuration form for the Agent Task node in the Inspector panel.
+ * Configuration form for an existing Agent in the Inspector panel.
  * @returns {JSX.Element} The rendered form component.
  */
-export function AgentTaskConfig({ prompt, setPrompt, onConfigure, isConfiguring, onSelectPersona }: AgentTaskConfigProps) {
+export function AgentTaskConfig({ initialPrompt, agentId }: AgentTaskConfigProps) {
+    const [prompt, setPrompt] = useState(initialPrompt);
+    const [isUpdating, setIsUpdating] = useState(false);
     const { analysis, isLoading: isAnalyzing } = usePromptAnalysis(prompt);
+    const { toast } = useToast();
 
-    const handleConfigure = () => {
-        if (prompt.trim()) {
-            onConfigure(prompt);
-        }
-    }
+    // Reset prompt when selected agent changes
+    useEffect(() => {
+        setPrompt(initialPrompt);
+    }, [initialPrompt, agentId]);
+
+
+    const hasChanges = prompt !== initialPrompt;
+
+    const handleUpdate = async () => {
+        setIsUpdating(true);
+        // In a real app, you would call an update function here, e.g.:
+        // await updateAgent({ agentId, prompt });
+        console.log(`Updating agent ${agentId} with prompt:`, prompt);
+        
+        // Simulate network delay
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        toast({
+            title: "Agent Updated",
+            description: "The agent's incantation has been successfully refined.",
+        });
+        
+        // This would likely trigger a state update in the parent component
+        // to reflect the new prompt in the main state. For now, we just
+        // show a toast.
+        
+        setIsUpdating(false);
+    };
 
     return (
         <div className="space-y-4">
-             <PersonaGallery onSelectPersona={onSelectPersona} />
-
              <div>
-                <Label htmlFor="agent-prompt" className="text-muted-foreground">Core Incantation (Prompt)</Label>
+                <Label htmlFor={`agent-prompt-${agentId}`} className="text-muted-foreground">Core Incantation (Prompt)</Label>
                 <Textarea 
-                    id="agent-prompt" 
-                    placeholder="e.g., 'You are a master cybersecurity analyst. Your goal is to analyze security logs and identify potential threats...'"
+                    id={`agent-prompt-${agentId}`}
+                    placeholder="e.g., 'You are a master cybersecurity analyst...'"
                     className="mt-2 min-h-[200px] bg-background/50 border-border/70"
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
-                    disabled={isConfiguring}
+                    disabled={isUpdating}
                 />
             </div>
             
@@ -57,19 +79,19 @@ export function AgentTaskConfig({ prompt, setPrompt, onConfigure, isConfiguring,
                     </div>
                 ): (
                     <div className="text-sm text-muted-foreground/60 italic">
-                        AI-driven analysis will appear here as you type...
+                        AI-driven analysis will appear here as you edit...
                     </div>
                 )}
             </div>
 
-            <Button className="w-full animate-pulse-glow" onClick={handleConfigure} disabled={isConfiguring || !prompt.trim()}>
-                {isConfiguring ? (
+            <Button className="w-full" onClick={handleUpdate} disabled={isUpdating || !hasChanges}>
+                {isUpdating ? (
                     <>
                         <Loader2 className="animate-spin" />
-                        Forging...
+                        Refining...
                     </>
                 ) : (
-                    "Forge Agent Identity"
+                    "Update Incantation"
                 )}
             </Button>
         </div>

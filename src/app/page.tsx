@@ -8,7 +8,9 @@ import { useSystemSigilState } from "@/hooks/use-system-sigil-state";
 import { useState } from "react";
 import type { WorkflowNodeData } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
-import { forgeAgentIdentity } from "@/ai/flows/forge-agent-identity-flow";
+import { analyzeAgentProfile, type AnalyzeAgentProfileOutput } from "@/ai/flows/analyze-agent-profile-flow";
+import { generateAgentAvatar } from "@/ai/flows/generate-agent-avatar-flow";
+import { ForgeDialog } from "@/components/loom/forge-dialog";
 
 const initialNodes: WorkflowNodeData[] = [
   {
@@ -25,9 +27,12 @@ const initialNodes: WorkflowNodeData[] = [
       { trait: 'Whimsy', value: 20 },
     ],
     position: { x: 50, y: 50 },
+    prompt: "You are a helpful and welcoming agent designed to introduce users to Loom Studio."
   }
 ];
 
+export type ForgeStep = 'inactive' | 'profiling' | 'reviewing' | 'generatingAvatar' | 'complete';
+export type ForgeData = AnalyzeAgentProfileOutput & { prompt: string, avatarDataUri?: string };
 
 /**
  * The main page component for Loom Studio, serving as the root of the application's UI.
@@ -36,65 +41,150 @@ const initialNodes: WorkflowNodeData[] = [
  * @returns {JSX.Element} The rendered home page.
  */
 export default function Home() {
-  const { variant, ritual, setRitual } = useSystemSigilState();
+  const { ritual, setRitual } = useSystemSigilState();
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
   const [isInspectorOpen, setIsInspectorOpen] = useState(false);
-  const [isConfiguringAgent, setIsConfiguringAgent] = useState(false);
   
   const [nodes, setNodes] = useState<WorkflowNodeData[]>(initialNodes);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(initialNodes[0]?.id || null);
 
+  const [isForging, setIsForging] = useState(false);
+  const [forgeStep, setForgeStep] = useState<ForgeStep>('inactive');
+  const [forgeData, setForgeData] = useState<ForgeData | null>(null);
+
   const { toast } = useToast();
 
-  const handleForgeAgent = async (promptToForge: string) => {
-    if (!promptToForge.trim()) return;
+  const handleStartForge = async (prompt: string) => {
+    if (!prompt.trim()) return;
 
-    setIsConfiguringAgent(true);
-    setRitual('summon'); // Start the grand ritual
-    setSelectedNodeId(null);
-    setIsInspectorOpen(false);
+    setIsForging(true);
+    setForgeStep('profiling');
+    setRitual('orchestrate');
 
     try {
-      const result = await forgeAgentIdentity({ prompt: promptToForge });
-      
-      const newNode: WorkflowNodeData = {
-        id: `agent_${Date.now()}`,
-        name: result.name,
-        avatarDataUri: result.avatarDataUri,
-        dataAiHint: "futuristic agent", // Placeholder hint
-        profile: result.profile,
-        position: {
-          x: 45 + (Math.random() * 10),
-          y: 45 + (Math.random() * 10),
-        },
-      };
-
-      setNodes(prevNodes => [...prevNodes, newNode]);
-      setSelectedNodeId(newNode.id);
-      setIsInspectorOpen(true);
-      
-      toast({
-        title: "Agent Forged",
-        description: `The new agent, "${result.name}", has been summoned to the canvas.`,
-      });
-
+      const profileResult = await analyzeAgentProfile({ prompt });
+      setForgeData({ ...profileResult, prompt });
+      setForgeStep('reviewing');
     } catch (error) {
-      console.error("Agent configuration failed:", error);
+      console.error("Agent profiling failed:", error);
       toast({
         variant: "destructive",
         title: "Aetheric Interference",
-        description: "The agent's identity could not be forged. Please check the incantation or try again.",
+        description: "The agent's personality could not be analyzed. Please check the incantation.",
       });
+      handleCancelForge();
     } finally {
-      setIsConfiguringAgent(false);
-      setRitual('idle'); // End the ritual
+       setRitual('idle');
     }
-  }
+  };
 
+  const handleRerollProfile = async () => {
+    if (!forgeData) return;
+    setForgeStep('profiling');
+    try {
+        const profileResult = await analyzeAgentProfile({ prompt: forgeData.prompt });
+        setForgeData({ ...profileResult, prompt: forgeData.prompt });
+        setForgeStep('reviewing');
+    } catch (error) {
+        console.error("Agent re-profiling failed:", error);
+        toast({
+            variant: "destructive",
+            title: "Aetheric Interference",
+            description: "Failed to forge a new profile. The spirits are restless.",
+        });
+        setForgeStep('reviewing'); // Go back to reviewing previous state
+    }
+  };
+  
+  const handleAcceptProfile = async () => {
+    if (!forgeData) return;
+    setForgeStep('generatingAvatar');
+    try {
+      const avatarResult = await generateAgentAvatar({ prompt: forgeData.prompt });
+      setForgeData(prev => prev ? { ...prev, avatarDataUri: avatarResult.avatarDataUri } : null);
+      setForgeStep('complete');
+    } catch (error) {
+      console.error("Avatar generation failed:", error);
+      toast({
+        variant: "destructive",
+        title: "Visual Incoherence",
+        description: "The agent's avatar could not be rendered. A default will be assigned.",
+      });
+       setForgeData(prev => prev ? { ...prev, avatarDataUri: `https://placehold.co/96x96.png` } : null);
+       setForgeStep('complete');
+    }
+  };
+
+  const handleRerollAvatar = async () => {
+      if (!forgeData) return;
+      setForgeStep('generatingAvatar');
+      try {
+          const avatarResult = await generateAgentAvatar({ prompt: forgeData.prompt });
+          setForgeData(prev => prev ? { ...prev, avatarDataUri: avatarResult.avatarDataUri } : null);
+          setForgeStep('complete');
+      } catch (error) {
+          console.error("Avatar re-generation failed:", error);
+          toast({
+              variant: "destructive",
+              title: "Visual Incoherence",
+              description: "Could not render a new avatar. The previous form remains.",
+          });
+          setForgeStep('complete');
+      }
+  };
+
+  const handleFinalizeForge = () => {
+    if (!forgeData) return;
+    
+    setRitual('summon');
+
+    const newNode: WorkflowNodeData = {
+      id: `agent_${Date.now()}`,
+      name: forgeData.name,
+      avatarDataUri: forgeData.avatarDataUri || `https://placehold.co/96x96.png`,
+      dataAiHint: "futuristic agent", // Placeholder hint
+      profile: forgeData.profile,
+      position: {
+        x: 45 + (Math.random() * 10),
+        y: 45 + (Math.random() * 10),
+      },
+      prompt: forgeData.prompt,
+    };
+
+    setNodes(prevNodes => [...prevNodes, newNode]);
+    setSelectedNodeId(newNode.id);
+    setIsInspectorOpen(true);
+    
+    toast({
+      title: "Agent Forged",
+      description: `The new agent, "${forgeData.name}", has been summoned to the canvas.`,
+    });
+    
+    handleCancelForge();
+  };
+
+  const handleCancelForge = () => {
+    setIsForging(false);
+    setForgeStep('inactive');
+    setForgeData(null);
+    setRitual('idle');
+  };
 
   return (
     <div className="flex flex-col h-screen bg-background text-foreground">
-      <Header onForge={handleForgeAgent} isForging={isConfiguringAgent} />
+      <Header onForge={handleStartForge} isForging={isForging} />
+
+      <ForgeDialog 
+        isOpen={isForging}
+        step={forgeStep}
+        data={forgeData}
+        onAcceptProfile={handleAcceptProfile}
+        onRerollProfile={handleRerollProfile}
+        onFinalize={handleFinalizeForge}
+        onRerollAvatar={handleRerollAvatar}
+        onCancel={handleCancelForge}
+      />
+
       <main className="flex-1 overflow-hidden">
         <SplitLayout
           ritual={ritual}
@@ -107,7 +197,6 @@ export default function Home() {
           setNodes={setNodes}
           selectedNodeId={selectedNodeId}
           setSelectedNodeId={setSelectedNodeId}
-          isConfiguringAgent={isConfiguringAgent}
         />
       </main>
       <BottomBar

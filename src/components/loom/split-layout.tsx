@@ -12,6 +12,7 @@ import type { WorkflowNodeData } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ScrollArea } from "../ui/scroll-area";
 import { AnimatePresence, motion } from "framer-motion";
+import { AgentTaskConfig } from "./agent-task-config";
 
 interface SplitLayoutProps {
   ritual: Ritual;
@@ -24,7 +25,6 @@ interface SplitLayoutProps {
   setNodes: React.Dispatch<React.SetStateAction<WorkflowNodeData[]>>;
   selectedNodeId: string | null;
   setSelectedNodeId: (id: string | null) => void;
-  isConfiguringAgent: boolean;
 }
 
 /**
@@ -43,7 +43,6 @@ export default function SplitLayout({
   setNodes,
   selectedNodeId,
   setSelectedNodeId,
-  isConfiguringAgent,
 }: SplitLayoutProps) {
   
   const selectedNode = nodes.find(node => node.id === selectedNodeId) || null;
@@ -73,8 +72,15 @@ export default function SplitLayout({
        <h2 className="text-lg font-headline text-muted-foreground">Inspector</h2>
         <ScrollArea className="flex-1 mt-4 -mr-4 pr-4">
           <div className="space-y-6">
-            {selectedNode && selectedNode.profile ? (
+            {selectedNode ? (
+              <>
                 <AgentProfileChart profile={selectedNode.profile} agentName={selectedNode.name} />
+                <AgentTaskConfig
+                  initialPrompt={selectedNode.prompt}
+                  agentId={selectedNode.id}
+                  // Add other props for editing agent later
+                />
+              </>
             ) : (
               <Card className="border-border/60 bg-card/40">
                   <CardHeader>

@@ -15,5 +15,6 @@ export interface WorkflowNodeData {
     dataAiHint?: string;
     profile: AnalyzeAgentProfileOutput['profile'];
     position: { x: number; y: number; };
+    prompt: string;
     // Future properties: type, inputs, outputs, etc.
 }

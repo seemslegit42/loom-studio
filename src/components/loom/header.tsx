@@ -1,12 +1,14 @@
 
 'use client';
-import { Loader2, Search, Wand2 } from 'lucide-react';
+import { Loader2, Search, Wand2, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { usePromptAnalysis } from '@/hooks/use-prompt-analysis';
 import { useState } from 'react';
 import { Button } from '../ui/button';
 import { Skeleton } from '../ui/skeleton';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
+import { AgentTaskConfig } from './agent-task-config';
 
 
 interface HeaderProps {
@@ -26,7 +28,7 @@ export default function Header({ onForge, isForging }: HeaderProps) {
   const handleForgeClick = () => {
     if (prompt && !isForging) {
       onForge(prompt);
-      setPrompt(''); // Clear prompt after forging
+      // We don't clear the prompt here anymore, the ForgeDialog will handle it.
     }
   }
 
@@ -36,6 +38,8 @@ export default function Header({ onForge, isForging }: HeaderProps) {
       handleForgeClick();
     }
   }
+  
+  const isPopoverOpen = !!prompt && (isAnalyzing || !!analysis);
 
   return (
     <header className="h-16 flex-shrink-0 px-4 md:px-6 flex items-center justify-between gap-4 border-b border-border/50 bg-card/50 backdrop-blur-lg z-50">
@@ -48,7 +52,7 @@ export default function Header({ onForge, isForging }: HeaderProps) {
         <span className="font-headline text-lg tracking-widest text-primary">LOOM</span>
       </div>
 
-       <Popover open={!!prompt && (isAnalyzing || !!analysis)}>
+       <Popover open={isPopoverOpen}>
         <PopoverTrigger asChild>
           <div className="flex-1 max-w-xl relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground h-5 w-5 pointer-events-none" />
@@ -72,7 +76,10 @@ export default function Header({ onForge, isForging }: HeaderProps) {
             </div>
           </div>
         </PopoverTrigger>
-        <PopoverContent className="w-[var(--radix-popover-trigger-width)] bg-card/80 backdrop-blur-lg border-primary/30">
+        <PopoverContent 
+            className="w-[var(--radix-popover-trigger-width)] bg-card/80 backdrop-blur-lg border-primary/30"
+            onOpenAutoFocus={(e) => e.preventDefault()}
+        >
           <div className="min-h-[20px] text-sm">
             {isAnalyzing ? (
                <div className="flex items-center gap-2 text-muted-foreground">
