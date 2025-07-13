@@ -15,6 +15,8 @@ import { SigilRites, type Ritual, type Variant } from "../sigil-rites/SigilRites
 import { Skeleton } from "../ui/skeleton";
 import BottomBar from "./bottom-bar";
 import { WorkflowCanvas } from "./workflow-canvas";
+import type { WorkflowNodeData } from "@/lib/types";
+
 
 interface SplitLayoutProps {
   variant: Variant;
@@ -32,28 +34,40 @@ export default function SplitLayout({ variant, ritual, setRitual }: SplitLayoutP
   const [isInspectorOpen, setIsInspectorOpen] = useState(false);
 
   const [isConfiguringAgent, setIsConfiguringAgent] = useState(false);
-  const [agentName, setAgentName] = useState('');
-  const [agentAvatar, setAgentAvatar] = useState<string | null>(null);
-  const [agentProfile, setAgentProfile] = useState<AnalyzeAgentProfileOutput['profile'] | null>(null);
+  
+  const [nodes, setNodes] = useState<WorkflowNodeData[]>([]);
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+
+  // For now, the profile chart will show the last-configured agent's data
+  const [latestAgentProfile, setLatestAgentProfile] = useState<AnalyzeAgentProfileOutput['profile'] | null>(null);
+  const [latestAgentName, setLatestAgentName] = useState<string>('');
+  
   const { toast } = useToast();
 
   const handleConfigureAgent = async (prompt: string) => {
     setIsConfiguringAgent(true);
-    setAgentName('');
-    setAgentAvatar(null);
-    setAgentProfile(null);
+    setLatestAgentProfile(null);
+    setLatestAgentName('');
     setRitual('orchestrate');
 
     try {
       const result = await forgeAgentIdentity({ prompt });
+      
+      const newNode: WorkflowNodeData = {
+        id: `agent_${Date.now()}`,
+        title: result.name,
+        avatarDataUri: result.avatarDataUri,
+      };
 
-      if (result?.name) setAgentName(result.name);
-      if (result?.profile) setAgentProfile(result.profile);
-      if (result?.avatarDataUri) setAgentAvatar(result.avatarDataUri);
+      setNodes(prevNodes => [...prevNodes, newNode]);
+      setSelectedNodeId(newNode.id);
+      
+      setLatestAgentProfile(result.profile);
+      setLatestAgentName(result.name);
       
       toast({
         title: "Agent Forged",
-        description: `New agent "${result.name}" has been configured.`,
+        description: `New agent "${result.name}" has been summoned to the canvas.`,
       });
 
     } catch (error) {
@@ -82,9 +96,9 @@ export default function SplitLayout({ variant, ritual, setRitual }: SplitLayoutP
         <div className="flex-1 mt-4 space-y-6 overflow-y-auto pr-2">
           <AgentTaskConfig onConfigure={handleConfigureAgent} isConfiguring={isConfiguringAgent} />
           
-          {(isConfiguringAgent || agentProfile) && (
+          {(isConfiguringAgent || latestAgentProfile) && (
             <div className="space-y-6">
-              {isConfiguringAgent && !agentProfile ? (
+              {isConfiguringAgent && !latestAgentProfile ? (
                  <Card>
                     <CardHeader>
                       <Skeleton className="h-6 w-3/4" />
@@ -94,8 +108,8 @@ export default function SplitLayout({ variant, ritual, setRitual }: SplitLayoutP
                         <Skeleton className="h-48 w-full" />
                     </CardContent>
                  </Card>
-              ) : agentProfile && agentName ? (
-                  <AgentProfileChart profile={agentProfile} agentName={agentName} />
+              ) : latestAgentProfile && latestAgentName ? (
+                  <AgentProfileChart profile={latestAgentProfile} agentName={latestAgentName} />
               ) : null}
             </div>
           )}
@@ -113,7 +127,11 @@ export default function SplitLayout({ variant, ritual, setRitual }: SplitLayoutP
         <ResizableHandle withHandle className="hidden md:flex" />
 
         <ResizablePanel defaultSize={60}>
-            <WorkflowCanvas agentName={agentName} agentAvatar={agentAvatar}>
+            <WorkflowCanvas 
+              nodes={nodes}
+              selectedNodeId={selectedNodeId}
+              setSelectedNodeId={setSelectedNodeId}
+            >
                 <SigilRites variant={variant} ritual={ritual} onRitualComplete={() => setRitual('idle')} />
             </WorkflowCanvas>
         </ResizablePanel>
