@@ -11,7 +11,7 @@ import type { AnalyzeAgentProfileOutput } from "@/ai/flows/analyze-agent-profile
 export interface WorkflowNodeData {
     id: string;
     name: string;
-    avatarDataUri: string | null;
+    avatarDataUri: string;
     dataAiHint?: string;
     profile: AnalyzeAgentProfileOutput['profile'];
     position: { x: number; y: number; };
