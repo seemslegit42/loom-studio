@@ -6,49 +6,42 @@ import { Loader2, Wand2 } from "lucide-react";
 import { usePromptAnalysis } from "@/hooks/use-prompt-analysis";
 import { Skeleton } from "../ui/skeleton";
 import { useEffect, useState } from "react";
-import { useToast } from "@/hooks/use-toast";
 
 interface AgentTaskConfigProps {
     initialPrompt: string;
     agentId: string;
+    onUpdateNode: (agentId: string, newPrompt: string) => void;
 }
 
 /**
  * Configuration form for an existing Agent in the Inspector panel.
  * @returns {JSX.Element} The rendered form component.
  */
-export function AgentTaskConfig({ initialPrompt, agentId }: AgentTaskConfigProps) {
-    const [prompt, setPrompt] = useState(initialPrompt);
+export function AgentTaskConfig({ initialPrompt, agentId, onUpdateNode }: AgentTaskConfigProps) {
+    const [currentPromptValue, setCurrentPromptValue] = useState(initialPrompt);
+    const [originalPrompt, setOriginalPrompt] = useState(initialPrompt);
     const [isUpdating, setIsUpdating] = useState(false);
-    const { analysis, isLoading: isAnalyzing } = usePromptAnalysis(prompt);
-    const { toast } = useToast();
+    const { analysis, isLoading: isAnalyzing, resetAnalysis } = usePromptAnalysis(currentPromptValue, originalPrompt);
 
-    // Reset prompt when selected agent changes
     useEffect(() => {
-        setPrompt(initialPrompt);
-    }, [initialPrompt, agentId]);
+        setCurrentPromptValue(initialPrompt);
+        setOriginalPrompt(initialPrompt);
+        resetAnalysis();
+    }, [initialPrompt, agentId, resetAnalysis]);
 
-
-    const hasChanges = prompt !== initialPrompt;
+    const hasChanges = currentPromptValue !== originalPrompt;
 
     const handleUpdate = async () => {
         setIsUpdating(true);
-        // In a real app, you would call an update function here, e.g.:
-        // await updateAgent({ agentId, prompt });
-        console.log(`Updating agent ${agentId} with prompt:`, prompt);
+        // Simulate network delay for visual feedback
+        await new Promise(resolve => setTimeout(resolve, 750));
         
-        // Simulate network delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        onUpdateNode(agentId, currentPromptValue);
         
-        toast({
-            title: "Agent Updated",
-            description: "The agent's incantation has been successfully refined.",
-        });
-        
-        // This would likely trigger a state update in the parent component
-        // to reflect the new prompt in the main state. For now, we just
-        // show a toast.
-        
+        // After successful update, the new prompt becomes the original prompt
+        setOriginalPrompt(currentPromptValue);
+        resetAnalysis();
+
         setIsUpdating(false);
     };
 
@@ -60,8 +53,8 @@ export function AgentTaskConfig({ initialPrompt, agentId }: AgentTaskConfigProps
                     id={`agent-prompt-${agentId}`}
                     placeholder="e.g., 'You are a master cybersecurity analyst...'"
                     className="mt-2 min-h-[200px] bg-background/50 border-border/70"
-                    value={prompt}
-                    onChange={(e) => setPrompt(e.target.value)}
+                    value={currentPromptValue}
+                    onChange={(e) => setCurrentPromptValue(e.target.value)}
                     disabled={isUpdating}
                 />
             </div>

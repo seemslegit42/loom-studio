@@ -3,7 +3,7 @@
  */
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useDebounce } from 'use-debounce';
 import { analyzePromptChange } from '@/ai/flows/analyze-prompt-change-flow';
 
@@ -15,36 +15,33 @@ const DEBOUNCE_DELAY = 750; // milliseconds
  * to a prompt will affect an agent's behavior.
  * 
  * @param {string} currentPrompt The current text of the prompt being edited.
+ * @param {string} originalPrompt The original, saved text of the prompt.
  * @returns {{
  *  analysis: string | null;
  *  isLoading: boolean;
- * }} An object containing the analysis text and a loading state.
+ *  resetAnalysis: () => void;
+ * }} An object containing the analysis text, a loading state, and a reset function.
  */
-export function usePromptAnalysis(currentPrompt: string) {
+export function usePromptAnalysis(currentPrompt: string, originalPrompt: string) {
     const [analysis, setAnalysis] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [debouncedPrompt] = useDebounce(currentPrompt, DEBOUNCE_DELAY);
-    const originalPromptRef = useRef(currentPrompt);
     
-    // Set the initial prompt once when the component mounts
-    useEffect(() => {
-        originalPromptRef.current = currentPrompt;
-    }, []);
-
     useEffect(() => {
         async function fetchAnalysis() {
-            // Don't run on the initial render or if the prompt is empty
-            if (debouncedPrompt === originalPromptRef.current || !debouncedPrompt) {
-                setAnalysis(null);
+            // Don't run analysis if the debounced prompt is the same as the original,
+            // or if it's empty.
+            if (debouncedPrompt === originalPrompt || !debouncedPrompt.trim()) {
+                if (analysis) setAnalysis(null); // Clear previous analysis if text is reverted
+                if (isLoading) setIsLoading(false);
                 return;
             }
             
             setIsLoading(true);
-            setAnalysis(null);
 
             try {
                 const result = await analyzePromptChange({
-                    originalPrompt: originalPromptRef.current,
+                    originalPrompt: originalPrompt,
                     modifiedPrompt: debouncedPrompt,
                 });
                 setAnalysis(result.analysis);
@@ -58,14 +55,12 @@ export function usePromptAnalysis(currentPrompt: string) {
         
         fetchAnalysis();
 
-    }, [debouncedPrompt]);
+    }, [debouncedPrompt, originalPrompt, analysis, isLoading]);
+    
+    const resetAnalysis = useCallback(() => {
+        setAnalysis(null);
+        setIsLoading(false);
+    }, []);
 
-    // When the analysis is done and new debounced prompt becomes the original
-    useEffect(() => {
-      if (!isLoading && analysis) {
-        originalPromptRef.current = debouncedPrompt;
-      }
-    }, [isLoading, analysis, debouncedPrompt])
-
-    return { analysis, isLoading };
+    return { analysis, isLoading, resetAnalysis };
 }

@@ -90,6 +90,18 @@ export default function Home() {
     setRitual('idle');
   };
 
+  const handleUpdateNode = (nodeId: string, newPrompt: string) => {
+    setNodes(currentNodes => 
+      currentNodes.map(node => 
+        node.id === nodeId ? { ...node, prompt: newPrompt } : node
+      )
+    );
+     toast({
+        title: "Agent Updated",
+        description: "The agent's incantation has been successfully refined.",
+    });
+  };
+
   return (
     <div className="flex flex-col h-screen bg-background text-foreground">
       <Header onForge={handleStartForge} isForging={isForging} />
@@ -115,6 +127,7 @@ export default function Home() {
           setNodes={setNodes}
           selectedNodeId={selectedNodeId}
           setSelectedNodeId={setSelectedNodeId}
+          onUpdateNode={handleUpdateNode}
         />
       </main>
       <BottomBar

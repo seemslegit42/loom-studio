@@ -25,6 +25,7 @@ interface SplitLayoutProps {
   setNodes: React.Dispatch<React.SetStateAction<WorkflowNodeData[]>>;
   selectedNodeId: string | null;
   setSelectedNodeId: (id: string | null) => void;
+  onUpdateNode: (nodeId: string, newPrompt: string) => void;
 }
 
 /**
@@ -43,6 +44,7 @@ export default function SplitLayout({
   setNodes,
   selectedNodeId,
   setSelectedNodeId,
+  onUpdateNode,
 }: SplitLayoutProps) {
   
   const selectedNode = nodes.find(node => node.id === selectedNodeId) || null;
@@ -78,7 +80,7 @@ export default function SplitLayout({
                 <AgentTaskConfig
                   initialPrompt={selectedNode.prompt}
                   agentId={selectedNode.id}
-                  // Add other props for editing agent later
+                  onUpdateNode={onUpdateNode}
                 />
               </>
             ) : (
