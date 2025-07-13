@@ -22,8 +22,6 @@ import {
   Code,
   Cpu,
   FolderKanban,
-  Combine,
-  Split
 } from "lucide-react";
 
 export interface CodexNode {
@@ -129,6 +127,8 @@ export const workflowNodeCodex: CodexNode[] = [
     family: "Agent",
     devLabel: "Tagging / Classification"
   },
+
+  // == ORACLE PANTHEON ==
   {
     icon: BotMessageSquare,
     name: "The Oracle",
@@ -156,22 +156,6 @@ export const workflowNodeCodex: CodexNode[] = [
     tooltip: "Instantly cleans up messy data. Use it to format names, fix dates, or combine fields.",
     family: "Data",
     devLabel: "Data Transform"
-  },
-   {
-    icon: Combine,
-    name: "The Conflux",
-    subtitle: "Merge Multiple Data Streams",
-    tooltip: "Combine inputs from several nodes into a single structured output.",
-    family: "Data",
-    devLabel: "Merge"
-  },
-  {
-    icon: Split,
-    name: "The Schism",
-    subtitle: "Split Data into Parts",
-    tooltip: "Break a dataset into separate chunks for routing or filtering.",
-    family: "Data",
-    devLabel: "Splitter"
   },
 
   // == ADVANCED PANTHEON ==

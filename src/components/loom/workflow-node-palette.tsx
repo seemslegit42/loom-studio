@@ -26,7 +26,7 @@ export function WorkflowNodePalette() {
         return acc;
     }, {} as Record<CodexNode['family'], CodexNode[]>);
 
-    const pantheonOrder: CodexNode['family'][] = ["Core", "Logic", "Agent", "Oracle", "Connection", "Advanced"];
+    const pantheonOrder: CodexNode['family'][] = ["Core", "Logic", "Agent", "Oracle", "Connection", "Data", "Advanced"];
 
     const [showDevMode, setShowDevMode] = useState(false);
 
