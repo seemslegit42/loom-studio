@@ -36,7 +36,7 @@ const initialNodes: WorkflowNodeData[] = [
     id: 'sentinel_2',
     name: 'Sentinel',
     type: "LLM Task Agent",
-    avatarDataUri: `https://placehold.co/96x96.png`,
+    avatarDataUri: `https://images.unsplash.com/photo-1561031471-7e22cc339512?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxOHx8U2VudGluZWx8ZW58MHx8fHwxNzUyMzg5NjY3fDA&ixlib=rb-4.1.0&q=80&w=1080`,
     dataAiHint: 'armored guardian robot',
     profile: [
       { trait: 'Creativity', value: 10 },
