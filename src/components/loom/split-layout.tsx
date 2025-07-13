@@ -19,6 +19,7 @@ import { Button } from "../ui/button";
 import { Sparkles } from "lucide-react";
 import { useState } from "react";
 import { AgentDNAViewer } from "./agent-dna-viewer";
+import { TimelinePanel } from "./timeline-panel";
 
 interface SplitLayoutProps {
   ritual: Ritual;
@@ -237,16 +238,24 @@ export default function SplitLayout({
           <ResizableHandle withHandle />
 
           <ResizablePanel defaultSize={60}>
-              <WorkflowCanvas 
-                nodes={nodes}
-                connections={connections}
-                selectedNodeId={selectedNodeId}
-                selectedConnectionId={selectedConnectionId}
-                onNodeClick={handleNodeClick}
-                onConnectionClick={handleConnectionClick}
-                onCanvasClick={handleCanvasClick}
-                onNodeDragEnd={handleNodeDragEnd}
-              />
+            <ResizablePanelGroup direction="vertical">
+              <ResizablePanel defaultSize={75}>
+                <WorkflowCanvas 
+                  nodes={nodes}
+                  connections={connections}
+                  selectedNodeId={selectedNodeId}
+                  selectedConnectionId={selectedConnectionId}
+                  onNodeClick={handleNodeClick}
+                  onConnectionClick={handleConnectionClick}
+                  onCanvasClick={handleCanvasClick}
+                  onNodeDragEnd={handleNodeDragEnd}
+                />
+              </ResizablePanel>
+              <ResizableHandle withHandle />
+              <ResizablePanel defaultSize={25} minSize={10} maxSize={50}>
+                <TimelinePanel />
+              </ResizablePanel>
+            </ResizablePanelGroup>
           </ResizablePanel>
 
           <ResizableHandle withHandle />

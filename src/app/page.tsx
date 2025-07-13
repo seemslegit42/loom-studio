@@ -14,6 +14,7 @@ import { analyzeAgentProfile } from "@/ai/flows/analyze-agent-profile-flow";
 import { generateAgentAvatar } from "@/ai/flows/generate-agent-avatar-flow";
 import { createNexusAgent } from "@/ai/flows/create-nexus-agent-flow";
 import { refineAgentPrompt } from "@/ai/flows/refine-agent-prompt-flow";
+import { useLoomStore } from "@/hooks/useLoomStore";
 
 
 const initialNodes: WorkflowNodeData[] = [
@@ -84,9 +85,11 @@ export default function Home() {
   const [genesisPrompt, setGenesisPrompt] = useState<string>('');
   
   const { toast } = useToast();
+  const { logAction } = useLoomStore();
 
   const handleStartForge = (prompt: string) => {
     if (!prompt.trim()) return;
+    logAction('FORGE_INITIATED', { prompt });
     setGenesisPrompt(prompt);
     setSelectedNodeId(null); // Deselect any node to show the GenesisChamber
     setIsInspectorOpen(true);
@@ -113,6 +116,7 @@ export default function Home() {
       behavioralState: 'Idle',
     };
 
+    logAction('AGENT_SUMMONED', { agentId: newNode.id, agentName: newNode.name, method: 'Genesis Chamber' });
     setNodes(prevNodes => [...prevNodes, newNode]);
     setSelectedNodeId(newNode.id);
     setIsInspectorOpen(true);
@@ -126,6 +130,7 @@ export default function Home() {
   };
 
   const handleCancelForge = () => {
+    logAction('FORGE_CANCELLED', { prompt: genesisPrompt });
     setGenesisPrompt('');
     setRitual('idle');
   };
@@ -138,6 +143,8 @@ export default function Home() {
     // The prompt will be refined by the AI.
     // If no new profile, it's a manual prompt update.
     const isSculpting = !!newProfile;
+    const actionType = isSculpting ? 'AGENT_SCULPTED' : 'PROMPT_UPDATED';
+    logAction(actionType, { agentId: nodeId, agentName: nodeToUpdate.name });
 
     try {
         let finalPrompt = newPrompt;
@@ -156,22 +163,25 @@ export default function Home() {
             profile: reanalyzedProfile.profile,
             selectedStyle: reanalyzedProfile.recommendedStyle,
         });
-
+        
+        let updatedNode: WorkflowNodeData | null = null;
         setNodes(currentNodes =>
             currentNodes.map(node => {
                 if (node.id === nodeId) {
-                    return {
+                    updatedNode = {
                         ...node,
                         prompt: finalPrompt,
                         profile: reanalyzedProfile.profile,
                         name: reanalyzedProfile.name,
                         avatarDataUri: newAvatar.avatarDataUri,
                     };
+                    return updatedNode;
                 }
                 return node;
             })
         );
         
+        logAction('AGENT_REFORGED', { agentId: nodeId, agentName: reanalyzedProfile.name });
         toast({
             title: "Identity Re-Forged",
             description: `The personality matrix and visual form for ${reanalyzedProfile.name} have been recalibrated.`,
@@ -179,6 +189,7 @@ export default function Home() {
 
     } catch (error) {
         console.error("Failed to update and re-forge node:", error);
+        logAction('AGENT_REFORGE_FAILED', { agentId: nodeId, error: (error as Error).message });
         toast({
             variant: "destructive",
             title: "Re-Forging Failed",
@@ -205,6 +216,8 @@ export default function Home() {
         setRitual('idle');
         return;
     }
+    
+    logAction('NEXUS_SUMMON_INITIATED', { sourceId: sourceNode.id, targetId: targetNode.id });
 
     try {
         toast({ title: "Nexus Invoked", description: "The void whispers... forging a new form to bridge the gap." });
@@ -234,10 +247,12 @@ export default function Home() {
 
         setSelectedNodeId(newNode.id);
         setIsInspectorOpen(true);
+        logAction('AGENT_SUMMONED', { agentId: newNode.id, agentName: newNode.name, method: 'Nexus Invocation' });
         toast({ title: "Nexus Agent Forged", description: `"${newNode.name}" has manifested to complete the sequence.` });
 
     } catch (error) {
         console.error("Failed to create Nexus agent:", error);
+        logAction('NEXUS_SUMMON_FAILED', { sourceId: sourceNode.id, targetId: targetNode.id, error: (error as Error).message });
         toast({
             variant: "destructive",
             title: "Nexus Failed",
@@ -265,6 +280,7 @@ export default function Home() {
     }
 
     setRitual('summon');
+    logAction('PALETTE_SUMMON_INITIATED', { nodeType: codexNode.name });
     
     try {
       const seedPrompt = `Analyze the profile for an agent named "${codexNode.name}". Its purpose is to: ${codexNode.subtitle}. Description: ${codexNode.tooltip}`;
@@ -295,6 +311,7 @@ export default function Home() {
       setNodes(prevNodes => [...prevNodes, newNode]);
       setSelectedNodeId(newNode.id);
       setIsInspectorOpen(true);
+      logAction('AGENT_SUMMONED', { agentId: newNode.id, agentName: profile.name, method: 'Palette' });
 
       toast({
         title: "Node Summoned",
@@ -302,6 +319,7 @@ export default function Home() {
       });
     } catch (error) {
        console.error("Failed to summon and manifest node:", error);
+       logAction('PALETTE_SUMMON_FAILED', { nodeType: codexNode.name, error: (error as Error).message });
        toast({
          variant: "destructive",
          title: "Summoning Failed",
