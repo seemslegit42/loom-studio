@@ -44,15 +44,18 @@ export function WorkflowNodePalette({ onNodeSelect }: WorkflowNodePaletteProps) 
                                 <h3 className="font-semibold text-muted-foreground tracking-wider text-sm">{pantheon.toUpperCase()}</h3>
                                 <div className="space-y-2">
                                     {pantheons[pantheon].map(node => (
-                                        <PaletteNode 
-                                            key={node.name}
-                                            icon={node.icon} 
-                                            name={node.name}
-                                            subtitle={node.subtitle}
-                                            description={node.tooltip}
-                                            devLabel={showDevMode ? node.devLabel : undefined}
-                                            onClick={() => onNodeSelect(node)}
-                                        />
+                                        // We filter out the Archetype family here as they are handled in the header
+                                        node.family !== 'Archetype' && (
+                                            <PaletteNode 
+                                                key={node.name}
+                                                icon={node.icon} 
+                                                name={node.name}
+                                                subtitle={node.subtitle}
+                                                description={node.tooltip}
+                                                devLabel={showDevMode ? node.devLabel : undefined}
+                                                onClick={() => onNodeSelect(node)}
+                                            />
+                                        )
                                     ))}
                                 </div>
                             </div>
