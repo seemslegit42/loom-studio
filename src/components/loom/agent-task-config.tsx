@@ -30,7 +30,7 @@ export function AgentTaskConfig({ prompt, setPrompt, onConfigure, isConfiguring 
     return (
         <Card className="border-border/60 bg-card/40">
             <CardHeader>
-                <CardTitle>Forge New Agent</CardTitle>
+                <CardTitle>Configure Agent Task</CardTitle>
                 <CardDescription>Define the core prompt that guides the agent's behavior and goals.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -64,14 +64,14 @@ export function AgentTaskConfig({ prompt, setPrompt, onConfigure, isConfiguring 
                     )}
                 </div>
 
-                <Button className="w-full glow-primary" onClick={handleConfigure} disabled={isConfiguring || !prompt.trim()}>
+                <Button className="w-full animate-pulse-glow" onClick={handleConfigure} disabled={isConfiguring || !prompt.trim()}>
                     {isConfiguring ? (
                         <>
                             <Loader2 className="animate-spin" />
                             Forging...
                         </>
                     ) : (
-                        "Forge Agent Identity"
+                        "Add Agent to Canvas"
                     )}
                 </Button>
             </CardContent>
