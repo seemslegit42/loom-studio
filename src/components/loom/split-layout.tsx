@@ -16,6 +16,7 @@ import BottomBar from "./bottom-bar";
 import { WorkflowCanvas } from "./workflow-canvas";
 import type { WorkflowNodeData } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { PersonaGallery } from "./persona-gallery";
 
 
 interface SplitLayoutProps {
@@ -38,6 +39,8 @@ export default function SplitLayout({ variant, ritual, setRitual }: SplitLayoutP
   const [nodes, setNodes] = useState<WorkflowNodeData[]>([]);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
 
+  const [prompt, setPrompt] = useState("");
+
   const selectedNode = nodes.find(node => node.id === selectedNodeId) || null;
   
   const { toast } = useToast();
@@ -49,14 +52,19 @@ export default function SplitLayout({ variant, ritual, setRitual }: SplitLayoutP
         )
     );
   };
+  
+  const handlePersonaSelect = (personaPrompt: string) => {
+    setPrompt(personaPrompt);
+    // Maybe auto-scroll or focus the textarea
+  };
 
-  const handleConfigureAgent = async (prompt: string) => {
+  const handleConfigureAgent = async (promptToForge: string) => {
     setIsConfiguringAgent(true);
     setRitual('orchestrate');
     setSelectedNodeId(null);
 
     try {
-      const result = await forgeAgentIdentity({ prompt });
+      const result = await forgeAgentIdentity({ prompt: promptToForge });
       
       const newNode: WorkflowNodeData = {
         id: `agent_${Date.now()}`,
@@ -64,8 +72,8 @@ export default function SplitLayout({ variant, ritual, setRitual }: SplitLayoutP
         avatarDataUri: result.avatarDataUri,
         profile: result.profile,
         position: {
-          x: 50 + (Math.random() * 10 - 5),
-          y: 50 + (Math.random() * 10 - 5),
+          x: 45 + (Math.random() * 10),
+          y: 45 + (Math.random() * 10),
         },
       };
 
@@ -76,6 +84,7 @@ export default function SplitLayout({ variant, ritual, setRitual }: SplitLayoutP
         title: "Agent Forged",
         description: `New agent "${result.name}" has been summoned to the canvas.`,
       });
+      setPrompt(""); // Clear prompt after forging
 
     } catch (error) {
       console.error("Agent configuration failed:", error);
@@ -102,11 +111,19 @@ export default function SplitLayout({ variant, ritual, setRitual }: SplitLayoutP
        <h2 className="text-lg font-headline text-muted-foreground">Inspector</h2>
         <div className="flex-1 mt-4 space-y-6 overflow-y-auto pr-2">
           
-          {!selectedNodeId && (
-            <AgentTaskConfig onConfigure={handleConfigureAgent} isConfiguring={isConfiguringAgent} />
+          {!selectedNodeId && !isConfiguringAgent && (
+            <>
+              <PersonaGallery onSelectPersona={handlePersonaSelect} />
+              <AgentTaskConfig 
+                prompt={prompt}
+                setPrompt={setPrompt}
+                onConfigure={handleConfigureAgent} 
+                isConfiguring={isConfiguringAgent} 
+              />
+            </>
           )}
 
-          {isConfiguringAgent && !selectedNode ? (
+          {(isConfiguringAgent && !selectedNode) && (
              <Card className="border-border/60 bg-card/40">
                 <CardHeader>
                   <Skeleton className="h-6 w-3/4" />
@@ -116,9 +133,11 @@ export default function SplitLayout({ variant, ritual, setRitual }: SplitLayoutP
                     <Skeleton className="h-48 w-full" />
                 </CardContent>
              </Card>
-          ) : selectedNode && selectedNode.profile ? (
+          )} 
+          
+          {selectedNode && selectedNode.profile && (
               <AgentProfileChart profile={selectedNode.profile} agentName={selectedNode.name} />
-          ) : null}
+          )}
         </div>
     </div>
   );

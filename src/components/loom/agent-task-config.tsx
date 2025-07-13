@@ -2,13 +2,14 @@
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
 import { Loader2, Wand2 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { usePromptAnalysis } from "@/hooks/use-prompt-analysis";
 import { Skeleton } from "../ui/skeleton";
 
 interface AgentTaskConfigProps {
+    prompt: string;
+    setPrompt: (prompt: string) => void;
     onConfigure: (prompt: string) => Promise<void>;
     isConfiguring: boolean;
 }
@@ -17,8 +18,7 @@ interface AgentTaskConfigProps {
  * Configuration form for the Agent Task node in the Inspector panel.
  * @returns {JSX.Element} The rendered form component.
  */
-export function AgentTaskConfig({ onConfigure, isConfiguring }: AgentTaskConfigProps) {
-    const [prompt, setPrompt] = useState('');
+export function AgentTaskConfig({ prompt, setPrompt, onConfigure, isConfiguring }: AgentTaskConfigProps) {
     const { analysis, isLoading: isAnalyzing } = usePromptAnalysis(prompt);
 
     const handleConfigure = () => {
