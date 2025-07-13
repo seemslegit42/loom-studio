@@ -29,11 +29,12 @@ export interface CodexNode {
     name: string;
     subtitle: string;
     tooltip: string;
-    family: "Core" | "Logic" | "Agent" | "Integration" | "Data";
+    family: "Core" | "Logic" | "Agent" | "Connection";
     devLabel: string;
 }
 
 export const workflowNodeCodex: CodexNode[] = [
+  // == CORE PANTHEON ==
   {
     icon: PlayCircle,
     name: "The Spark",
@@ -43,14 +44,6 @@ export const workflowNodeCodex: CodexNode[] = [
     devLabel: "Manual Trigger"
   },
   {
-    icon: Webhook,
-    name: "The Signal",
-    subtitle: "Start When Another App Acts",
-    tooltip: "Listens for an action in another tool (like a new sale in Shopify or a new row in Google Sheets) and starts this workflow automatically.",
-    family: "Core",
-    devLabel: "Webhook Listener"
-  },
-   {
     icon: CheckCircle,
     name: "The Seal",
     subtitle: "Finish the Task",
@@ -58,108 +51,82 @@ export const workflowNodeCodex: CodexNode[] = [
     family: "Core",
     devLabel: "End Node"
   },
+
+  // == LOGIC PANTHEON ==
+  {
+    icon: Webhook,
+    name: "The Signal",
+    subtitle: "Start When Another App Acts",
+    tooltip: "Listens for an action in another tool (like a new sale) to start the workflow.",
+    family: "Logic",
+    devLabel: "Webhook Listener"
+  },
   {
     icon: GitBranch,
     name: "The Crossroads",
-    subtitle: "Create a Simple \"If/Then\"",
-    tooltip: "Creates a fork in the road. If a condition is met (e.g., 'Is the customer a VIP?'), go down one path. If not, go down the other.",
+    subtitle: "Create an \"If/Then\" Choice",
+    tooltip: "Sends the workflow down different paths based on a condition you set.",
     family: "Logic",
     devLabel: "Conditional Branch"
-  },
-  {
-    icon: Hourglass,
-    name: "The Vigil",
-    subtitle: "Wait Until a Condition is Met",
-    tooltip: "Pause the flow until a certain condition becomes true — like waiting for a payment to complete.",
-    family: "Logic",
-    devLabel: "Wait Until"
   },
   {
     icon: RefreshCw,
     name: "The Echo",
     subtitle: "Repeat for Each Item",
-    tooltip: "Loops through a list — for example, send a message to each customer in a group.",
+    tooltip: "Runs a set of actions for every single item in a list.",
     family: "Logic",
     devLabel: "For Each / Loop"
   },
   {
-    icon: Cpu,
-    name: "The Agent",
-    subtitle: "Give an AI a Job",
-    tooltip: "Assign a specific task to your AI assistant, like summarizing text, writing an email, or sorting data into categories.",
-    family: "Agent",
-    devLabel: "LLM Task Agent"
+    icon: Hourglass,
+    name: "The Vigil",
+    subtitle: "Wait Until...",
+    tooltip: "Pauses the workflow until a specific condition is met (e.g., payment confirmed).",
+    family: "Logic",
+    devLabel: "Wait Until"
   },
+
+  // == AGENT PANTHEON ==
   {
     icon: ScrollText,
     name: "The Scribe",
-    subtitle: "Write Something with AI",
-    tooltip: "Ask your AI assistant to draft an email, document, or any piece of writing.",
+    subtitle: "Draft Text",
+    tooltip: "An AI Agent that writes emails, documents, or any other text.",
     family: "Agent",
-    devLabel: "Text Generation"
+    devLabel: "Text Generation Agent"
   },
   {
     icon: BarChart2,
     name: "The Analyst",
-    subtitle: "Analyze Text or Data with AI",
-    tooltip: "Use the AI to find trends, summarize datasets, or interpret customer feedback.",
+    subtitle: "Analyze & Sort Data",
+    tooltip: "An AI Agent that categorizes information, finds patterns, or sorts lists.",
     family: "Agent",
-    devLabel: "Data Analysis"
+    devLabel: "Data Analysis Agent"
   },
-  {
-    icon: Languages,
-    name: "The Translator",
-    subtitle: "Translate Language with AI",
-    tooltip: "Translate content between languages automatically using the AI assistant.",
-    family: "Agent",
-    devLabel: "Language Translation"
-  },
-  {
-    icon: Tags,
-    name: "The Organizer",
-    subtitle: "Categorize and Tag Data",
-    tooltip: "Sort inputs into categories or labels based on rules or AI logic.",
-    family: "Agent",
-    devLabel: "Tagging / Classification"
-  },
-  {
-    icon: BotMessageSquare,
-    name: "The Oracle",
-    subtitle: "Ask the AI a Question",
-    tooltip: "For when you need a direct answer or idea from the core AI. Just type your question and get a response.",
-    family: "Agent",
-    devLabel: "Single-shot Prompt"
-  },
+  
+  // == CONNECTION PANTHEON ==
   {
     icon: Waypoints,
     name: "The Bridge",
     subtitle: "Connect to an Outside Tool",
-    tooltip: "Pull information from or send commands to another application, like pulling customer data from your CRM or adding an event to your calendar.",
-    family: "Integration",
+    tooltip: "Pulls information from or sends commands to another application.",
+    family: "Connection",
     devLabel: "API Call / HTTP Request"
   },
   {
     icon: Sparkles,
     name: "The Refiner",
     subtitle: "Clean Up & Format Data",
-    tooltip: "Instantly cleans up messy data. Use it to format names, fix dates, or combine fields.",
-    family: "Data",
+    tooltip: "Instantly cleans up messy data like names, dates, and numbers.",
+    family: "Connection",
     devLabel: "Data Transform"
   },
   {
-    icon: GitMerge,
-    name: "The Conflux",
-    subtitle: "Merge Multiple Data Streams",
-    tooltip: "Combine inputs from several nodes into a single structured output.",
-    family: "Data",
-    devLabel: "Merge"
-  },
-  {
-    icon: Scissors,
-    name: "The Schism",
-    subtitle: "Split Data into Parts",
-    tooltip: "Break a dataset into separate chunks for routing or filtering.",
-    family: "Data",
-    devLabel: "Splitter"
+    icon: BotMessageSquare,
+    name: "The Oracle",
+    subtitle: "Ask the AI a Question",
+    tooltip: "Get a direct answer, idea, or piece of knowledge from the core AI.",
+    family: "Connection",
+    devLabel: "Single-shot Prompt"
   },
 ];

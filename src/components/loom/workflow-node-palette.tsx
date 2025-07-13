@@ -18,7 +18,7 @@ export function WorkflowNodePalette() {
         return acc;
     }, {} as Record<CodexNode['family'], CodexNode[]>);
 
-    const familyOrder: CodexNode['family'][] = ["Core", "Agent", "Logic", "Data", "Integration"];
+    const familyOrder: CodexNode['family'][] = ["Core", "Logic", "Agent", "Connection"];
 
     // A flag to control dev mode, will be moved to context/state later
     const showDevMode = false;
@@ -27,21 +27,23 @@ export function WorkflowNodePalette() {
         <ScrollArea className="h-full">
             <div className="flex flex-col gap-6 pr-4">
                 {familyOrder.map(family => (
-                    <div key={family} className="space-y-3">
-                        <h3 className="font-semibold text-muted-foreground tracking-wider text-sm">{family.toUpperCase()}</h3>
-                        <div className="space-y-2">
-                             {families[family].map(node => (
-                                <PaletteNode 
-                                    key={node.name}
-                                    icon={node.icon} 
-                                    name={node.name}
-                                    subtitle={node.subtitle}
-                                    description={node.tooltip}
-                                    devLabel={showDevMode ? node.devLabel : undefined}
-                                />
-                            ))}
+                    families[family] && families[family].length > 0 && (
+                        <div key={family} className="space-y-3">
+                            <h3 className="font-semibold text-muted-foreground tracking-wider text-sm">{family.toUpperCase()}</h3>
+                            <div className="space-y-2">
+                                {families[family].map(node => (
+                                    <PaletteNode 
+                                        key={node.name}
+                                        icon={node.icon} 
+                                        name={node.name}
+                                        subtitle={node.subtitle}
+                                        description={node.tooltip}
+                                        devLabel={showDevMode ? node.devLabel : undefined}
+                                    />
+                                ))}
+                            </div>
                         </div>
-                    </div>
+                    )
                 ))}
             </div>
         </ScrollArea>
