@@ -24,22 +24,22 @@ export function WorkflowNodePalette() {
                     <PaletteNode 
                         icon={PlayCircle} 
                         title="Workflow Input" 
-                        description="Defines the starting data or event for a new process." 
+                        description="The front door to your workflow; where the process begins with its initial data." 
                     />
                     <PaletteNode 
                         icon={Waypoints} 
                         title="Workflow Output" 
-                        description="Defines the final result or conclusion of a process." 
+                        description="The final result or conclusion of a process. What the workflow will produce." 
                     />
                     <PaletteNode 
                         icon={GitBranch} 
                         title="Decision Point" 
-                        description="Create a rule to branch the workflow down different paths." 
+                        description="Create an 'if/then' rule. If a customer is 'VIP', send them down a different path." 
                     />
                     <PaletteNode 
                         icon={Webhook} 
-                        title="Event Listener" 
-                        description="Listens for an external signal to start a workflow." 
+                        title="Webhook" 
+                        description="Starts this workflow when another app sends a signal (e.g. a new sale in Shopify)." 
                     />
                 </PaletteSection>
 
@@ -47,12 +47,12 @@ export function WorkflowNodePalette() {
                     <PaletteNode 
                         icon={Cpu} 
                         title="Agent Task" 
-                        description="Delegate a task to a specialized AI agent." 
+                        description="Delegate a complex task to a specialized AI agent you have created." 
                     />
                     <PaletteNode 
                         icon={Zap} 
                         title="External System" 
-                        description="Connect to and exchange data with an outside tool or service." 
+                        description="Get or send data to another tool, like Google Sheets, Stripe, or a weather app." 
                     />
                 </PaletteSection>
 
@@ -60,12 +60,12 @@ export function WorkflowNodePalette() {
                     <PaletteNode 
                         icon={Sparkles} 
                         title="Data Alchemy" 
-                        description="Modify, combine, or reshape data within the workflow." 
+                        description="Clean up, format, or combine data. Turn a messy address into a clean one." 
                     />
                     <PaletteNode 
                         icon={BotMessageSquare} 
                         title="Prompt" 
-                        description="Craft a specific instruction or question for an AI model." 
+                        description="Craft a specific instruction or question for a generic AI model from OpenAI or Google." 
                     />
                 </PaletteSection>
             </div>
