@@ -41,6 +41,7 @@ export function ForgeDialog({
 }: ForgeDialogProps) {
   const [step, setStep] = useState<ForgeStep>('inactive');
   const [data, setData] = useState<ForgeData | null>(null);
+  const [isFinalizing, setIsFinalizing] = useState(false);
   const { toast } = useToast();
 
   const startAnalysis = useCallback(async () => {
@@ -66,6 +67,12 @@ export function ForgeDialog({
   useEffect(() => {
     if (isOpen && step === 'inactive') {
       startAnalysis();
+    }
+    if (!isOpen) {
+      // Reset state when dialog closes
+      setStep('inactive');
+      setData(null);
+      setIsFinalizing(false);
     }
   }, [isOpen, step, startAnalysis]);
 
@@ -160,8 +167,13 @@ export function ForgeDialog({
   };
   
   const handleFinalize = () => {
-    if (data) {
-        onFinalize(data);
+    if (data && !isFinalizing) {
+        setIsFinalizing(true);
+        // Simulate a slight delay for the ritual to feel complete
+        setTimeout(() => {
+            onFinalize(data);
+            setIsFinalizing(false);
+        }, 750);
     }
   };
 
@@ -241,8 +253,20 @@ export function ForgeDialog({
                     )}
                 </div>
                  <DialogFooter className="sm:justify-between gap-2">
-                    <Button variant="outline" onClick={handleRerollAvatar}><RefreshCw className="mr-2" />Re-forge Avatar</Button>
-                    <Button onClick={handleFinalize} className="glow-gilded"><Check className="mr-2" />Finalize & Summon</Button>
+                    <Button variant="outline" onClick={handleRerollAvatar} disabled={isFinalizing}><RefreshCw className="mr-2" />Re-forge Avatar</Button>
+                    <Button onClick={handleFinalize} className="glow-gilded" disabled={isFinalizing}>
+                        {isFinalizing ? (
+                          <>
+                            <Loader2 className="animate-spin" />
+                            Summoning...
+                          </>
+                        ) : (
+                          <>
+                            <Check className="mr-2" />
+                            Finalize & Summon
+                          </>
+                        )}
+                    </Button>
                 </DialogFooter>
              </motion.div>
         );
@@ -258,7 +282,9 @@ export function ForgeDialog({
         <AnimatePresence mode="wait">
             {renderContent()}
         </AnimatePresence>
-        <DialogClose onClick={onCancel} />
+        <DialogClose asChild>
+            <button className="hidden" />
+        </DialogClose>
       </DialogContent>
     </Dialog>
   );

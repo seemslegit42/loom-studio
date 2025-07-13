@@ -25,6 +25,7 @@ export default function Header({ onForge, isForging }: HeaderProps) {
   const handleForgeClick = () => {
     if (prompt && !isForging) {
       onForge(prompt);
+      setPrompt('');
       setIsPersonaGalleryOpen(false);
     }
   }
@@ -41,9 +42,19 @@ export default function Header({ onForge, isForging }: HeaderProps) {
     // Directly call onForge after setting the prompt
     if (personaPrompt && !isForging) {
       onForge(personaPrompt);
+      setPrompt('');
     }
     setIsPersonaGalleryOpen(false);
   }
+
+  const handleOpenChange = (open: boolean) => {
+    // Only open the popover if there is text in the input
+    if (open && prompt.trim()) {
+      setIsPersonaGalleryOpen(true);
+    } else {
+      setIsPersonaGalleryOpen(false);
+    }
+  };
   
   return (
     <header className="h-16 flex-shrink-0 px-4 md:px-6 flex items-center justify-between gap-4 border-b border-border/50 bg-card/50 backdrop-blur-lg z-50">
@@ -56,7 +67,7 @@ export default function Header({ onForge, isForging }: HeaderProps) {
         <span className="font-headline text-lg tracking-widest text-primary">LOOM</span>
       </div>
 
-       <Popover open={isPersonaGalleryOpen} onOpenChange={setIsPersonaGalleryOpen}>
+       <Popover open={isPersonaGalleryOpen} onOpenChange={handleOpenChange}>
         <PopoverTrigger asChild>
           <div className="flex-1 max-w-xl relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground h-5 w-5 pointer-events-none" />
@@ -64,9 +75,16 @@ export default function Header({ onForge, isForging }: HeaderProps) {
               placeholder="Scribe an incantation or select a Persona..."
               className="w-full bg-background/50 rounded-full h-10 pl-12 pr-28 border-primary/30 focus-visible:ring-primary/80"
               value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
+              onChange={(e) => {
+                setPrompt(e.target.value)
+                if (e.target.value.trim()) {
+                  setIsPersonaGalleryOpen(true)
+                } else {
+                  setIsPersonaGalleryOpen(false)
+                }
+              }}
               onKeyDown={handleKeyDown}
-              onFocus={() => setIsPersonaGalleryOpen(true)}
+              onFocus={() => { if(prompt.trim()) setIsPersonaGalleryOpen(true) }}
               disabled={isForging}
             />
             <div className="absolute right-2 top-1/2 -translate-y-1/2">
