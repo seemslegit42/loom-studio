@@ -35,7 +35,7 @@ export function AgentTaskConfig({ initialPrompt, agentId, agentType, onUpdateNod
 
     const handleUpdate = async () => {
         setIsUpdating(true);
-        onUpdateNode(agentId, currentPromptValue);
+        await onUpdateNode(agentId, currentPromptValue);
         
         // After successful update, the new prompt becomes the original prompt
         setOriginalPrompt(currentPromptValue);
@@ -68,7 +68,6 @@ export function AgentTaskConfig({ initialPrompt, agentId, agentType, onUpdateNod
                     {isAnalyzing ? (
                         <div className="space-y-2">
                         <Skeleton className="h-4 w-4/5" />
-                        <Skeleton className="h-4 w-3/5" />
                         </div>
                     ) : analysis ? (
                         <div className="flex items-start gap-2 text-sm text-accent">
