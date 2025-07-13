@@ -48,14 +48,14 @@ export function AgentTaskConfig({ node, onUpdateNode, isSculpting }: AgentTaskCo
     return (
         <div className="space-y-4">
              <div>
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center mb-2">
                     <Label htmlFor={`agent-prompt-${node.id}`} className="text-muted-foreground">Core Incantation (Prompt)</Label>
-                    <Badge variant="secondary">{node.type}</Badge>
+                    <Badge variant="outline">{node.type}</Badge>
                 </div>
                 <Textarea 
                     id={`agent-prompt-${node.id}`}
                     placeholder="e.g., 'You are a master cybersecurity analyst...'"
-                    className="mt-2 min-h-[200px] bg-background/50 border-border/70"
+                    className="min-h-[200px] bg-background/50 border-border/70"
                     value={currentPromptValue}
                     onChange={(e) => setCurrentPromptValue(e.target.value)}
                     disabled={isUpdating || isSculpting}

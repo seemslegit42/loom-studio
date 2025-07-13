@@ -18,6 +18,7 @@ import { GenesisChamber, type ForgedAgent } from "./genesis-chamber";
 import { Button } from "../ui/button";
 import { Sparkles } from "lucide-react";
 import { useState } from "react";
+import { AgentDNAViewer } from "./agent-dna-viewer";
 
 interface SplitLayoutProps {
   ritual: Ritual;
@@ -138,6 +139,7 @@ export default function SplitLayout({
                   exit={{ opacity: 0, x: -10 }}
                 >
                   <div className="space-y-6">
+                    <AgentDNAViewer node={selectedNode} />
                     <AgentProfileChart
                         profile={selectedNode.profile}
                         agentName={selectedNode.name}
