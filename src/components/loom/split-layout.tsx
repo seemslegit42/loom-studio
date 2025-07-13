@@ -17,6 +17,7 @@ import type { CodexNode } from "@/lib/codex";
 import { GenesisChamber, type ForgedAgent } from "./genesis-chamber";
 import { Button } from "../ui/button";
 import { Sparkles } from "lucide-react";
+import { useState } from "react";
 
 interface SplitLayoutProps {
   ritual: Ritual;
@@ -32,7 +33,7 @@ interface SplitLayoutProps {
   setSelectedNodeId: (id: string | null) => void;
   selectedConnectionId: string | null;
   setSelectedConnectionId: (id: string | null) => void;
-  onUpdateNode: (nodeId: string, newPrompt: string) => void;
+  onUpdateNode: (nodeId: string, newPrompt: string, newProfile?: WorkflowNodeData['profile']) => void;
   onSummonNode: (codexNode: CodexNode) => void;
   onNexusSummon: (connectionId: string) => void;
   genesisPrompt: string;
@@ -69,6 +70,7 @@ export default function SplitLayout({
   
   const selectedNode = nodes.find(node => node.id === selectedNodeId) || null;
   const selectedConnection = connections.find(conn => conn.id === selectedConnectionId) || null;
+  const [isSculpting, setIsSculpting] = useState(false);
   
   const handleNodeDragEnd = (nodeId: string, newPosition: { x: number; y: number }) => {
     setNodes(currentNodes => 
@@ -96,6 +98,12 @@ export default function SplitLayout({
     if (genesisPrompt) onCancelForge(); // Cancel forging if clicking on canvas
   };
 
+  const handleProfileChange = (newProfile: WorkflowNodeData['profile']) => {
+    if (!selectedNode) return;
+    setIsSculpting(true); // Parent component now manages sculpting state
+    onUpdateNode(selectedNode.id, selectedNode.prompt, newProfile);
+  };
+
   const PalettePanel = () => (
     <div className="p-4 h-full flex flex-col">
       <h2 className="text-lg font-headline text-muted-foreground pb-4">Palette</h2>
@@ -119,12 +127,17 @@ export default function SplitLayout({
                   exit={{ opacity: 0, x: -10 }}
                 >
                   <div className="space-y-6">
-                    <AgentProfileChart profile={selectedNode.profile} agentName={selectedNode.name} />
+                    <AgentProfileChart
+                        profile={selectedNode.profile}
+                        agentName={selectedNode.name}
+                        onProfileChange={handleProfileChange}
+                        isSculpting={isSculpting}
+                    />
                     <AgentTaskConfig
-                      initialPrompt={selectedNode.prompt}
-                      agentId={selectedNode.id}
-                      agentType={selectedNode.type}
+                      node={selectedNode}
                       onUpdateNode={onUpdateNode}
+                      isSculpting={isSculpting}
+                      setIsSculpting={setIsSculpting}
                     />
                   </div>
                 </motion.div>

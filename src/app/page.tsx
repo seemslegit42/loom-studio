@@ -129,42 +129,51 @@ export default function Home() {
     setRitual('idle');
   };
 
-  const handleUpdateNode = async (nodeId: string, newPrompt: string) => {
-    try {
-        // 1. Re-analyze the agent's profile based on the new prompt
-        const newProfile = await analyzeAgentProfile({ prompt: newPrompt });
-        
-        // 2. Re-forge the avatar with the new identity
-        const newAvatar = await generateAgentAvatar({
-            prompt: newPrompt,
-            profile: newProfile.profile,
-            selectedStyle: newProfile.recommendedStyle,
-        });
+  const handleUpdateNode = async (nodeId: string, newPrompt: string, newProfileOrUndefined?: WorkflowNodeData['profile']) => {
+    const nodeToUpdate = nodes.find(node => node.id === nodeId);
+    if (!nodeToUpdate) return;
+    
+    let finalProfile = newProfileOrUndefined || nodeToUpdate.profile;
 
-        let updatedNode: WorkflowNodeData | undefined;
+    try {
+        let finalPrompt = newPrompt;
+        let finalAvatarUri = nodeToUpdate.avatarDataUri;
+        let finalName = nodeToUpdate.name;
+
+        // If the prompt has changed, it's a full re-forge.
+        // If only the profile has changed, it's a prompt refinement.
+        if (newPrompt !== nodeToUpdate.prompt) {
+            const reanalyzedProfile = await analyzeAgentProfile({ prompt: newPrompt });
+            const newAvatar = await generateAgentAvatar({
+                prompt: newPrompt,
+                profile: reanalyzedProfile.profile,
+                selectedStyle: reanalyzedProfile.recommendedStyle,
+            });
+            finalProfile = reanalyzedProfile.profile;
+            finalAvatarUri = newAvatar.avatarDataUri;
+            finalName = reanalyzedProfile.name;
+        }
 
         setNodes(currentNodes =>
             currentNodes.map(node => {
                 if (node.id === nodeId) {
-                    updatedNode = {
+                    return {
                         ...node,
-                        prompt: newPrompt,
-                        profile: newProfile.profile,
-                        name: newProfile.name, // Also update name in case it changes
-                        avatarDataUri: newAvatar.avatarDataUri, // Update the avatar
+                        prompt: finalPrompt,
+                        profile: finalProfile,
+                        name: finalName,
+                        avatarDataUri: finalAvatarUri,
                     };
-                    return updatedNode;
                 }
                 return node;
             })
         );
         
-        if (updatedNode) {
-            toast({
-                title: "Identity Re-Forged",
-                description: `The personality matrix and visual form for ${updatedNode.name} have been recalibrated.`,
-            });
-        }
+        toast({
+            title: "Identity Re-Forged",
+            description: `The personality matrix and visual form for ${finalName} have been recalibrated.`,
+        });
+
     } catch (error) {
         console.error("Failed to update and re-forge node:", error);
         toast({
@@ -174,6 +183,7 @@ export default function Home() {
         });
     }
   };
+
 
   const handleNexusSummon = async (connectionId: string) => {
     setRitual('transmute');
@@ -320,6 +330,7 @@ export default function Home() {
           setSelectedConnectionId={setSelectedConnectionId}
           onUpdateNode={handleUpdateNode}
           onSummonNode={handleSummonNode}
+          onNexusSummon={handleNexusSummon}
           genesisPrompt={genesisPrompt}
           onFinalizeForge={handleFinalizeForge}
           onCancelForge={handleCancelForge}
