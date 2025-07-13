@@ -6,3 +6,4 @@ import './flows/analyze-agent-profile-flow';
 import './flows/sign-avatar-data-flow';
 import './flows/create-nexus-agent-flow';
 import './flows/refine-agent-prompt-flow';
+import './flows/generate-workflow-from-prompt-flow';

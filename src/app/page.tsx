@@ -14,6 +14,7 @@ import { analyzeAgentProfile } from "@/ai/flows/analyze-agent-profile-flow";
 import { generateAgentAvatar } from "@/ai/flows/generate-agent-avatar-flow";
 import { createNexusAgent } from "@/ai/flows/create-nexus-agent-flow";
 import { refineAgentPrompt } from "@/ai/flows/refine-agent-prompt-flow";
+import { generateWorkflowFromPrompt } from "@/ai/flows/generate-workflow-from-prompt-flow";
 import { useLoomStore } from "@/hooks/useLoomStore";
 
 
@@ -87,12 +88,46 @@ export default function Home() {
   const { toast } = useToast();
   const { logAction } = useLoomStore();
 
-  const handleStartForge = (prompt: string) => {
+  const handleStartForge = async (prompt: string) => {
     if (!prompt.trim()) return;
     logAction('FORGE_INITIATED', { prompt });
-    setGenesisPrompt(prompt);
-    setSelectedNodeId(null); // Deselect any node to show the GenesisChamber
-    setIsInspectorOpen(true);
+    setRitual('summon');
+    setSelectedNodeId(null);
+    setGenesisPrompt(''); // Clear genesis prompt if any
+    setIsInspectorOpen(false); // Hide inspector during full workflow forge
+    
+    try {
+        toast({ title: "Incantation Received", description: "The Loom is weaving your workflow..." });
+        
+        const result = await generateWorkflowFromPrompt({ prompt });
+
+        if (result.nodes.length === 1 && result.connections.length === 0) {
+            // If the AI decides to create just one agent, use the Genesis Chamber flow
+            setGenesisPrompt(prompt);
+            setIsInspectorOpen(true);
+            setRitual('idle'); // Let genesis chamber handle its own ritual
+        } else {
+            // For a full workflow, manifest it directly
+            setNodes(result.nodes);
+            setConnections(result.connections);
+            
+            toast({
+                title: "Workflow Manifested",
+                description: `${result.nodes.length} agents and ${result.connections.length} connections have been forged.`,
+            });
+            logAction('WORKFLOW_FORGED', { prompt, nodeCount: result.nodes.length, connectionCount: result.connections.length });
+        }
+
+    } catch (error) {
+        console.error("Failed to forge workflow from prompt:", error);
+        logAction('FORGE_FAILED', { prompt, error: (error as Error).message });
+        toast({
+            variant: "destructive",
+            title: "The Loom Falters",
+            description: "The AI could not manifest a workflow from the incantation. Please try again.",
+        });
+        setRitual('idle');
+    }
   };
   
   const handleFinalizeForge = (manifestedForm: ForgedAgent) => {
@@ -242,7 +277,7 @@ export default function Home() {
             ...prev.filter(c => c.id !== connectionId),
             // Add new connections
             { id: `conn_${sourceNode.id}_${newNode.id}`, sourceId: sourceNode.id, targetId: newNode.id },
-            { id: `conn_${newNode.id}_${targetNode.id}`, sourceId: newNode.id, targetId: targetNode.id },
+            { id: `conn_${newNode.id}_${targetNode.id}`, sourceId: newNode.id, targetId: newNode.id },
         ]);
 
         setSelectedNodeId(newNode.id);

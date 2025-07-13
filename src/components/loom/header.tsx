@@ -61,7 +61,7 @@ export default function Header({ onForge }: HeaderProps) {
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground h-5 w-5 pointer-events-none" />
               <Input
                 id="incantation-input"
-                placeholder="Scribe an incantation or select an archetype to begin..."
+                placeholder="Scribe an incantation to forge an agent or an entire workflow..."
                 className="w-full bg-background/50 rounded-full h-10 pl-12 pr-28 border-primary/30 focus-visible:ring-primary/80"
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
