@@ -1,7 +1,7 @@
-
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import Header from '@/components/loom/header';
+import '@testing-library/jest-dom';
 
 // Mock the usePromptAnalysis hook
 jest.mock('@/hooks/use-prompt-analysis', () => ({
