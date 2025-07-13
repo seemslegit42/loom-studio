@@ -11,6 +11,7 @@ interface PaletteNodeProps {
     description: string;
     devLabel?: string;
     className?: string;
+    onClick?: () => void;
 }
 
 /**
@@ -19,16 +20,19 @@ interface PaletteNodeProps {
  * @param {PaletteNodeProps} props - The props for the component.
  * @returns {JSX.Element} The rendered palette node.
  */
-export function PaletteNode({ icon: Icon, name, subtitle, description, devLabel, className }: PaletteNodeProps) {
+export function PaletteNode({ icon: Icon, name, subtitle, description, devLabel, className, onClick }: PaletteNodeProps) {
     return (
         <TooltipProvider delayDuration={300}>
             <Tooltip>
                 <TooltipTrigger asChild>
-                    <div className={cn(
-                        "relative flex items-center gap-4 p-3 rounded-lg border border-border/50 bg-card/40 cursor-grab",
-                        "hover:bg-primary/10 hover:border-primary/50 hover:glow-primary transition-all duration-200",
-                        className
-                    )}>
+                    <div 
+                        className={cn(
+                            "relative flex items-center gap-4 p-3 rounded-lg border border-border/50 bg-card/40 cursor-pointer",
+                            "hover:bg-primary/10 hover:border-primary/50 hover:glow-primary transition-all duration-200",
+                            className
+                        )}
+                        onClick={onClick}
+                    >
                         <div className="p-2 rounded-md bg-background border border-border/60">
                             <Icon className="h-6 w-6 text-primary" />
                         </div>

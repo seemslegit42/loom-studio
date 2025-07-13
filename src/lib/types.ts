@@ -11,10 +11,11 @@ import type { AnalyzeAgentProfileOutput } from "@/ai/flows/analyze-agent-profile
 export interface WorkflowNodeData {
     id: string;
     name: string;
+    type: string; // Corresponds to devLabel from CodexNode
     avatarDataUri: string;
     dataAiHint?: string;
     profile: AnalyzeAgentProfileOutput['profile'];
     position: { x: number; y: number; };
     prompt: string;
-    // Future properties: type, inputs, outputs, etc.
+    // Future properties: inputs, outputs, etc.
 }

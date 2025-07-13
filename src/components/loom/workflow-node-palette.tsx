@@ -9,13 +9,17 @@ import { useState } from "react";
 import { Switch } from "../ui/switch";
 import { Label } from "../ui/label";
 
+interface WorkflowNodePaletteProps {
+    onNodeSelect: (node: CodexNode) => void;
+}
+
 /**
  * The Palette panel component, which displays a list of all available
  * workflow nodes that can be dragged onto the canvas, as defined by the Architect's Codex.
  * It groups nodes by their "Pantheon" (family) for clarity.
  * @returns {JSX.Element} The rendered palette component.
  */
-export function WorkflowNodePalette() {
+export function WorkflowNodePalette({ onNodeSelect }: WorkflowNodePaletteProps) {
     // Group nodes by their family (Pantheon)
     const pantheons = workflowNodeCodex.reduce((acc, node) => {
         const family = node.family ?? 'Advanced';
@@ -47,6 +51,7 @@ export function WorkflowNodePalette() {
                                             subtitle={node.subtitle}
                                             description={node.tooltip}
                                             devLabel={showDevMode ? node.devLabel : undefined}
+                                            onClick={() => onNodeSelect(node)}
                                         />
                                     ))}
                                 </div>

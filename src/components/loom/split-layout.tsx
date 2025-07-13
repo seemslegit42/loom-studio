@@ -13,6 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { ScrollArea } from "../ui/scroll-area";
 import { AnimatePresence, motion } from "framer-motion";
 import { AgentTaskConfig } from "./agent-task-config";
+import type { CodexNode } from "@/lib/codex";
 
 interface SplitLayoutProps {
   ritual: Ritual;
@@ -26,6 +27,7 @@ interface SplitLayoutProps {
   selectedNodeId: string | null;
   setSelectedNodeId: (id: string | null) => void;
   onUpdateNode: (nodeId: string, newPrompt: string) => void;
+  onSummonNode: (codexNode: CodexNode) => void;
 }
 
 /**
@@ -45,6 +47,7 @@ export default function SplitLayout({
   selectedNodeId,
   setSelectedNodeId,
   onUpdateNode,
+  onSummonNode,
 }: SplitLayoutProps) {
   
   const selectedNode = nodes.find(node => node.id === selectedNodeId) || null;
@@ -65,7 +68,7 @@ export default function SplitLayout({
   const PalettePanel = () => (
     <div className="p-4 h-full flex flex-col">
       <h2 className="text-lg font-headline text-muted-foreground pb-4">Palette</h2>
-      <WorkflowNodePalette />
+      <WorkflowNodePalette onNodeSelect={onSummonNode} />
     </div>
   );
 
@@ -80,6 +83,7 @@ export default function SplitLayout({
                 <AgentTaskConfig
                   initialPrompt={selectedNode.prompt}
                   agentId={selectedNode.id}
+                  agentType={selectedNode.type}
                   onUpdateNode={onUpdateNode}
                 />
               </>

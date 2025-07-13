@@ -6,10 +6,12 @@ import { Loader2, Wand2 } from "lucide-react";
 import { usePromptAnalysis } from "@/hooks/use-prompt-analysis";
 import { Skeleton } from "../ui/skeleton";
 import { useEffect, useState } from "react";
+import { Badge } from "../ui/badge";
 
 interface AgentTaskConfigProps {
     initialPrompt: string;
     agentId: string;
+    agentType: string;
     onUpdateNode: (agentId: string, newPrompt: string) => void;
 }
 
@@ -17,7 +19,7 @@ interface AgentTaskConfigProps {
  * Configuration form for an existing Agent in the Inspector panel.
  * @returns {JSX.Element} The rendered form component.
  */
-export function AgentTaskConfig({ initialPrompt, agentId, onUpdateNode }: AgentTaskConfigProps) {
+export function AgentTaskConfig({ initialPrompt, agentId, agentType, onUpdateNode }: AgentTaskConfigProps) {
     const [currentPromptValue, setCurrentPromptValue] = useState(initialPrompt);
     const [originalPrompt, setOriginalPrompt] = useState(initialPrompt);
     const [isUpdating, setIsUpdating] = useState(false);
@@ -45,10 +47,15 @@ export function AgentTaskConfig({ initialPrompt, agentId, onUpdateNode }: AgentT
         setIsUpdating(false);
     };
 
+    const isLLMTaskAgent = agentType === 'LLM Task Agent';
+
     return (
         <div className="space-y-4">
              <div>
-                <Label htmlFor={`agent-prompt-${agentId}`} className="text-muted-foreground">Core Incantation (Prompt)</Label>
+                <div className="flex justify-between items-center">
+                    <Label htmlFor={`agent-prompt-${agentId}`} className="text-muted-foreground">Core Incantation (Prompt)</Label>
+                    <Badge variant="secondary">{agentType}</Badge>
+                </div>
                 <Textarea 
                     id={`agent-prompt-${agentId}`}
                     placeholder="e.g., 'You are a master cybersecurity analyst...'"
@@ -59,23 +66,25 @@ export function AgentTaskConfig({ initialPrompt, agentId, onUpdateNode }: AgentT
                 />
             </div>
             
-            <div className="min-h-[40px] p-3 rounded-md bg-background/30 border border-transparent">
-                {isAnalyzing ? (
-                    <div className="space-y-2">
-                       <Skeleton className="h-4 w-4/5" />
-                       <Skeleton className="h-4 w-3/5" />
-                    </div>
-                ) : analysis ? (
-                    <div className="flex items-start gap-2 text-sm text-accent">
-                        <Wand2 className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                        <p>{analysis}</p>
-                    </div>
-                ): (
-                    <div className="text-sm text-muted-foreground/60 italic">
-                        AI-driven analysis will appear here as you edit...
-                    </div>
-                )}
-            </div>
+            {isLLMTaskAgent && (
+                <div className="min-h-[40px] p-3 rounded-md bg-background/30 border border-transparent">
+                    {isAnalyzing ? (
+                        <div className="space-y-2">
+                        <Skeleton className="h-4 w-4/5" />
+                        <Skeleton className="h-4 w-3/5" />
+                        </div>
+                    ) : analysis ? (
+                        <div className="flex items-start gap-2 text-sm text-accent">
+                            <Wand2 className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                            <p>{analysis}</p>
+                        </div>
+                    ): (
+                        <div className="text-sm text-muted-foreground/60 italic">
+                            AI-driven analysis will appear here as you edit...
+                        </div>
+                    )}
+                </div>
+            )}
 
             <Button className="w-full" onClick={handleUpdate} disabled={isUpdating || !hasChanges}>
                 {isUpdating ? (

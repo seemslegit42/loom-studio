@@ -9,11 +9,13 @@ import { useState } from "react";
 import type { WorkflowNodeData } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { ForgeDialog, type ForgedAgent } from "@/components/loom/forge-dialog";
+import type { CodexNode } from "@/lib/codex";
 
 const initialNodes: WorkflowNodeData[] = [
   {
     id: 'welcome_agent_1',
     name: 'Welcome Agent',
+    type: "LLM Task Agent",
     avatarDataUri: `https://placehold.co/96x96.png`,
     dataAiHint: 'welcome robot',
     profile: [
@@ -62,6 +64,7 @@ export default function Home() {
     const newNode: WorkflowNodeData = {
       id: `agent_${Date.now()}`,
       name: forgedAgent.name,
+      type: "LLM Task Agent",
       avatarDataUri: forgedAgent.avatarDataUri || `https://placehold.co/96x96.png`,
       dataAiHint: "futuristic agent", // Placeholder hint
       profile: forgedAgent.profile,
@@ -102,6 +105,41 @@ export default function Home() {
     });
   };
 
+  const handleSummonNode = (codexNode: CodexNode) => {
+    setRitual('summon');
+
+    const newNode: WorkflowNodeData = {
+      id: `${codexNode.devLabel.replace(/\s+/g, '_')}_${Date.now()}`,
+      name: codexNode.name,
+      type: codexNode.devLabel,
+      // Placeholder data for a newly summoned node
+      avatarDataUri: 'https://placehold.co/96x96.png',
+      dataAiHint: 'technology icon',
+      profile: [
+        { trait: 'Creativity', value: 50 },
+        { trait: 'Humor', value: 50 },
+        { trait: 'Formality', value: 50 },
+        { trait: 'Enthusiasm', value: 50 },
+        { trait: 'Technicality', value: 50 },
+        { trait: 'Whimsy', value: 50 },
+      ],
+      position: {
+        x: 45 + (Math.random() * 10),
+        y: 45 + (Math.random() * 10),
+      },
+      prompt: `This is a newly summoned "${codexNode.name}" agent. Its purpose is to: ${codexNode.subtitle}. Configure its core incantation below.`
+    };
+
+    setNodes(prevNodes => [...prevNodes, newNode]);
+    setSelectedNodeId(newNode.id);
+    setIsInspectorOpen(true); // Open inspector for the new node
+
+    toast({
+      title: "Node Summoned",
+      description: `A new "${codexNode.name}" node has been added to the canvas.`,
+    });
+  }
+
   return (
     <div className="flex flex-col h-screen bg-background text-foreground">
       <Header onForge={handleStartForge} isForging={isForging} />
@@ -128,6 +166,7 @@ export default function Home() {
           selectedNodeId={selectedNodeId}
           setSelectedNodeId={setSelectedNodeId}
           onUpdateNode={handleUpdateNode}
+          onSummonNode={handleSummonNode}
         />
       </main>
       <BottomBar
