@@ -12,6 +12,8 @@ interface UseInteractiveNodeProps {
     onDragEnd: (nodeId: string, position: { x: number; y: number }) => void;
 }
 
+const DRAG_THRESHOLD = 5; // pixels
+
 /**
  * A custom hook to manage the state and logic for a draggable node.
  * It handles mouse events to calculate new positions and updates the parent
@@ -21,12 +23,15 @@ interface UseInteractiveNodeProps {
  * @returns {{
  *  position: { x: number; y: number };
  *  isDragging: boolean;
+ *  didDrag: boolean;
  *  handleMouseDown: (e: React.MouseEvent<HTMLElement, MouseEvent>) => void;
  * }} An object containing the node's position, dragging state, and event handlers.
  */
 export function useInteractiveNode({ nodeId, initialPosition, onDragEnd }: UseInteractiveNodeProps) {
     const [position, setPosition] = useState(initialPosition);
     const [isDragging, setIsDragging] = useState(false);
+    const [didDrag, setDidDrag] = useState(false);
+    const startMousePosition = useRef({ x: 0, y: 0 });
     const positionRef = useRef(position);
     
     // Update refs when state changes
@@ -45,12 +50,19 @@ export function useInteractiveNode({ nodeId, initialPosition, onDragEnd }: UseIn
         e.stopPropagation();
 
         setIsDragging(true);
-
+        setDidDrag(false);
+        startMousePosition.current = { x: e.clientX, y: e.clientY };
     }, []);
 
     const handleMouseMove = useCallback((e: MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
+        
+        const dx = e.clientX - startMousePosition.current.x;
+        const dy = e.clientY - startMousePosition.current.y;
+        if (!didDrag && Math.sqrt(dx * dx + dy * dy) > DRAG_THRESHOLD) {
+            setDidDrag(true);
+        }
 
         const parent = document.getElementById('workflow-canvas');
         if (!parent) return;
@@ -65,15 +77,17 @@ export function useInteractiveNode({ nodeId, initialPosition, onDragEnd }: UseIn
         newY = Math.max(0, Math.min(100, newY));
 
         setPosition({ x: newX, y: newY });
-    }, []);
+    }, [didDrag]);
 
     const handleMouseUp = useCallback((e: MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
 
         setIsDragging(false);
-        onDragEnd(nodeId, positionRef.current);
-    }, [onDragEnd, nodeId]);
+        if (didDrag) {
+            onDragEnd(nodeId, positionRef.current);
+        }
+    }, [onDragEnd, nodeId, didDrag]);
 
     useEffect(() => {
         if (isDragging) {
@@ -91,6 +105,7 @@ export function useInteractiveNode({ nodeId, initialPosition, onDragEnd }: UseIn
     return {
         position,
         isDragging,
+        didDrag,
         handleMouseDown,
     };
 }

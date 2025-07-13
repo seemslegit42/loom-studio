@@ -29,14 +29,14 @@ export function WorkflowNode({
 }: WorkflowNodeProps) {
     const isAvatar = !!node.avatarDataUri;
 
-    const { position, isDragging, handleMouseDown } = useInteractiveNode({
+    const { position, isDragging, didDrag, handleMouseDown } = useInteractiveNode({
         nodeId: node.id,
         initialPosition: node.position,
         onDragEnd,
     });
 
     const handleClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-        if (onClick) {
+        if (onClick && !didDrag) {
             onClick(e);
         }
     };
