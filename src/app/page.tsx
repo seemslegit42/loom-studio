@@ -85,24 +85,24 @@ export default function Home() {
     setIsForging(true);
   };
   
-  const handleFinalizeForge = (forgedAgent: ForgedAgent) => {
-    if (!forgedAgent) return;
+  const handleFinalizeForge = (manifestedForm: ForgedAgent) => {
+    if (!manifestedForm) return;
     
     setRitual('summon');
 
     const newNode: WorkflowNodeData = {
       id: `agent_${Date.now()}`,
-      name: forgedAgent.name,
+      name: manifestedForm.name,
       type: "LLM Task Agent",
-      avatarDataUri: forgedAgent.avatarDataUri || `https://placehold.co/96x96.png`,
+      avatarDataUri: manifestedForm.avatarDataUri || `https://placehold.co/96x96.png`,
       dataAiHint: "futuristic agent", // Placeholder hint
-      profile: forgedAgent.profile,
+      profile: manifestedForm.profile,
       position: {
         x: 45 + (Math.random() * 10),
         y: 45 + (Math.random() * 10),
       },
-      prompt: forgedAgent.prompt,
-      signature: forgedAgent.signature,
+      prompt: manifestedForm.prompt,
+      signature: manifestedForm.signature,
     };
 
     setNodes(prevNodes => [...prevNodes, newNode]);
@@ -110,8 +110,8 @@ export default function Home() {
     setIsInspectorOpen(true);
     
     toast({
-      title: "Agent Forged",
-      description: `The new agent, "${forgedAgent.name}", has been summoned to the canvas.`,
+      title: "Form Manifested",
+      description: `The new form, "${manifestedForm.name}", has been summoned to the canvas.`,
     });
     
     handleCancelForge();

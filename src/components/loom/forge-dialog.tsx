@@ -198,7 +198,7 @@ export function ForgeDialog({
         return (
           <motion.div key="reviewing" variants={stepVariants} initial="hidden" animate="visible" exit="exit">
             <DialogHeader>
-              <DialogTitle className="text-center text-2xl font-headline">Ratify Agent Profile</DialogTitle>
+              <DialogTitle className="text-center text-2xl font-headline">Ratify Profile Matrix</DialogTitle>
             </DialogHeader>
             <div className="my-6">
                 <AgentProfileChart profile={data.profile} agentName={data.name} />
@@ -243,7 +243,7 @@ export function ForgeDialog({
         return (
              <motion.div key="complete" variants={stepVariants} initial="hidden" animate="visible" exit="exit">
                 <DialogHeader>
-                    <DialogTitle className="text-center text-2xl font-headline">Sanctify Agent Form</DialogTitle>
+                    <DialogTitle className="text-center text-2xl font-headline">Sanctify Manifested Form</DialogTitle>
                 </DialogHeader>
                 <div className="my-6 flex flex-col items-center gap-6">
                     <div className="relative w-48 h-48 rounded-full border-2 border-primary/50 glow-primary">
