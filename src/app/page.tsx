@@ -74,7 +74,7 @@ export default function Home() {
 
   const [isForging, setIsForging] = useState(false);
   const [forgePrompt, setForgePrompt] = useState<string>('');
-
+  
   const { toast } = useToast();
 
   const handleStartForge = (prompt: string) => {
