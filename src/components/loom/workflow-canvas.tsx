@@ -27,9 +27,8 @@ interface WorkflowCanvasProps {
  */
 function getEdgePath(startPos: {x: number, y: number}, endPos: {x: number, y: number}): string {
     const dx = endPos.x - startPos.x;
-    const dy = endPos.y - startPos.y;
     // A simple bezier curve. More complex logic could be used for fancier curves.
-    return `M${startPos.x},${startPos.y} C${startPos.x + dx / 2},${startPos.y} ${endPos.x - dx / 2},${endPos.y} ${endPos.x},${endPos.y}`;
+    return `M${startPos.x},${startPos.y} C${startPos.x + dx * 0.5},${startPos.y} ${endPos.x - dx * 0.5},${endPos.y} ${endPos.x},${endPos.y}`;
 }
 
 
@@ -114,27 +113,38 @@ export function WorkflowCanvas({
 
             {/* Edges Layer (SVG) */}
             <svg className="absolute inset-0 w-full h-full z-[5] pointer-events-none">
-                <defs>
+                 <defs>
                     <marker
                         id="arrowhead"
-                        viewBox="0 0 10 10"
-                        refX="8"
-                        refY="5"
-                        markerWidth="6"
-                        markerHeight="6"
-                        orient="auto-start-reverse">
-                        <path d="M 0 0 L 10 5 L 0 10 z" fill="hsl(var(--primary) / 0.8)" />
+                        viewBox="-5 -5 10 10"
+                        refX="0"
+                        refY="0"
+                        markerWidth="5"
+                        markerHeight="5"
+                        orient="auto-start-reverse"
+                    >
+                        <circle cx="0" cy="0" r="2" fill="hsl(var(--primary) / 0.8)"></circle>
                     </marker>
                      <marker
                         id="arrowhead-selected"
-                        viewBox="0 0 10 10"
-                        refX="8"
-                        refY="5"
-                        markerWidth="6"
-                        markerHeight="6"
-                        orient="auto-start-reverse">
-                        <path d="M 0 0 L 10 5 L 0 10 z" fill="hsl(var(--gilded-accent))" />
+                        viewBox="-5 -5 10 10"
+                        refX="0"
+                        refY="0"
+                        markerWidth="5"
+                        markerHeight="5"
+                        orient="auto-start-reverse"
+                    >
+                         <circle cx="0" cy="0" r="2" className="fill-[hsl(var(--gilded-accent))]"></circle>
+                         <circle cx="0" cy="0" r="2" className="fill-[hsl(var(--gilded-accent))] glow-gilded" style={{ animation: 'pulse-glow 1.5s infinite ease-in-out' }}></circle>
                     </marker>
+                    <linearGradient id="edge-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" style={{stopColor: 'hsl(var(--primary))', stopOpacity: 0.8}} />
+                        <stop offset="100%" style={{stopColor: 'hsl(var(--primary))', stopOpacity: 0.1}} />
+                    </linearGradient>
+                    <linearGradient id="edge-gradient-selected" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" style={{stopColor: 'hsl(var(--gilded-accent))', stopOpacity: 1}} />
+                        <stop offset="100%" style={{stopColor: 'hsl(var(--gilded-accent))', stopOpacity: 0.3}} />
+                    </linearGradient>
                 </defs>
                 <g>
                    {Array.from(edgePaths.entries()).map(([id, path]) => (
@@ -142,10 +152,10 @@ export function WorkflowCanvas({
                             <path
                                 d={path}
                                 className={cn(
-                                    "transition-all",
-                                    selectedConnectionId === id ? "stroke-[hsl(var(--gilded-accent))]" : "stroke-[hsl(var(--primary)/0.8)]"
+                                    "transition-all duration-300",
                                 )}
-                                strokeWidth={selectedConnectionId === id ? 3 : 2}
+                                stroke={selectedConnectionId === id ? "url(#edge-gradient-selected)" : "url(#edge-gradient)"}
+                                strokeWidth={selectedConnectionId === id ? 2.5 : 1.5}
                                 fill="none"
                                 markerEnd={selectedConnectionId === id ? "url(#arrowhead-selected)" : "url(#arrowhead)"}
                             />

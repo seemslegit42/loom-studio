@@ -216,7 +216,7 @@ export default function Home() {
             ...prev.filter(c => c.id !== connectionId),
             // Add new connections
             { id: `conn_${sourceNode.id}_${newNode.id}`, sourceId: sourceNode.id, targetId: newNode.id },
-            { id: `conn_${newNode.id}_${targetNode.id}`, sourceId: newNode.id, targetId: newNode.id },
+            { id: `conn_${newNode.id}_${targetNode.id}`, sourceId: newNode.id, targetId: targetNode.id },
         ]);
 
         setSelectedNodeId(newNode.id);
@@ -332,5 +332,3 @@ export default function Home() {
     </div>
   );
 }
-
-    

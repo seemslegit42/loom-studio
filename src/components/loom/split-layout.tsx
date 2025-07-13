@@ -15,6 +15,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { AgentTaskConfig } from "./agent-task-config";
 import type { CodexNode } from "@/lib/codex";
 import { GenesisChamber, type ForgedAgent } from "./genesis-chamber";
+import { Button } from "../ui/button";
+import { Sparkles } from "lucide-react";
 
 interface SplitLayoutProps {
   ritual: Ritual;
@@ -32,6 +34,7 @@ interface SplitLayoutProps {
   setSelectedConnectionId: (id: string | null) => void;
   onUpdateNode: (nodeId: string, newPrompt: string) => void;
   onSummonNode: (codexNode: CodexNode) => void;
+  onNexusSummon: (connectionId: string) => void;
   genesisPrompt: string;
   onFinalizeForge: (agent: ForgedAgent) => void;
   onCancelForge: () => void;
@@ -58,12 +61,14 @@ export default function SplitLayout({
   setSelectedConnectionId,
   onUpdateNode,
   onSummonNode,
+  onNexusSummon,
   genesisPrompt,
   onFinalizeForge,
   onCancelForge,
 }: SplitLayoutProps) {
   
   const selectedNode = nodes.find(node => node.id === selectedNodeId) || null;
+  const selectedConnection = connections.find(conn => conn.id === selectedConnectionId) || null;
   
   const handleNodeDragEnd = (nodeId: string, newPosition: { x: number; y: number }) => {
     setNodes(currentNodes => 
@@ -82,8 +87,7 @@ export default function SplitLayout({
   const handleConnectionClick = (connectionId: string) => {
     setSelectedConnectionId(connectionId);
     setSelectedNodeId(null);
-    // Optionally open inspector for connection properties in the future
-    // setIsInspectorOpen(true); 
+    setIsInspectorOpen(true); 
   }
 
   const handleCanvasClick = () => {
@@ -102,14 +106,14 @@ export default function SplitLayout({
   const InspectorPanel = () => (
     <div className="p-4 h-full flex flex-col">
        <h2 className="text-lg font-headline text-muted-foreground">
-        {selectedNode ? 'Inspector' : genesisPrompt ? 'Genesis Chamber' : 'Inspector'}
+        {selectedNode ? 'Inspector' : genesisPrompt ? 'Genesis Chamber' : selectedConnection ? 'Connection' : 'Inspector'}
        </h2>
         <ScrollArea className="flex-1 mt-4 -mr-4 pr-4">
           <div className="space-y-6">
             <AnimatePresence mode="wait">
               {selectedNode ? (
                 <motion.div
-                  key={`inspector-${selectedNode.id}`}
+                  key={`inspector-node-${selectedNode.id}`}
                   initial={{ opacity: 0, x: 10 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -10 }}
@@ -124,6 +128,26 @@ export default function SplitLayout({
                     />
                   </div>
                 </motion.div>
+              ) : selectedConnection ? (
+                 <motion.div
+                    key={`inspector-conn-${selectedConnection.id}`}
+                    initial={{ opacity: 0, x: 10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -10 }}
+                  >
+                    <Card className="border-border/60 bg-card/40">
+                      <CardHeader>
+                        <CardTitle>Nexus Invocation</CardTitle>
+                        <CardDescription>Forge a new agent to bridge this connection.</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                          <Button className="w-full" onClick={() => onNexusSummon(selectedConnection.id)}>
+                            <Sparkles className="mr-2" />
+                            Summon Nexus Agent
+                          </Button>
+                      </CardContent>
+                  </Card>
+                 </motion.div>
               ) : genesisPrompt ? (
                  <motion.div
                     key="genesis-chamber"

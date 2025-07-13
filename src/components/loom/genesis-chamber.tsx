@@ -135,7 +135,7 @@ export function GenesisChamber({
        });
         const newData = { ...data, avatarDataUri: `https://placehold.co/96x96.png` };
         setData(newData);
-        if(data) await generateSignature(newData);
+        if(data) await generateSignature(newData as ForgeData);
     }
   }, [toast, data, generateSignature]);
 

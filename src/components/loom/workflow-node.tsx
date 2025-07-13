@@ -10,7 +10,7 @@ interface WorkflowNodeProps extends Omit<React.HTMLAttributes<HTMLDivElement>, '
     node: WorkflowNodeData;
     isSelected?: boolean;
     onClick?: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
-    onDragEnd: (nodeId: string, position: { x: number, y: number }) => void;
+    onDragEnd: (nodeId: string, position: { x: number; y: number }) => void;
 }
 
 /**
@@ -60,9 +60,10 @@ export function WorkflowNode({
             style={{
                 left: `${position.x}%`, 
                 top: `${position.y}%`,
+                transform: `translate(-50%, -50%)`, // Centering the node
             }}
-            initial={{ scale: 0.5, opacity: 0, x: "-50%", y: "-50%" }}
-            animate={{ scale: 1, opacity: 1, x: "-50%", y: "-50%" }}
+            initial={{ scale: 0.5, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
             transition={{ type: 'spring', stiffness: 260, damping: 20 }}
             onClick={handleClick}
             onMouseDown={handleMouseDown}
