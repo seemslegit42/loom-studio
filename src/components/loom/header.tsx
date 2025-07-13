@@ -5,8 +5,8 @@ import { Input } from '@/components/ui/input';
 import { useState } from 'react';
 import { Button } from '../ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
-import { PersonaGallery } from './persona-gallery';
-
+import { ArchetypeSelector } from './archetype-selector';
+import type { CodexNode } from '@/lib/codex';
 
 interface HeaderProps {
   onForge: (prompt: string) => void;
@@ -15,18 +15,18 @@ interface HeaderProps {
 
 /**
  * The main header component for Loom Studio.
- * It provides the application logo and the BEEP™ Command Strip for primary navigation and control.
+ * It provides the application logo and the main input for creating new agents.
  * @returns {JSX.Element} The rendered header component.
  */
 export default function Header({ onForge, isForging }: HeaderProps) {
   const [prompt, setPrompt] = useState('');
-  const [isPersonaGalleryOpen, setIsPersonaGalleryOpen] = useState(false);
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
   const handleForgeClick = () => {
     if (prompt && !isForging) {
       onForge(prompt);
       setPrompt('');
-      setIsPersonaGalleryOpen(false);
+      setIsPopoverOpen(false);
     }
   }
 
@@ -36,26 +36,14 @@ export default function Header({ onForge, isForging }: HeaderProps) {
       handleForgeClick();
     }
   }
-
-  const handlePersonaSelect = (personaPrompt: string) => {
-    setPrompt(personaPrompt);
-    // Directly call onForge after setting the prompt
-    if (personaPrompt && !isForging) {
-      onForge(personaPrompt);
-      setPrompt('');
-    }
-    setIsPersonaGalleryOpen(false);
+  
+  const handleArchetypeSelect = (archetype: CodexNode) => {
+    setPrompt(`A ${archetype.name} agent that `);
+    setIsPopoverOpen(false);
+    // Focus the input field after selection
+    document.getElementById('incantation-input')?.focus();
   }
 
-  const handleOpenChange = (open: boolean) => {
-    // Only open the popover if there is text in the input
-    if (open && prompt.trim()) {
-      setIsPersonaGalleryOpen(true);
-    } else {
-      setIsPersonaGalleryOpen(false);
-    }
-  };
-  
   return (
     <header className="h-16 flex-shrink-0 px-4 md:px-6 flex items-center justify-between gap-4 border-b border-border/50 bg-card/50 backdrop-blur-lg z-50">
       <div className="flex items-center gap-2 w-auto">
@@ -67,45 +55,39 @@ export default function Header({ onForge, isForging }: HeaderProps) {
         <span className="font-headline text-lg tracking-widest text-primary">LOOM</span>
       </div>
 
-       <Popover open={isPersonaGalleryOpen} onOpenChange={handleOpenChange}>
-        <PopoverTrigger asChild>
-          <div className="flex-1 max-w-xl relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground h-5 w-5 pointer-events-none" />
-            <Input
-              placeholder="Scribe an incantation or select a Persona..."
-              className="w-full bg-background/50 rounded-full h-10 pl-12 pr-28 border-primary/30 focus-visible:ring-primary/80"
-              value={prompt}
-              onChange={(e) => {
-                setPrompt(e.target.value)
-                if (e.target.value.trim()) {
-                  setIsPersonaGalleryOpen(true)
-                } else {
-                  setIsPersonaGalleryOpen(false)
-                }
-              }}
-              onKeyDown={handleKeyDown}
-              onFocus={() => { if(prompt.trim()) setIsPersonaGalleryOpen(true) }}
-              disabled={isForging}
-            />
-            <div className="absolute right-2 top-1/2 -translate-y-1/2">
-                <Button 
-                    size="sm" 
-                    className="rounded-full" 
-                    onClick={handleForgeClick} 
-                    disabled={isForging || !prompt.trim()}
-                >
-                  {isForging ? <Loader2 className="animate-spin" /> : 'Forge'}
-                </Button>
+       <div className="flex-1 max-w-xl relative">
+        <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+          <PopoverTrigger asChild>
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground h-5 w-5 pointer-events-none" />
+              <Input
+                id="incantation-input"
+                placeholder="Scribe an incantation or select an Archetype..."
+                className="w-full bg-background/50 rounded-full h-10 pl-12 pr-28 border-primary/30 focus-visible:ring-primary/80"
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                onKeyDown={handleKeyDown}
+                onFocus={() => setIsPopoverOpen(true)}
+                disabled={isForging}
+                autoComplete="off"
+              />
             </div>
-          </div>
-        </PopoverTrigger>
-        <PopoverContent 
-            className="w-[var(--radix-popover-trigger-width)] p-4"
-            onOpenAutoFocus={(e) => e.preventDefault()}
-        >
-          <PersonaGallery onSelectPersona={handlePersonaSelect} />
-        </PopoverContent>
-      </Popover>
+          </PopoverTrigger>
+          <PopoverContent className="w-[--radix-popover-trigger-width] max-w-xl p-2 border-primary/30" align="start">
+              <ArchetypeSelector onSelect={handleArchetypeSelect} />
+          </PopoverContent>
+        </Popover>
+        <div className="absolute right-2 top-1/2 -translate-y-1/2">
+            <Button 
+                size="sm" 
+                className="rounded-full" 
+                onClick={handleForgeClick} 
+                disabled={isForging || !prompt.trim()}
+            >
+              {isForging ? <Loader2 className="animate-spin" /> : 'Forge'}
+            </Button>
+        </div>
+      </div>
 
       <div className="flex items-center gap-2 w-auto justify-end min-w-[100px]">
         {/* User Profile / Settings will go here. Empty div for spacing. */}

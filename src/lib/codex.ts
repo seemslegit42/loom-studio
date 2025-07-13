@@ -23,6 +23,10 @@ import {
   Code,
   Cpu,
   FolderKanban,
+  Shield,
+  PencilRuler,
+  BrainCircuit,
+  Lightbulb,
 } from "lucide-react";
 
 export interface CodexNode {
@@ -30,11 +34,45 @@ export interface CodexNode {
     name: string;
     subtitle: string;
     tooltip: string;
-    family: "Core" | "Logic" | "Agent" | "Oracle" | "Connection" | "Data" | "Advanced";
+    family: "Core" | "Logic" | "Agent" | "Oracle" | "Connection" | "Data" | "Advanced" | "Archetype";
     devLabel: string;
 }
 
 export const workflowNodeCodex: CodexNode[] = [
+  // == ARCHETYPE PANTHEON ==
+  {
+    icon: Lightbulb,
+    name: "Oracle",
+    subtitle: "The Seer of Possibilities",
+    tooltip: "An agent that specializes in knowledge, synthesis, and providing insightful answers.",
+    family: "Archetype",
+    devLabel: "Archetype:Oracle"
+  },
+  {
+    icon: Shield,
+    name: "Sentinel",
+    subtitle: "The Guardian of the Gates",
+    tooltip: "An agent focused on security, validation, and enforcing rules.",
+    family: "Archetype",
+    devLabel: "Archetype:Sentinel"
+  },
+  {
+    icon: PencilRuler,
+    name: "Scribe",
+    subtitle: "The Master of Words and Forms",
+    tooltip: "An agent dedicated to content generation, summarization, and structured data output.",
+    family: "Archetype",
+    devLabel: "Archetype:Scribe"
+  },
+  {
+    icon: BrainCircuit,
+    name: "Trickster",
+    subtitle: "The Weaver of Novel Solutions",
+    tooltip: "An agent that excels at creative problem-solving, lateral thinking, and unconventional approaches.",
+    family: "Archetype",
+    devLabel: "Archetype:Trickster"
+  },
+
   // == CORE PANTHEON ==
   {
     icon: PlayCircle,
