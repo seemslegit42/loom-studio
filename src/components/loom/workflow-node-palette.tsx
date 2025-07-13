@@ -1,4 +1,4 @@
-import { Cpu, PlayCircle, Waypoints, Zap, Split, Webhook, Combine, MessageSquarePlus, GitBranch, Terminal, BotMessageSquare, Sparkles } from "lucide-react";
+import { Cpu, PlayCircle, Waypoints, GitBranch, Webhook, Sparkles, BotMessageSquare, CheckCircle } from "lucide-react";
 import { PaletteNode } from "./palette-node";
 import { ScrollArea } from "../ui/scroll-area";
 
@@ -10,64 +10,49 @@ import { ScrollArea } from "../ui/scroll-area";
  */
 export function WorkflowNodePalette() {
 
-    const PaletteSection = ({ title, children }: { title: string, children: React.ReactNode }) => (
-        <div className="space-y-3">
-            <h3 className="px-3 text-xs font-semibold uppercase text-muted-foreground tracking-wider">{title}</h3>
-            {children}
-        </div>
-    );
-
     return (
         <ScrollArea className="h-full">
-            <div className="flex flex-col gap-6 pr-4">
-                <PaletteSection title="Flow Control">
-                    <PaletteNode 
-                        icon={PlayCircle} 
-                        title="Workflow Input" 
-                        description="The front door to your workflow; where the process begins with its initial data." 
-                    />
-                    <PaletteNode 
-                        icon={Waypoints} 
-                        title="Workflow Output" 
-                        description="The final result or conclusion of a process. What the workflow will produce." 
-                    />
-                    <PaletteNode 
-                        icon={GitBranch} 
-                        title="Decision Point" 
-                        description="Create an 'if/then' rule. If a customer is 'VIP', send them down a different path." 
-                    />
-                    <PaletteNode 
-                        icon={Webhook} 
-                        title="Webhook" 
-                        description="Starts this workflow when another app sends a signal (e.g. a new sale in Shopify)." 
-                    />
-                </PaletteSection>
-
-                <PaletteSection title="Agent & Actions">
-                    <PaletteNode 
-                        icon={Cpu} 
-                        title="Agent Task" 
-                        description="Delegate a complex task to a specialized AI agent you have created." 
-                    />
-                    <PaletteNode 
-                        icon={Zap} 
-                        title="External System" 
-                        description="Get or send data to another tool, like Google Sheets, Stripe, or a weather app." 
-                    />
-                </PaletteSection>
-
-                <PaletteSection title="Data & Prompts">
-                    <PaletteNode 
-                        icon={Sparkles} 
-                        title="Data Alchemy" 
-                        description="Clean up, format, or combine data. Turn a messy address into a clean one." 
-                    />
-                    <PaletteNode 
-                        icon={BotMessageSquare} 
-                        title="Prompt" 
-                        description="Craft a specific instruction or question for a generic AI model from OpenAI or Google." 
-                    />
-                </PaletteSection>
+            <div className="flex flex-col gap-3 pr-4">
+                 <PaletteNode 
+                    icon={PlayCircle} 
+                    title="The Spark: Start a New Task" 
+                    description="Kicks off an automation when you press 'run' or at a scheduled time." 
+                />
+                 <PaletteNode 
+                    icon={Webhook} 
+                    title="The Signal: Start When Another App Acts" 
+                    description="Listens for an action in another tool (like a new sale in Shopify or a new row in Google Sheets) and starts this workflow automatically." 
+                />
+                <PaletteNode 
+                    icon={GitBranch} 
+                    title="The Crossroads: Create a Simple 'If/Then'" 
+                    description="Creates a fork in the road. If a condition is met (e.g., 'Is the customer a VIP?'), go down one path. If not, go down the other." 
+                />
+                 <PaletteNode 
+                    icon={Cpu} 
+                    title="The Agent: Give an AI a Job" 
+                    description="Assign a specific task to your AI assistant, like summarizing text, writing an email, or sorting data into categories." 
+                />
+                 <PaletteNode 
+                    icon={Waypoints} 
+                    title="The Bridge: Connect to an Outside Tool" 
+                    description="Pull information from or send commands to another application, like pulling customer data from your CRM or adding an event to your calendar." 
+                />
+                 <PaletteNode 
+                    icon={Sparkles} 
+                    title="The Refiner: Clean Up & Format Data" 
+                    description="Instantly cleans up messy data. Use it to format names, fix dates, or combine fields (like turning 'John' and 'Smith' into 'John Smith')." 
+                />
+                 <PaletteNode 
+                    icon={BotMessageSquare} 
+                    title="The Oracle: Ask the AI a Question" 
+                    description="For when you need a direct answer or idea from the core AI. Just type your question and get a response." 
+                />
+                <PaletteNode 
+                    icon={CheckCircle} 
+                    title="The Seal: Finish the Task" 
+                    description="Marks the end of the automation. The work is done." 
+                />
             </div>
         </ScrollArea>
     );
