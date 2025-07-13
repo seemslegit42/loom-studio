@@ -8,42 +8,23 @@ import { Skeleton } from "../ui/skeleton";
 import { useEffect, useState } from "react";
 import { Badge } from "../ui/badge";
 import type { WorkflowNodeData } from "@/lib/types";
-import { useAgentSculpting } from "@/hooks/use-agent-sculpting";
 
 interface AgentTaskConfigProps {
     node: WorkflowNodeData;
-    onUpdateNode: (agentId: string, newPrompt: string, newProfile?: WorkflowNodeData['profile']) => void;
+    onUpdateNode: (agentId: string, newPrompt: string) => void;
     isSculpting: boolean;
-    setIsSculpting: (isSculpting: boolean) => void;
 }
 
 /**
  * Configuration form for an existing Agent in the Inspector panel.
  * @returns {JSX.Element} The rendered form component.
  */
-export function AgentTaskConfig({ node, onUpdateNode, isSculpting, setIsSculpting }: AgentTaskConfigProps) {
+export function AgentTaskConfig({ node, onUpdateNode, isSculpting }: AgentTaskConfigProps) {
     const [currentPromptValue, setCurrentPromptValue] = useState(node.prompt);
     const [originalPrompt, setOriginalPrompt] = useState(node.prompt);
     const [isUpdating, setIsUpdating] = useState(false);
     
     const { analysis, isLoading: isAnalyzing, resetAnalysis } = usePromptAnalysis(currentPromptValue, originalPrompt);
-    
-    const { refinedPrompt, isSculpting: isAISculpting } = useAgentSculpting({
-        originalPrompt: node.prompt,
-        profile: node.profile,
-        enabled: isSculpting,
-    });
-    
-    useEffect(() => {
-        setIsSculpting(isAISculpting);
-    }, [isAISculpting, setIsSculpting]);
-
-    useEffect(() => {
-        if (refinedPrompt) {
-            setCurrentPromptValue(refinedPrompt);
-            setIsSculpting(false); // Turn off sculpting mode after AI returns prompt
-        }
-    }, [refinedPrompt, setIsSculpting]);
     
     useEffect(() => {
         setCurrentPromptValue(node.prompt);
@@ -57,8 +38,8 @@ export function AgentTaskConfig({ node, onUpdateNode, isSculpting, setIsSculptin
         setIsUpdating(true);
         await onUpdateNode(node.id, currentPromptValue);
         
-        setOriginalPrompt(currentPromptValue);
-        resetAnalysis();
+        // The parent component will send down the new node.prompt,
+        // which will trigger the useEffect to update originalPrompt.
         setIsUpdating(false);
     };
 

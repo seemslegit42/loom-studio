@@ -13,6 +13,7 @@ import type { CodexNode } from "@/lib/codex";
 import { analyzeAgentProfile } from "@/ai/flows/analyze-agent-profile-flow";
 import { generateAgentAvatar } from "@/ai/flows/generate-agent-avatar-flow";
 import { createNexusAgent } from "@/ai/flows/create-nexus-agent-flow";
+import { refineAgentPrompt } from "@/ai/flows/refine-agent-prompt-flow";
 
 
 const initialNodes: WorkflowNodeData[] = [
@@ -129,30 +130,32 @@ export default function Home() {
     setRitual('idle');
   };
 
-  const handleUpdateNode = async (nodeId: string, newPrompt: string, newProfileOrUndefined?: WorkflowNodeData['profile']) => {
+  const handleUpdateNode = async (nodeId: string, newPrompt: string, newProfile?: WorkflowNodeData['profile']) => {
     const nodeToUpdate = nodes.find(node => node.id === nodeId);
     if (!nodeToUpdate) return;
     
-    let finalProfile = newProfileOrUndefined || nodeToUpdate.profile;
+    // If a new profile is provided, it means this is a sculpting action.
+    // The prompt will be refined by the AI.
+    // If no new profile, it's a manual prompt update.
+    const isSculpting = !!newProfile;
 
     try {
         let finalPrompt = newPrompt;
-        let finalAvatarUri = nodeToUpdate.avatarDataUri;
-        let finalName = nodeToUpdate.name;
-
-        // If the prompt has changed, it's a full re-forge.
-        // If only the profile has changed, it's a prompt refinement.
-        if (newPrompt !== nodeToUpdate.prompt) {
-            const reanalyzedProfile = await analyzeAgentProfile({ prompt: newPrompt });
-            const newAvatar = await generateAgentAvatar({
-                prompt: newPrompt,
-                profile: reanalyzedProfile.profile,
-                selectedStyle: reanalyzedProfile.recommendedStyle,
+        
+        if (isSculpting && newProfile) {
+            const refined = await refineAgentPrompt({
+                originalPrompt: nodeToUpdate.prompt,
+                targetProfile: newProfile,
             });
-            finalProfile = reanalyzedProfile.profile;
-            finalAvatarUri = newAvatar.avatarDataUri;
-            finalName = reanalyzedProfile.name;
+            finalPrompt = refined.refinedPrompt;
         }
+
+        const reanalyzedProfile = await analyzeAgentProfile({ prompt: finalPrompt });
+        const newAvatar = await generateAgentAvatar({
+            prompt: finalPrompt,
+            profile: reanalyzedProfile.profile,
+            selectedStyle: reanalyzedProfile.recommendedStyle,
+        });
 
         setNodes(currentNodes =>
             currentNodes.map(node => {
@@ -160,9 +163,9 @@ export default function Home() {
                     return {
                         ...node,
                         prompt: finalPrompt,
-                        profile: finalProfile,
-                        name: finalName,
-                        avatarDataUri: finalAvatarUri,
+                        profile: reanalyzedProfile.profile,
+                        name: reanalyzedProfile.name,
+                        avatarDataUri: newAvatar.avatarDataUri,
                     };
                 }
                 return node;
@@ -171,7 +174,7 @@ export default function Home() {
         
         toast({
             title: "Identity Re-Forged",
-            description: `The personality matrix and visual form for ${finalName} have been recalibrated.`,
+            description: `The personality matrix and visual form for ${reanalyzedProfile.name} have been recalibrated.`,
         });
 
     } catch (error) {

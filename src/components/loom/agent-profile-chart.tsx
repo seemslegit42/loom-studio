@@ -5,7 +5,6 @@ import type { AnalyzeAgentProfileOutput } from '@/ai/flows/analyze-agent-profile
 import { Label } from '../ui/label';
 import { Slider } from '../ui/slider';
 import { useState, useEffect } from 'react';
-import { Button } from '../ui/button';
 import { Loader2 } from 'lucide-react';
 
 interface AgentProfileChartProps {
@@ -22,16 +21,24 @@ export function AgentProfileChart({ profile, agentName, onProfileChange, isSculp
         setLocalProfile(profile);
     }, [profile]);
 
-    const handleSliderChange = (traitName: string, newValue: number) => {
+    const handleSliderChange = (traitName: string, newValue: number[]) => {
         const newProfile = localProfile.map(trait => 
-            trait.trait === traitName ? { ...trait, value: newValue } : trait
+            trait.trait === traitName ? { ...trait, value: newValue[0] } : trait
         );
         setLocalProfile(newProfile);
     };
 
-    const handleSliderCommit = () => {
-        onProfileChange(localProfile);
+    const handleSliderCommit = (newValues: number[]) => {
+        // Find which trait changed to get the full profile object.
+        // This is a bit of a workaround because onValueCommit only gives us the number.
+        // It assumes only one slider moves at a time which is a safe assumption.
+        const changedTrait = localProfile.find(p => p.value !== profile.find(op => op.trait === p.trait)?.value);
+        if (changedTrait) {
+            const finalProfile = profile.map(p => p.trait === changedTrait.trait ? { ...p, value: newValues[0] } : p);
+            onProfileChange(finalProfile);
+        }
     };
+    
 
     return (
         <Card className="border-border/60 bg-card/40">
@@ -55,7 +62,7 @@ export function AgentProfileChart({ profile, agentName, onProfileChange, isSculp
                             value={[item.value]}
                             max={100}
                             step={1}
-                            onValueChange={(value) => handleSliderChange(item.trait, value[0])}
+                            onValueChange={(value) => handleSliderChange(item.trait, value)}
                             onValueCommit={handleSliderCommit}
                             className="col-span-2"
                             disabled={isSculpting}

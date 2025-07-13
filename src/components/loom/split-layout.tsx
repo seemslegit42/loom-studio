@@ -98,11 +98,20 @@ export default function SplitLayout({
     if (genesisPrompt) onCancelForge(); // Cancel forging if clicking on canvas
   };
 
-  const handleProfileChange = (newProfile: WorkflowNodeData['profile']) => {
+  const handleProfileChange = async (newProfile: WorkflowNodeData['profile']) => {
     if (!selectedNode) return;
-    setIsSculpting(true); // Parent component now manages sculpting state
-    onUpdateNode(selectedNode.id, selectedNode.prompt, newProfile);
+    setIsSculpting(true);
+    await onUpdateNode(selectedNode.id, selectedNode.prompt, newProfile);
+    setIsSculpting(false);
   };
+
+  const handlePromptUpdate = async (nodeId: string, newPrompt: string) => {
+    // This is for manual prompt updates from the text area.
+    setIsSculpting(true); // Effectively a re-forge
+    await onUpdateNode(nodeId, newPrompt);
+    setIsSculpting(false);
+  }
+
 
   const PalettePanel = () => (
     <div className="p-4 h-full flex flex-col">
@@ -135,9 +144,8 @@ export default function SplitLayout({
                     />
                     <AgentTaskConfig
                       node={selectedNode}
-                      onUpdateNode={onUpdateNode}
+                      onUpdateNode={handlePromptUpdate}
                       isSculpting={isSculpting}
-                      setIsSculpting={setIsSculpting}
                     />
                   </div>
                 </motion.div>

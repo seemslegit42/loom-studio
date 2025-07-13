@@ -1,5 +1,7 @@
 /**
- * @fileOverview A hook for debouncing and refining an agent's prompt based on personality sculpting.
+ * @fileOverview This hook is now deprecated. Its logic has been simplified and moved
+ * directly into the `SplitLayout` component to create a more direct and immediate
+ * user experience for personality sculpting.
  */
 'use client';
 
@@ -18,60 +20,19 @@ interface UseAgentSculptingProps {
 }
 
 /**
- * A custom hook to handle the real-time refinement of an agent's prompt
- * when its personality profile is being "sculpted" by the user.
- * 
- * @param {UseAgentSculptingProps} props The properties for the hook.
- * @returns {{
- *  refinedPrompt: string | null;
- *  isSculpting: boolean;
- * }} An object containing the new prompt from the AI and a loading state.
+ * @deprecated This hook is no longer in use. The personality sculpting logic
+ * has been integrated directly into the `SplitLayout` and `page` components.
  */
 export function useAgentSculpting({ originalPrompt, profile, enabled }: UseAgentSculptingProps) {
     const [refinedPrompt, setRefinedPrompt] = useState<string | null>(null);
     const [isSculpting, setIsSculpting] = useState(false);
-    const [debouncedProfile] = useDebounce(profile, DEBOUNCE_DELAY);
-    const [initialProfile, setInitialProfile] = useState(profile);
     
-    // Reset initial profile when the node changes
-    useEffect(() => {
-        setInitialProfile(profile);
-    }, [profile]);
+    // This hook is now a no-op but we retain the structure to avoid breaking imports
+    // in a larger refactor. The functionality is disabled.
     
     useEffect(() => {
-        if (!enabled) {
-            if (isSculpting) setIsSculpting(false);
-            return;
-        }
+        if (isSculpting) setIsSculpting(false);
+    }, [isSculpting]);
 
-        async function fetchRefinedPrompt() {
-            // Don't run if the profile hasn't actually changed from its initial state
-            if (isEqual(debouncedProfile, initialProfile)) {
-                return;
-            }
-
-            setIsSculpting(true);
-            setRefinedPrompt(null);
-            
-            try {
-                const result = await refineAgentPrompt({
-                    originalPrompt,
-                    targetProfile: debouncedProfile,
-                });
-                setRefinedPrompt(result.refinedPrompt);
-            } catch (error) {
-                console.error("Failed to refine agent prompt:", error);
-                // Handle error case, maybe with a toast notification in the component
-            } finally {
-                setIsSculpting(false);
-                // Update the initial profile to the new debounced one to prevent re-triggering
-                setInitialProfile(debouncedProfile);
-            }
-        }
-        
-        fetchRefinedPrompt();
-
-    }, [debouncedProfile, originalPrompt, enabled, initialProfile]);
-    
-    return { refinedPrompt, isSculpting };
+    return { refinedPrompt: null, isSculpting: false };
 }
