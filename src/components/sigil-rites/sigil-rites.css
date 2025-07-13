@@ -58,7 +58,7 @@
 .ritual-idle .agent-glyphs {
     opacity: 0.4;
     transform: scale(0.95);
-    animation: spin 45s linear infinite;
+    animation: spin 45s linear infinite, pulse-glow 4s ease-in-out infinite;
 }
 
 /* --- ORCHESTRATE --- */
@@ -160,4 +160,9 @@
     0% { filter: drop-shadow(0 0 1px currentColor); }
     50% { filter: drop-shadow(0 0 8px currentColor); }
     100% { filter: drop-shadow(0 0 1px currentColor); }
+}
+
+@keyframes pulse-glow {
+    0%, 100% { filter: drop-shadow(0 0 2px hsl(var(--foreground) / 0.2)); }
+    50% { filter: drop-shadow(0 0 5px hsl(var(--foreground) / 0.4)); }
 }

@@ -15,6 +15,7 @@ import { Skeleton } from "../ui/skeleton";
 import BottomBar from "./bottom-bar";
 import { WorkflowCanvas } from "./workflow-canvas";
 import type { WorkflowNodeData } from "@/lib/types";
+import { Card, CardContent, CardHeader } from "../ui/card";
 
 
 interface SplitLayoutProps {
@@ -90,7 +91,7 @@ export default function SplitLayout({ variant, ritual, setRitual }: SplitLayoutP
           <AgentTaskConfig onConfigure={handleConfigureAgent} isConfiguring={isConfiguringAgent} />
           
           {isConfiguringAgent ? (
-             <Card>
+             <Card className="border-border/60 bg-card/40">
                 <CardHeader>
                   <Skeleton className="h-6 w-3/4" />
                   <Skeleton className="h-4 w-1/2" />
@@ -151,8 +152,3 @@ export default function SplitLayout({ variant, ritual, setRitual }: SplitLayoutP
     </>
   );
 }
-
-// Dummy Card components for Skeleton to avoid prop drilling issues in this layout component
-const Card = ({ children }: { children: React.ReactNode }) => <div className="rounded-lg border border-border/60 bg-card/40 text-card-foreground shadow-sm p-6">{children}</div>;
-const CardHeader = ({ children }: { children: React.ReactNode }) => <div className="flex flex-col space-y-1.5 mb-4">{children}</div>;
-const CardContent = ({ children }: { children: React.ReactNode }) => <div>{children}</div>;
