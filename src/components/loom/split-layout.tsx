@@ -79,7 +79,7 @@ export default function SplitLayout({
   
   const handlePersonaSelect = (personaPrompt: string) => {
     setPrompt(personaPrompt);
-    // Maybe auto-scroll or focus the textarea
+    setIsInspectorOpen(false); // Close sheet on mobile after selection
   };
 
   const handleConfigureAgent = async (promptToForge: string) => {
