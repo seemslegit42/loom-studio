@@ -1,4 +1,4 @@
-import { Cpu, PlayCircle, Waypoints, Zap, Split, Webhook, Combine, MessageSquarePlus } from "lucide-react";
+import { Cpu, PlayCircle, Waypoints, Zap, Split, Webhook, Combine, MessageSquarePlus, GitBranch, Terminal, BotMessageSquare, Sparkles } from "lucide-react";
 import { PaletteNode } from "./palette-node";
 import { ScrollArea } from "../ui/scroll-area";
 
@@ -23,23 +23,23 @@ export function WorkflowNodePalette() {
                 <PaletteSection title="Flow Control">
                     <PaletteNode 
                         icon={PlayCircle} 
-                        title="Start Node" 
-                        description="The initiation point of a workflow." 
+                        title="Workflow Input" 
+                        description="Defines the starting data or event for a new process." 
                     />
                     <PaletteNode 
                         icon={Waypoints} 
-                        title="End Node" 
-                        description="The termination point of a workflow." 
+                        title="Workflow Output" 
+                        description="Defines the final result or conclusion of a process." 
                     />
                     <PaletteNode 
-                        icon={Split} 
-                        title="Condition" 
-                        description="Branch logic based on data evaluation." 
+                        icon={GitBranch} 
+                        title="Decision Point" 
+                        description="Create a rule to branch the workflow down different paths." 
                     />
                     <PaletteNode 
                         icon={Webhook} 
-                        title="Trigger" 
-                        description="Initiate workflow from an external event." 
+                        title="Event Listener" 
+                        description="Listens for an external signal to start a workflow." 
                     />
                 </PaletteSection>
 
@@ -51,21 +51,21 @@ export function WorkflowNodePalette() {
                     />
                     <PaletteNode 
                         icon={Zap} 
-                        title="API Call" 
-                        description="Interact with an external API." 
+                        title="External System" 
+                        description="Connect to and exchange data with an outside tool or service." 
                     />
                 </PaletteSection>
 
                 <PaletteSection title="Data & Prompts">
                     <PaletteNode 
-                        icon={Combine} 
-                        title="Data Transform" 
-                        description="Manipulate data within the workflow." 
+                        icon={Sparkles} 
+                        title="Data Alchemy" 
+                        description="Modify, combine, or reshape data within the workflow." 
                     />
                     <PaletteNode 
-                        icon={MessageSquarePlus} 
+                        icon={BotMessageSquare} 
                         title="Prompt" 
-                        description="Directly inject or modify LLM prompts." 
+                        description="Craft a specific instruction or question for an AI model." 
                     />
                 </PaletteSection>
             </div>
