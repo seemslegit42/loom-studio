@@ -175,11 +175,7 @@ export function ForgeDialog({
   const handleFinalize = () => {
     if (data && !isFinalizing) {
         setIsFinalizing(true);
-        // Simulate a slight delay for the ritual to feel complete
-        setTimeout(() => {
-            onFinalize(data);
-            setIsFinalizing(false);
-        }, 750);
+        onFinalize(data);
     }
   };
 

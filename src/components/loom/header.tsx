@@ -2,7 +2,7 @@
 'use client';
 import { Loader2, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '../ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { ArchetypeSelector } from './archetype-selector';
@@ -21,6 +21,16 @@ interface HeaderProps {
 export default function Header({ onForge, isForging }: HeaderProps) {
   const [prompt, setPrompt] = useState('');
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  
+  useEffect(() => {
+    // Show popover only if the input is empty
+    if (prompt.trim() === '') {
+      // setIsPopoverOpen(true); // This can be enabled for a more proactive feel
+    } else {
+      setIsPopoverOpen(false);
+    }
+  }, [prompt]);
+
 
   const handleForgeClick = () => {
     if (prompt && !isForging) {
@@ -67,7 +77,8 @@ export default function Header({ onForge, isForging }: HeaderProps) {
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 onKeyDown={handleKeyDown}
-                onFocus={() => setIsPopoverOpen(true)}
+                onFocus={() => { if(prompt.trim() === '') setIsPopoverOpen(true) }}
+                onBlur={() => setIsPopoverOpen(false)}
                 disabled={isForging}
                 autoComplete="off"
               />
