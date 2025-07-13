@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
@@ -200,7 +199,7 @@ export function ForgeDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onCancel()}>
-      <DialogContent className="max-w-2xl bg-card/80 backdrop-blur-lg border-primary/20">
+      <DialogContent className="max-w-2xl">
         <AnimatePresence mode="wait">
             {renderContent()}
         </AnimatePresence>
