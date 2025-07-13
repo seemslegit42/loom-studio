@@ -24,10 +24,12 @@ const forgeAgentIdentityFlow = ai.defineFlow(
     outputSchema: ForgeAgentIdentityOutputSchema,
   },
   async (input) => {
-    const [profile, avatar] = await Promise.all([
-      analyzeAgentProfile({ prompt: input.prompt }),
-      generateAgentAvatar({ prompt: input.prompt }),
-    ]);
+    const profile = await analyzeAgentProfile({ prompt: input.prompt });
+    const avatar = await generateAgentAvatar({
+        prompt: input.prompt,
+        profile: profile.profile,
+        selectedStyle: profile.recommendedStyle,
+    });
 
     return {
       name: profile.name,

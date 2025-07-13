@@ -74,7 +74,7 @@ const initialConnections: WorkflowConnection[] = [
 export default function Home() {
   const { ritual, setRitual } = useSystemSigilState();
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
-  const [isInspectorOpen, setIsInspectorOpen] = useState(true); // Default to open
+  const [isInspectorOpen, setIsInspectorOpen] = useState(false); // Default to open
   
   const [nodes, setNodes] = useState<WorkflowNodeData[]>(initialNodes);
   const [connections, setConnections] = useState<WorkflowConnection[]>(initialConnections);

@@ -2,7 +2,7 @@
 import './flows/analyze-prompt-change-flow';
 import './flows/generate-agent-avatar-flow';
 import './flows/analyze-agent-profile-flow';
-import './flows/forge-agent-identity-flow';
+// DEPRECATED: import './flows/forge-agent-identity-flow';
 import './flows/sign-avatar-data-flow';
 import './flows/create-nexus-agent-flow';
 import './flows/refine-agent-prompt-flow';
