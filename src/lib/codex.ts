@@ -2,6 +2,7 @@
  * @fileoverview The Architect's Codex for Loom Studio.
  * This file serves as the single source of truth for all available workflow nodes,
  * their mythic names, descriptions, and technical metadata.
+ * This is the canonized "Law of Pantheons".
  */
 
 import type { LucideIcon } from "lucide-react";
@@ -11,17 +12,14 @@ import {
   GitBranch,
   Hourglass,
   RefreshCw,
-  Cpu,
   ScrollText,
   BarChart2,
   Languages,
-  Tags,
   BotMessageSquare,
   Waypoints,
   Sparkles,
-  GitMerge,
-  Scissors,
-  CheckCircle
+  CheckCircle,
+  Code
 } from "lucide-react";
 
 export interface CodexNode {
@@ -29,7 +27,7 @@ export interface CodexNode {
     name: string;
     subtitle: string;
     tooltip: string;
-    family: "Core" | "Logic" | "Agent" | "Connection";
+    family: "Core" | "Logic" | "Agent" | "Oracle" | "Connection" | "Advanced";
     devLabel: string;
 }
 
@@ -75,7 +73,7 @@ export const workflowNodeCodex: CodexNode[] = [
     subtitle: "Repeat for Each Item",
     tooltip: "Runs a set of actions for every single item in a list.",
     family: "Logic",
-    devLabel: "For Each / Loop"
+    devLabel: "Loop / For Each"
   },
   {
     icon: Hourglass,
@@ -83,7 +81,7 @@ export const workflowNodeCodex: CodexNode[] = [
     subtitle: "Wait Until...",
     tooltip: "Pauses the workflow until a specific condition is met (e.g., payment confirmed).",
     family: "Logic",
-    devLabel: "Wait Until"
+    devLabel: "Wait for Condition"
   },
 
   // == AGENT PANTHEON ==
@@ -93,7 +91,7 @@ export const workflowNodeCodex: CodexNode[] = [
     subtitle: "Draft Text",
     tooltip: "An AI Agent that writes emails, documents, or any other text.",
     family: "Agent",
-    devLabel: "Text Generation Agent"
+    devLabel: "LLM Text Generation"
   },
   {
     icon: BarChart2,
@@ -101,7 +99,25 @@ export const workflowNodeCodex: CodexNode[] = [
     subtitle: "Analyze & Sort Data",
     tooltip: "An AI Agent that categorizes information, finds patterns, or sorts lists.",
     family: "Agent",
-    devLabel: "Data Analysis Agent"
+    devLabel: "AI Data Categorization"
+  },
+  {
+    icon: Languages,
+    name: "The Translator",
+    subtitle: "Translate Text",
+    tooltip: "An AI Agent that converts content between languages.",
+    family: "Agent",
+    devLabel: "Language Translation"
+  },
+
+  // == ORACLE PANTHEON ==
+  {
+    icon: BotMessageSquare,
+    name: "The Oracle",
+    subtitle: "Ask the AI a Question",
+    tooltip: "Get a direct answer, idea, or piece of knowledge from the core AI.",
+    family: "Oracle",
+    devLabel: "Single Prompt / LLM"
   },
   
   // == CONNECTION PANTHEON ==
@@ -111,7 +127,7 @@ export const workflowNodeCodex: CodexNode[] = [
     subtitle: "Connect to an Outside Tool",
     tooltip: "Pulls information from or sends commands to another application.",
     family: "Connection",
-    devLabel: "API Call / HTTP Request"
+    devLabel: "API Call"
   },
   {
     icon: Sparkles,
@@ -121,12 +137,14 @@ export const workflowNodeCodex: CodexNode[] = [
     family: "Connection",
     devLabel: "Data Transform"
   },
+
+  // == ADVANCED PANTHEON ==
   {
-    icon: BotMessageSquare,
-    name: "The Oracle",
-    subtitle: "Ask the AI a Question",
-    tooltip: "Get a direct answer, idea, or piece of knowledge from the core AI.",
-    family: "Connection",
-    devLabel: "Single-shot Prompt"
-  },
+    icon: Code,
+    name: "The Raw Incantation",
+    subtitle: "Execute Custom Code",
+    tooltip: "Run your own script directly — powerful, but dangerous. Use only if you know the ancient tongue.",
+    family: "Advanced",
+    devLabel: "Custom JavaScript / Python"
+  }
 ];

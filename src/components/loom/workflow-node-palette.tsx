@@ -6,11 +6,12 @@ import type { CodexNode } from "@/lib/codex";
 /**
  * The Palette panel component, which displays a list of all available
  * workflow nodes that can be dragged onto the canvas, as defined by the Architect's Codex.
+ * It groups nodes by their "Pantheon" (family) for clarity.
  * @returns {JSX.Element} The rendered palette component.
  */
 export function WorkflowNodePalette() {
-    // This could be moved to a hook or selector for memoization
-    const families = workflowNodeCodex.reduce((acc, node) => {
+    // Group nodes by their family (Pantheon)
+    const pantheons = workflowNodeCodex.reduce((acc, node) => {
         if (!acc[node.family]) {
             acc[node.family] = [];
         }
@@ -18,7 +19,7 @@ export function WorkflowNodePalette() {
         return acc;
     }, {} as Record<CodexNode['family'], CodexNode[]>);
 
-    const familyOrder: CodexNode['family'][] = ["Core", "Logic", "Agent", "Connection"];
+    const pantheonOrder: CodexNode['family'][] = ["Core", "Logic", "Agent", "Oracle", "Connection", "Advanced"];
 
     // A flag to control dev mode, will be moved to context/state later
     const showDevMode = false;
@@ -26,12 +27,12 @@ export function WorkflowNodePalette() {
     return (
         <ScrollArea className="h-full">
             <div className="flex flex-col gap-6 pr-4">
-                {familyOrder.map(family => (
-                    families[family] && families[family].length > 0 && (
-                        <div key={family} className="space-y-3">
-                            <h3 className="font-semibold text-muted-foreground tracking-wider text-sm">{family.toUpperCase()}</h3>
+                {pantheonOrder.map(pantheon => (
+                    pantheons[pantheon] && pantheons[pantheon].length > 0 && (
+                        <div key={pantheon} className="space-y-3">
+                            <h3 className="font-semibold text-muted-foreground tracking-wider text-sm">{pantheon.toUpperCase()}</h3>
                             <div className="space-y-2">
-                                {families[family].map(node => (
+                                {pantheons[pantheon].map(node => (
                                     <PaletteNode 
                                         key={node.name}
                                         icon={node.icon} 
