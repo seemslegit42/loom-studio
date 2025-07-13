@@ -8,6 +8,7 @@ import { Button } from '../ui/button';
 import { Skeleton } from '../ui/skeleton';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Wand2 } from 'lucide-react';
+import { PersonaGallery } from './persona-gallery';
 
 
 interface HeaderProps {
@@ -23,11 +24,12 @@ interface HeaderProps {
 export default function Header({ onForge, isForging }: HeaderProps) {
   const [prompt, setPrompt] = useState('');
   const { analysis, isLoading: isAnalyzing } = usePromptAnalysis(prompt);
+  const [isPersonaGalleryOpen, setIsPersonaGalleryOpen] = useState(false);
 
   const handleForgeClick = () => {
     if (prompt && !isForging) {
       onForge(prompt);
-      // We don't clear the prompt here anymore, the ForgeDialog will handle it.
+      setIsPersonaGalleryOpen(false);
     }
   }
 
@@ -37,8 +39,17 @@ export default function Header({ onForge, isForging }: HeaderProps) {
       handleForgeClick();
     }
   }
+
+  const handlePersonaSelect = (personaPrompt: string) => {
+    setPrompt(personaPrompt);
+    // Directly call onForge after setting the prompt
+    if (personaPrompt && !isForging) {
+      onForge(personaPrompt);
+    }
+    setIsPersonaGalleryOpen(false);
+  }
   
-  const isPopoverOpen = !!prompt && (isAnalyzing || !!analysis);
+  const isAnalysisPopoverOpen = !!prompt && (isAnalyzing || !!analysis);
 
   return (
     <header className="h-16 flex-shrink-0 px-4 md:px-6 flex items-center justify-between gap-4 border-b border-border/50 bg-card/50 backdrop-blur-lg z-50">
@@ -51,16 +62,18 @@ export default function Header({ onForge, isForging }: HeaderProps) {
         <span className="font-headline text-lg tracking-widest text-primary">LOOM</span>
       </div>
 
-       <Popover open={isPopoverOpen}>
+       <Popover open={isPersonaGalleryOpen || isAnalysisPopoverOpen} onOpenChange={setIsPersonaGalleryOpen}>
         <PopoverTrigger asChild>
           <div className="flex-1 max-w-xl relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground h-5 w-5 pointer-events-none" />
             <Input
-              placeholder="Scribe an incantation to summon a new agent..."
+              placeholder="Scribe an incantation or select a Persona to begin..."
               className="w-full bg-background/50 rounded-full h-10 pl-12 pr-28 border-primary/30 focus-visible:ring-primary/80"
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               onKeyDown={handleKeyDown}
+              onFocus={() => setIsPersonaGalleryOpen(true)}
+              onBlur={() => setTimeout(() => setIsPersonaGalleryOpen(false), 150)} // Delay to allow click
               disabled={isForging}
             />
             <div className="absolute right-2 top-1/2 -translate-y-1/2">
@@ -76,22 +89,27 @@ export default function Header({ onForge, isForging }: HeaderProps) {
           </div>
         </PopoverTrigger>
         <PopoverContent 
-            className="w-[var(--radix-popover-trigger-width)] bg-card/80 backdrop-blur-lg border-primary/30"
+            className="w-[var(--radix-popover-trigger-width)] bg-card/80 backdrop-blur-lg border-primary/30 p-2"
             onOpenAutoFocus={(e) => e.preventDefault()}
         >
-          <div className="min-h-[20px] text-sm">
-            {isAnalyzing ? (
-               <div className="flex items-center gap-2 text-muted-foreground">
-                  <Skeleton className="h-4 w-4 rounded-full" />
-                  <Skeleton className="h-4 w-3/4" />
+          {isAnalysisPopoverOpen && !isPersonaGalleryOpen ? (
+            <div className="min-h-[20px] text-sm p-2">
+              {isAnalyzing ? (
+                <div className="flex items-center gap-2 text-muted-foreground">
+                    <Skeleton className="h-4 w-4 rounded-full" />
+                    <Skeleton className="h-4 w-3/4" />
+                  </div>
+              ) : analysis ? (
+                <div className="flex items-start gap-2 text-accent">
+                  <Wand2 className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                  <p>{analysis}</p>
                 </div>
-            ) : analysis ? (
-              <div className="flex items-start gap-2 text-accent">
-                <Wand2 className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                <p>{analysis}</p>
-              </div>
-            ) : null}
-          </div>
+              ) : null}
+            </div>
+          ) : (
+             <PersonaGallery onSelectPersona={handlePersonaSelect} />
+          )}
+
         </PopoverContent>
       </Popover>
 
