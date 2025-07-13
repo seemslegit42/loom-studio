@@ -19,7 +19,11 @@ import {
   Waypoints,
   Sparkles,
   CheckCircle,
-  Code
+  Code,
+  Cpu,
+  FolderKanban,
+  Combine,
+  Split
 } from "lucide-react";
 
 export interface CodexNode {
@@ -27,7 +31,7 @@ export interface CodexNode {
     name: string;
     subtitle: string;
     tooltip: string;
-    family: "Core" | "Logic" | "Agent" | "Oracle" | "Connection" | "Advanced";
+    family: "Core" | "Logic" | "Agent" | "Oracle" | "Connection" | "Data" | "Advanced";
     devLabel: string;
 }
 
@@ -42,6 +46,14 @@ export const workflowNodeCodex: CodexNode[] = [
     devLabel: "Manual Trigger"
   },
   {
+    icon: Webhook,
+    name: "The Signal",
+    subtitle: "Start When Another App Acts",
+    tooltip: "Listens for an action in another tool (like a new sale in Shopify or a new row in Google Sheets) and starts this workflow automatically.",
+    family: "Core",
+    devLabel: "Webhook Listener"
+  },
+  {
     icon: CheckCircle,
     name: "The Seal",
     subtitle: "Finish the Task",
@@ -52,72 +64,78 @@ export const workflowNodeCodex: CodexNode[] = [
 
   // == LOGIC PANTHEON ==
   {
-    icon: Webhook,
-    name: "The Signal",
-    subtitle: "Start When Another App Acts",
-    tooltip: "Listens for an action in another tool (like a new sale) to start the workflow.",
-    family: "Logic",
-    devLabel: "Webhook Listener"
-  },
-  {
     icon: GitBranch,
     name: "The Crossroads",
-    subtitle: "Create an \"If/Then\" Choice",
-    tooltip: "Sends the workflow down different paths based on a condition you set.",
+    subtitle: "Create a Simple \"If/Then\"",
+    tooltip: "Creates a fork in the road. If a condition is met (e.g., 'Is the customer a VIP?'), go down one path. If not, go down the other.",
     family: "Logic",
     devLabel: "Conditional Branch"
+  },
+   {
+    icon: Hourglass,
+    name: "The Vigil",
+    subtitle: "Wait Until a Condition is Met",
+    tooltip: "Pause the flow until a certain condition becomes true — like waiting for a payment to complete.",
+    family: "Logic",
+    devLabel: "Wait Until"
   },
   {
     icon: RefreshCw,
     name: "The Echo",
     subtitle: "Repeat for Each Item",
-    tooltip: "Runs a set of actions for every single item in a list.",
+    tooltip: "Loops through a list — for example, send a message to each customer in a group.",
     family: "Logic",
-    devLabel: "Loop / For Each"
-  },
-  {
-    icon: Hourglass,
-    name: "The Vigil",
-    subtitle: "Wait Until...",
-    tooltip: "Pauses the workflow until a specific condition is met (e.g., payment confirmed).",
-    family: "Logic",
-    devLabel: "Wait for Condition"
+    devLabel: "For Each / Loop"
   },
 
   // == AGENT PANTHEON ==
   {
+    icon: Cpu,
+    name: "The Agent",
+    subtitle: "Give an AI a Job",
+    tooltip: "Assign a specific task to your AI assistant, like summarizing text, writing an email, or sorting data into categories.",
+    family: "Agent",
+    devLabel: "LLM Task Agent"
+  },
+  {
     icon: ScrollText,
     name: "The Scribe",
-    subtitle: "Draft Text",
-    tooltip: "An AI Agent that writes emails, documents, or any other text.",
+    subtitle: "Write Something with AI",
+    tooltip: "Ask your AI assistant to draft an email, document, or any piece of writing.",
     family: "Agent",
-    devLabel: "LLM Text Generation"
+    devLabel: "Text Generation"
   },
   {
     icon: BarChart2,
     name: "The Analyst",
-    subtitle: "Analyze & Sort Data",
-    tooltip: "An AI Agent that categorizes information, finds patterns, or sorts lists.",
+    subtitle: "Analyze Text or Data with AI",
+    tooltip: "Use the AI to find trends, summarize datasets, or interpret customer feedback.",
     family: "Agent",
-    devLabel: "AI Data Categorization"
+    devLabel: "Data Analysis"
   },
   {
     icon: Languages,
     name: "The Translator",
-    subtitle: "Translate Text",
-    tooltip: "An AI Agent that converts content between languages.",
+    subtitle: "Translate Language with AI",
+    tooltip: "Translate content between languages automatically using the AI assistant.",
     family: "Agent",
     devLabel: "Language Translation"
   },
-
-  // == ORACLE PANTHEON ==
+   {
+    icon: FolderKanban,
+    name: "The Organizer",
+    subtitle: "Categorize and Tag Data",
+    tooltip: "Sort inputs into categories or labels based on rules or AI logic.",
+    family: "Agent",
+    devLabel: "Tagging / Classification"
+  },
   {
     icon: BotMessageSquare,
     name: "The Oracle",
     subtitle: "Ask the AI a Question",
-    tooltip: "Get a direct answer, idea, or piece of knowledge from the core AI.",
+    tooltip: "For when you need a direct answer or idea from the core AI. Just type your question and get a response.",
     family: "Oracle",
-    devLabel: "Single Prompt / LLM"
+    devLabel: "Single-shot Prompt"
   },
   
   // == CONNECTION PANTHEON ==
@@ -125,17 +143,35 @@ export const workflowNodeCodex: CodexNode[] = [
     icon: Waypoints,
     name: "The Bridge",
     subtitle: "Connect to an Outside Tool",
-    tooltip: "Pulls information from or sends commands to another application.",
+    tooltip: "Pulls information from or sends commands to another application, like pulling customer data from your CRM or adding an event to your calendar.",
     family: "Connection",
-    devLabel: "API Call"
+    devLabel: "API Call / HTTP Request"
   },
+
+  // == DATA PANTHEON ==
   {
     icon: Sparkles,
     name: "The Refiner",
     subtitle: "Clean Up & Format Data",
-    tooltip: "Instantly cleans up messy data like names, dates, and numbers.",
-    family: "Connection",
+    tooltip: "Instantly cleans up messy data. Use it to format names, fix dates, or combine fields.",
+    family: "Data",
     devLabel: "Data Transform"
+  },
+   {
+    icon: Combine,
+    name: "The Conflux",
+    subtitle: "Merge Multiple Data Streams",
+    tooltip: "Combine inputs from several nodes into a single structured output.",
+    family: "Data",
+    devLabel: "Merge"
+  },
+  {
+    icon: Split,
+    name: "The Schism",
+    subtitle: "Split Data into Parts",
+    tooltip: "Break a dataset into separate chunks for routing or filtering.",
+    family: "Data",
+    devLabel: "Splitter"
   },
 
   // == ADVANCED PANTHEON ==

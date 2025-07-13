@@ -1,7 +1,13 @@
+
+'use client';
+
 import { PaletteNode } from "./palette-node";
 import { ScrollArea } from "../ui/scroll-area";
 import { workflowNodeCodex } from "@/lib/codex";
 import type { CodexNode } from "@/lib/codex";
+import { useState } from "react";
+import { Switch } from "../ui/switch";
+import { Label } from "../ui/label";
 
 /**
  * The Palette panel component, which displays a list of all available
@@ -12,41 +18,51 @@ import type { CodexNode } from "@/lib/codex";
 export function WorkflowNodePalette() {
     // Group nodes by their family (Pantheon)
     const pantheons = workflowNodeCodex.reduce((acc, node) => {
-        if (!acc[node.family]) {
-            acc[node.family] = [];
+        const family = node.family ?? 'Advanced';
+        if (!acc[family]) {
+            acc[family] = [];
         }
-        acc[node.family].push(node);
+        acc[family].push(node);
         return acc;
     }, {} as Record<CodexNode['family'], CodexNode[]>);
 
     const pantheonOrder: CodexNode['family'][] = ["Core", "Logic", "Agent", "Oracle", "Connection", "Advanced"];
 
-    // A flag to control dev mode, will be moved to context/state later
-    const showDevMode = false;
+    const [showDevMode, setShowDevMode] = useState(false);
 
     return (
-        <ScrollArea className="h-full">
-            <div className="flex flex-col gap-6 pr-4">
-                {pantheonOrder.map(pantheon => (
-                    pantheons[pantheon] && pantheons[pantheon].length > 0 && (
-                        <div key={pantheon} className="space-y-3">
-                            <h3 className="font-semibold text-muted-foreground tracking-wider text-sm">{pantheon.toUpperCase()}</h3>
-                            <div className="space-y-2">
-                                {pantheons[pantheon].map(node => (
-                                    <PaletteNode 
-                                        key={node.name}
-                                        icon={node.icon} 
-                                        name={node.name}
-                                        subtitle={node.subtitle}
-                                        description={node.tooltip}
-                                        devLabel={showDevMode ? node.devLabel : undefined}
-                                    />
-                                ))}
+        <div className="h-full flex flex-col">
+            <ScrollArea className="flex-1">
+                <div className="flex flex-col gap-6 pr-4">
+                    {pantheonOrder.map(pantheon => (
+                        pantheons[pantheon] && pantheons[pantheon].length > 0 && (
+                            <div key={pantheon} className="space-y-3">
+                                <h3 className="font-semibold text-muted-foreground tracking-wider text-sm">{pantheon.toUpperCase()}</h3>
+                                <div className="space-y-2">
+                                    {pantheons[pantheon].map(node => (
+                                        <PaletteNode 
+                                            key={node.name}
+                                            icon={node.icon} 
+                                            name={node.name}
+                                            subtitle={node.subtitle}
+                                            description={node.tooltip}
+                                            devLabel={showDevMode ? node.devLabel : undefined}
+                                        />
+                                    ))}
+                                </div>
                             </div>
-                        </div>
-                    )
-                ))}
+                        )
+                    ))}
+                </div>
+            </ScrollArea>
+            <div className="flex items-center space-x-2 p-4 border-t border-border/50">
+                <Switch 
+                    id="dev-mode" 
+                    checked={showDevMode}
+                    onCheckedChange={setShowDevMode}
+                    />
+                <Label htmlFor="dev-mode" className="text-sm">Architect's View</Label>
             </div>
-        </ScrollArea>
+        </div>
     );
 }
