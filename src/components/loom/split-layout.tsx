@@ -12,7 +12,6 @@ import { AgentProfileChart } from "./agent-profile-chart";
 import { forgeAgentIdentity } from "@/ai/flows/forge-agent-identity-flow";
 import { SigilRites, type Ritual, type Variant } from "../sigil-rites/SigilRites";
 import { Skeleton } from "../ui/skeleton";
-import BottomBar from "./bottom-bar";
 import { WorkflowCanvas } from "./workflow-canvas";
 import type { WorkflowNodeData } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -23,6 +22,10 @@ interface SplitLayoutProps {
   variant: Variant;
   ritual: Ritual;
   setRitual: (ritual: Ritual) => void;
+  isPaletteOpen: boolean;
+  setIsPaletteOpen: (isOpen: boolean) => void;
+  isInspectorOpen: boolean;
+  setIsInspectorOpen: (isOpen: boolean) => void;
 }
 
 /**
@@ -30,10 +33,15 @@ interface SplitLayoutProps {
  * the central Canvas/Sigil, and the Inspector.
  * It is responsive, resizable, and manages the mobile sheet views.
  */
-export default function SplitLayout({ variant, ritual, setRitual }: SplitLayoutProps) {
-  const [isPaletteOpen, setIsPaletteOpen] = useState(false);
-  const [isInspectorOpen, setIsInspectorOpen] = useState(false);
-
+export default function SplitLayout({ 
+  variant, 
+  ritual, 
+  setRitual,
+  isPaletteOpen,
+  setIsPaletteOpen,
+  isInspectorOpen,
+  setIsInspectorOpen
+}: SplitLayoutProps) {
   const [isConfiguringAgent, setIsConfiguringAgent] = useState(false);
   
   const [nodes, setNodes] = useState<WorkflowNodeData[]>([]);
@@ -62,6 +70,7 @@ export default function SplitLayout({ variant, ritual, setRitual }: SplitLayoutP
     setIsConfiguringAgent(true);
     setRitual('orchestrate');
     setSelectedNodeId(null);
+    setIsInspectorOpen(false); // Close sheet on mobile after action
 
     try {
       const result = await forgeAgentIdentity({ prompt: promptToForge });
@@ -183,7 +192,6 @@ export default function SplitLayout({ variant, ritual, setRitual }: SplitLayoutP
 
 
       {/* Mobile Bottom Bar controlled Sheets */}
-      <BottomBar onTogglePalette={() => setIsPaletteOpen(p => !p)} onToggleInspector={() => setIsInspectorOpen(p => !p)} />
 
       {/* Palette Panel (Mobile) */}
       <Sheet open={isPaletteOpen} onOpenChange={setIsPaletteOpen}>
