@@ -3,11 +3,10 @@ import { cn } from "@/lib/utils";
 import type { LucideIcon } from "lucide-react";
 import Image from 'next/image';
 
-interface WorkflowNodeProps {
+interface WorkflowNodeProps extends React.HTMLAttributes<HTMLDivElement> {
     icon: LucideIcon;
     title: string;
     children?: React.ReactNode;
-    className?: string;
     isSelected?: boolean;
     onClick?: () => void;
     content?: string | null;
@@ -19,13 +18,13 @@ interface WorkflowNodeProps {
  * @param {WorkflowNodeProps} props - The props for the component.
  * @returns {JSX.Element} The rendered workflow node.
  */
-export function WorkflowNode({ icon: Icon, title, children, className, isSelected, onClick, content }: WorkflowNodeProps) {
+export function WorkflowNode({ icon: Icon, title, children, className, isSelected, onClick, content, ...props }: WorkflowNodeProps) {
     const isAvatar = !!content;
 
     return (
         <div 
             className={cn(
-                "relative flex flex-col items-center justify-center w-40 h-32 p-4 rounded-lg border-2 bg-card/80 backdrop-blur-sm shadow-lg cursor-pointer",
+                "absolute flex flex-col items-center justify-center w-40 h-32 p-4 rounded-lg border-2 bg-card/80 backdrop-blur-sm shadow-lg cursor-pointer",
                 "transition-all duration-200",
                 isSelected 
                     ? "border-primary/80 shadow-primary/20 shadow-2xl" 
@@ -33,6 +32,7 @@ export function WorkflowNode({ icon: Icon, title, children, className, isSelecte
                 className
             )}
             onClick={onClick}
+            {...props}
         >
             {/* Input Handle */}
             <div className="absolute -left-[9px] top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-background border-2 border-primary/50" />

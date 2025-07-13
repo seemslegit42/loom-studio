@@ -12,5 +12,6 @@ export interface WorkflowNodeData {
     name: string;
     avatarDataUri: string | null;
     profile: AnalyzeAgentProfileOutput['profile'];
-    // Future properties: position, type, inputs, outputs, etc.
+    position: { x: number; y: number; };
+    // Future properties: type, inputs, outputs, etc.
 }

@@ -15,7 +15,7 @@ import { Skeleton } from "../ui/skeleton";
 import BottomBar from "./bottom-bar";
 import { WorkflowCanvas } from "./workflow-canvas";
 import type { WorkflowNodeData } from "@/lib/types";
-import { Card, CardContent, CardHeader } from "../ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
 
 interface SplitLayoutProps {
@@ -54,6 +54,10 @@ export default function SplitLayout({ variant, ritual, setRitual }: SplitLayoutP
         name: result.name,
         avatarDataUri: result.avatarDataUri,
         profile: result.profile,
+        position: {
+          x: 50 + (Math.random() * 10 - 5),
+          y: 50 + (Math.random() * 10 - 5),
+        },
       };
 
       setNodes(prevNodes => [...prevNodes, newNode]);

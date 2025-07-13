@@ -27,7 +27,7 @@ export function WorkflowCanvas({ children, nodes, selectedNodeId, setSelectedNod
             </div>
 
             {/* Workflow Nodes Layer */}
-            <div className="relative z-10 flex flex-wrap gap-8">
+            <div className="relative z-10 w-full h-full">
                 {nodes.map(node => (
                     <WorkflowNode 
                         key={node.id}
@@ -36,6 +36,11 @@ export function WorkflowCanvas({ children, nodes, selectedNodeId, setSelectedNod
                         content={node.avatarDataUri}
                         isSelected={selectedNodeId === node.id}
                         onClick={() => setSelectedNodeId(node.id)}
+                        style={{ 
+                            left: `${node.position.x}%`, 
+                            top: `${node.position.y}%`,
+                            transform: `translate(-${node.position.x}%, -${node.position.y}%)`,
+                        }}
                     />
                 ))}
             </div>
