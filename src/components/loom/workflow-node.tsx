@@ -29,7 +29,7 @@ export function WorkflowNode({
 }: WorkflowNodeProps) {
     const isAvatar = !!node.avatarDataUri;
 
-    const { position, isDragging, didDrag, handleMouseDown } = useInteractiveNode({
+    const { position, isDragging, didDrag, handleMouseDown, handleTouchStart } = useInteractiveNode({
         nodeId: node.id,
         initialPosition: node.position,
         onDragEnd,
@@ -66,6 +66,7 @@ export function WorkflowNode({
             transition={{ type: 'spring', stiffness: 260, damping: 20 }}
             onClick={handleClick}
             onMouseDown={handleMouseDown}
+            onTouchStart={handleTouchStart}
             {...props}
         >
             {/* Input Handle */}

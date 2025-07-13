@@ -15,7 +15,7 @@ const DRAG_THRESHOLD = 5; // pixels
 
 /**
  * A custom hook to manage the state and logic for a draggable node.
- * It handles mouse events to calculate new positions and updates the parent
+ * It handles mouse and touch events to calculate new positions and updates the parent
  * component upon drag completion.
  * 
  * @param {UseInteractiveNodeProps} props The properties for the hook.
@@ -24,6 +24,7 @@ const DRAG_THRESHOLD = 5; // pixels
  *  isDragging: boolean;
  *  didDrag: boolean;
  *  handleMouseDown: (e: React.MouseEvent<HTMLElement, MouseEvent>) => void;
+ *  handleTouchStart: (e: React.TouchEvent<HTMLElement>) => void;
  * }} An object containing the node's position, dragging state, and event handlers.
  */
 export function useInteractiveNode({ nodeId, initialPosition, onDragEnd }: UseInteractiveNodeProps) {
@@ -43,30 +44,37 @@ export function useInteractiveNode({ nodeId, initialPosition, onDragEnd }: UseIn
         dragState.current.currentPosition = initialPosition;
     }, [initialPosition]);
 
-    const handleMouseDown = useCallback((e: React.MouseEvent<HTMLElement, MouseEvent>) => {
-        if (e.button !== 0) return;
-        
-        e.preventDefault();
-        e.stopPropagation();
-
+    const handleDragStart = useCallback((clientX: number, clientY: number) => {
         dragState.current.didDrag = false;
-        dragState.current.startMouse = { x: e.clientX, y: e.clientY };
+        dragState.current.startMouse = { x: clientX, y: clientY };
         
         setDidDrag(false);
         setIsDragging(true);
     }, []);
 
-    useEffect(() => {
-        const handleMouseMove = (e: MouseEvent) => {
-            e.preventDefault();
-            e.stopPropagation();
+    const handleMouseDown = useCallback((e: React.MouseEvent<HTMLElement, MouseEvent>) => {
+        if (e.button !== 0) return;
+        e.preventDefault();
+        e.stopPropagation();
+        handleDragStart(e.clientX, e.clientY);
+    }, [handleDragStart]);
 
+    const handleTouchStart = useCallback((e: React.TouchEvent<HTMLElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const touch = e.touches[0];
+        handleDragStart(touch.clientX, touch.clientY);
+    }, [handleDragStart]);
+
+
+    useEffect(() => {
+        const handleMove = (clientX: number, clientY: number) => {
             const parent = document.getElementById('workflow-canvas');
             if (!parent) return;
             
             if (!dragState.current.didDrag) {
-                const dx = e.clientX - dragState.current.startMouse.x;
-                const dy = e.clientY - dragState.current.startMouse.y;
+                const dx = clientX - dragState.current.startMouse.x;
+                const dy = clientY - dragState.current.startMouse.y;
                 if (Math.sqrt(dx * dx + dy * dy) > DRAG_THRESHOLD) {
                     dragState.current.didDrag = true;
                     setDidDrag(true);
@@ -74,8 +82,8 @@ export function useInteractiveNode({ nodeId, initialPosition, onDragEnd }: UseIn
             }
             
             const parentRect = parent.getBoundingClientRect();
-            let newX = ((e.clientX - parentRect.left) / parentRect.width) * 100;
-            let newY = ((e.clientY - parentRect.top) / parentRect.height) * 100;
+            let newX = ((clientX - parentRect.left) / parentRect.width) * 100;
+            let newY = ((clientY - parentRect.top) / parentRect.height) * 100;
             
             newX = Math.max(0, Math.min(100, newX));
             newY = Math.max(0, Math.min(100, newY));
@@ -85,24 +93,50 @@ export function useInteractiveNode({ nodeId, initialPosition, onDragEnd }: UseIn
             setPosition(newPosition);
         };
 
-        const handleMouseUp = (e: MouseEvent) => {
-            e.preventDefault();
-            e.stopPropagation();
-
+        const handleDragEnd = () => {
             if (dragState.current.didDrag) {
                 onDragEnd(nodeId, dragState.current.currentPosition);
             }
             setIsDragging(false);
         };
         
+        const handleMouseMove = (e: MouseEvent) => {
+            e.preventDefault();
+            e.stopPropagation();
+            handleMove(e.clientX, e.clientY);
+        };
+
+        const handleTouchMove = (e: TouchEvent) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const touch = e.touches[0];
+            handleMove(touch.clientX, touch.clientY);
+        };
+
+        const handleMouseUp = (e: MouseEvent) => {
+            e.preventDefault();
+            e.stopPropagation();
+            handleDragEnd();
+        };
+
+        const handleTouchEnd = (e: TouchEvent) => {
+             e.preventDefault();
+             e.stopPropagation();
+             handleDragEnd();
+        };
+        
         if (isDragging) {
             document.addEventListener('mousemove', handleMouseMove);
             document.addEventListener('mouseup', handleMouseUp, { once: true });
+            document.addEventListener('touchmove', handleTouchMove, { passive: false });
+            document.addEventListener('touchend', handleTouchEnd, { once: true });
         }
 
         return () => {
             document.removeEventListener('mousemove', handleMouseMove);
             document.removeEventListener('mouseup', handleMouseUp);
+            document.removeEventListener('touchmove', handleTouchMove);
+            document.removeEventListener('touchend', handleTouchEnd);
         };
     }, [isDragging, onDragEnd, nodeId]);
 
@@ -111,5 +145,6 @@ export function useInteractiveNode({ nodeId, initialPosition, onDragEnd }: UseIn
         isDragging,
         didDrag,
         handleMouseDown,
+        handleTouchStart,
     };
 }
