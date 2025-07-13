@@ -14,6 +14,7 @@ import { ScrollArea } from "../ui/scroll-area";
 import { AnimatePresence, motion } from "framer-motion";
 import { AgentTaskConfig } from "./agent-task-config";
 import type { CodexNode } from "@/lib/codex";
+import { GenesisChamber, type ForgedAgent } from "./genesis-chamber";
 
 interface SplitLayoutProps {
   ritual: Ritual;
@@ -31,6 +32,9 @@ interface SplitLayoutProps {
   setSelectedConnectionId: (id: string | null) => void;
   onUpdateNode: (nodeId: string, newPrompt: string) => void;
   onSummonNode: (codexNode: CodexNode) => void;
+  genesisPrompt: string;
+  onFinalizeForge: (agent: ForgedAgent) => void;
+  onCancelForge: () => void;
 }
 
 /**
@@ -54,6 +58,9 @@ export default function SplitLayout({
   setSelectedConnectionId,
   onUpdateNode,
   onSummonNode,
+  genesisPrompt,
+  onFinalizeForge,
+  onCancelForge,
 }: SplitLayoutProps) {
   
   const selectedNode = nodes.find(node => node.id === selectedNodeId) || null;
@@ -76,8 +83,13 @@ export default function SplitLayout({
     setSelectedConnectionId(connectionId);
     setSelectedNodeId(null);
     // Optionally open inspector for connection properties in the future
-    setIsInspectorOpen(false); 
+    // setIsInspectorOpen(true); 
   }
+
+  const handleCanvasClick = () => {
+    setSelectedNodeId(null);
+    setSelectedConnectionId(null);
+  };
 
   const PalettePanel = () => (
     <div className="p-4 h-full flex flex-col">
@@ -88,7 +100,9 @@ export default function SplitLayout({
 
   const InspectorPanel = () => (
     <div className="p-4 h-full flex flex-col">
-       <h2 className="text-lg font-headline text-muted-foreground">Inspector</h2>
+       <h2 className="text-lg font-headline text-muted-foreground">
+        {selectedNode ? 'Inspector' : genesisPrompt ? 'Genesis Chamber' : 'Inspector'}
+       </h2>
         <ScrollArea className="flex-1 mt-4 -mr-4 pr-4">
           <div className="space-y-6">
             {selectedNode ? (
@@ -101,15 +115,21 @@ export default function SplitLayout({
                   onUpdateNode={onUpdateNode}
                 />
               </>
+            ) : genesisPrompt ? (
+               <GenesisChamber
+                  prompt={genesisPrompt}
+                  onFinalize={onFinalizeForge}
+                  onCancel={onCancelForge}
+               />
             ) : (
               <Card className="border-border/60 bg-card/40">
                   <CardHeader>
                       <CardTitle>Inspector</CardTitle>
-                      <CardDescription>Select an agent on the canvas to view its personality matrix and configuration.</CardDescription>
+                      <CardDescription>Select an agent to view its configuration, or scribe an incantation in the header to forge a new one.</CardDescription>
                   </CardHeader>
                   <CardContent>
                       <div className="text-sm text-muted-foreground text-center italic py-8">
-                          No agent selected.
+                          The Architect's Table awaits your command.
                       </div>
                   </CardContent>
               </Card>
@@ -150,10 +170,7 @@ export default function SplitLayout({
               selectedConnectionId={selectedConnectionId}
               onNodeClick={handleNodeClick}
               onConnectionClick={handleConnectionClick}
-              onCanvasClick={() => {
-                setSelectedNodeId(null);
-                setSelectedConnectionId(null);
-              }}
+              onCanvasClick={handleCanvasClick}
               onNodeDragEnd={handleNodeDragEnd}
             />
         </ResizablePanel>
@@ -174,10 +191,7 @@ export default function SplitLayout({
             selectedConnectionId={selectedConnectionId}
             onNodeClick={handleNodeClick}
             onConnectionClick={handleConnectionClick}
-            onCanvasClick={() => {
-              setSelectedNodeId(null);
-              setSelectedConnectionId(null);
-            }}
+            onCanvasClick={handleCanvasClick}
             onNodeDragEnd={handleNodeDragEnd}
           />
       </div>

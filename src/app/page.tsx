@@ -8,7 +8,7 @@ import { useSystemSigilState } from "@/hooks/use-system-sigil-state";
 import { useState } from "react";
 import type { WorkflowNodeData, WorkflowConnection } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
-import { ForgeDialog, type ForgedAgent } from "@/components/loom/forge-dialog";
+import type { ForgedAgent } from "@/components/loom/genesis-chamber";
 import type { CodexNode } from "@/lib/codex";
 import { analyzeAgentProfile } from "@/ai/flows/analyze-agent-profile-flow";
 import { generateAgentAvatar } from "@/ai/flows/generate-agent-avatar-flow";
@@ -73,23 +73,22 @@ const initialConnections: WorkflowConnection[] = [
 export default function Home() {
   const { ritual, setRitual } = useSystemSigilState();
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
-  const [isInspectorOpen, setIsInspectorOpen] = useState(false);
+  const [isInspectorOpen, setIsInspectorOpen] = useState(true); // Default to open
   
   const [nodes, setNodes] = useState<WorkflowNodeData[]>(initialNodes);
   const [connections, setConnections] = useState<WorkflowConnection[]>(initialConnections);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [selectedConnectionId, setSelectedConnectionId] = useState<string | null>(null);
 
-
-  const [isForging, setIsForging] = useState(false);
-  const [forgePrompt, setForgePrompt] = useState<string>('');
+  const [genesisPrompt, setGenesisPrompt] = useState<string>('');
   
   const { toast } = useToast();
 
   const handleStartForge = (prompt: string) => {
     if (!prompt.trim()) return;
-    setForgePrompt(prompt);
-    setIsForging(true);
+    setSelectedNodeId(null); // Deselect any node to show the GenesisChamber
+    setIsInspectorOpen(true);
+    setGenesisPrompt(prompt);
   };
   
   const handleFinalizeForge = (manifestedForm: ForgedAgent) => {
@@ -121,13 +120,12 @@ export default function Home() {
       title: "Form Manifested",
       description: `The new form, "${manifestedForm.name}", has been summoned to the canvas.`,
     });
-    
-    handleCancelForge();
+
+    setGenesisPrompt(''); // Clear the prompt after finalizing
   };
 
   const handleCancelForge = () => {
-    setIsForging(false);
-    setForgePrompt('');
+    setGenesisPrompt('');
     setRitual('idle');
   };
 
@@ -294,16 +292,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col h-screen bg-background text-foreground">
-      <Header onForge={handleStartForge} isForging={isForging} />
-
-      {isForging && (
-        <ForgeDialog 
-          isOpen={isForging}
-          prompt={forgePrompt}
-          onFinalize={handleFinalizeForge}
-          onCancel={handleCancelForge}
-        />
-      )}
+      <Header onForge={handleStartForge} />
 
       <main className="flex-1 overflow-hidden">
         <SplitLayout
@@ -322,6 +311,9 @@ export default function Home() {
           setSelectedConnectionId={setSelectedConnectionId}
           onUpdateNode={handleUpdateNode}
           onSummonNode={handleSummonNode}
+          genesisPrompt={genesisPrompt}
+          onFinalizeForge={handleFinalizeForge}
+          onCancelForge={handleCancelForge}
         />
       </main>
       <BottomBar

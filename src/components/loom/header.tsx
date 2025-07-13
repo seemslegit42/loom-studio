@@ -10,7 +10,6 @@ import type { CodexNode } from '@/lib/codex';
 
 interface HeaderProps {
   onForge: (prompt: string) => void;
-  isForging: boolean;
 }
 
 /**
@@ -18,7 +17,7 @@ interface HeaderProps {
  * It provides the application logo and the main input for creating new agents.
  * @returns {JSX.Element} The rendered header component.
  */
-export default function Header({ onForge, isForging }: HeaderProps) {
+export default function Header({ onForge }: HeaderProps) {
   const [prompt, setPrompt] = useState('');
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   
@@ -33,7 +32,7 @@ export default function Header({ onForge, isForging }: HeaderProps) {
 
 
   const handleForgeClick = () => {
-    if (prompt && !isForging) {
+    if (prompt) {
       onForge(prompt);
       setPrompt('');
       setIsPopoverOpen(false);
@@ -78,7 +77,6 @@ export default function Header({ onForge, isForging }: HeaderProps) {
                 onChange={(e) => setPrompt(e.target.value)}
                 onKeyDown={handleKeyDown}
                 onFocus={() => { if(prompt.trim() === '') setIsPopoverOpen(true) }}
-                disabled={isForging}
                 autoComplete="off"
               />
             </div>
@@ -92,9 +90,9 @@ export default function Header({ onForge, isForging }: HeaderProps) {
                 size="sm" 
                 className="rounded-full" 
                 onClick={handleForgeClick} 
-                disabled={isForging || !prompt.trim()}
+                disabled={!prompt.trim()}
             >
-              {isForging ? <Loader2 className="animate-spin" /> : 'Forge'}
+              {'Forge'}
             </Button>
         </div>
       </div>
