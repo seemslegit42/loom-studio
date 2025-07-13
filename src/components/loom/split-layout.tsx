@@ -115,7 +115,7 @@ export default function SplitLayout({
 
   const PalettePanel = () => (
     <div className="p-4 h-full flex flex-col">
-      <h2 className="text-lg font-headline text-muted-foreground pb-4 md:pb-0">Palette</h2>
+      <h2 className="text-lg font-headline text-muted-foreground pb-4 md:pb-0 hidden md:block">Palette</h2>
       <div className="flex-1 md:mt-4">
         <WorkflowNodePalette onNodeSelect={onSummonNode} />
       </div>
@@ -124,10 +124,10 @@ export default function SplitLayout({
 
   const InspectorPanel = () => (
     <div className="p-4 h-full flex flex-col">
-       <h2 className="text-lg font-headline text-muted-foreground">
+       <h2 className="text-lg font-headline text-muted-foreground hidden md:block">
         {selectedNode ? 'Inspector' : genesisPrompt ? 'Genesis Chamber' : selectedConnection ? 'Connection' : 'Inspector'}
        </h2>
-        <ScrollArea className="flex-1 mt-4 -mr-4 pr-4">
+        <ScrollArea className="flex-1 md:mt-4 -mr-4 pr-4">
           <div className="space-y-6">
             <AnimatePresence mode="wait">
               {selectedNode ? (
@@ -275,6 +275,9 @@ export default function SplitLayout({
       {/* Palette Panel (Mobile) */}
       <Sheet open={isPaletteOpen} onOpenChange={setIsPaletteOpen}>
         <SheetContent side="left" className="w-[300px] sm:w-[340px] bg-card/80 backdrop-blur-lg flex flex-col p-0">
+           <SheetHeader className="p-4 pb-0">
+             <SheetTitle>Palette</SheetTitle>
+           </SheetHeader>
           <PalettePanel />
         </SheetContent>
       </Sheet>
@@ -282,6 +285,9 @@ export default function SplitLayout({
       {/* Inspector Panel (Mobile) */}
       <Sheet open={isInspectorOpen} onOpenChange={setIsInspectorOpen}>
         <SheetContent side="right" className="w-[300px] sm:w-[340px] bg-card/80 backdrop-blur-lg flex flex-col p-0">
+            <SheetHeader className="p-4 pb-0">
+               <SheetTitle>{selectedNode ? 'Inspector' : genesisPrompt ? 'Genesis Chamber' : selectedConnection ? 'Connection' : 'Inspector'}</SheetTitle>
+            </SheetHeader>
            <InspectorPanel />
         </SheetContent>
       </Sheet>
