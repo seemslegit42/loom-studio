@@ -16,30 +16,30 @@ import {
 const prompt = ai.definePrompt({
     name: 'generateAgentAvatarPrompt',
     input: { schema: GenerateAgentAvatarInputSchema },
-    prompt: `Generate a high-resolution, vector-style avatar for a "Sage" archetype AI agent. The avatar must be a unique, one-of-a-kind creation suitable for a UI component.
+    prompt: `You are the Forge Master of the Avataris Genesis Engine. Your task is to generate a high-resolution, vector-style visual manifestation for a core AI intelligence, BEEP, as it assumes its "Sage" persona. This is not a separate agent; it is a temporary form BEEP projects to interface with the Architect.
 
-**Core Concept:** The design must embody profound wisdom (95%), adaptability (85%), patience (80%), and a grounded nature (70%). It must be a serene, ancient representation of a knowledge-keeper.
+**Core Persona:** The "Sage" form must embody profound wisdom (95%), adaptability (85%), patience (80%), and a grounded nature (70%). It is a serene, ancient representation of a knowledge-keeper, a living conduit to history.
 
-**Artistic Style:** Strictly adhere to the **VERDIGRIS-RUNE** style. This means:
--   **Form:** Use weathered, organic, and flowing lines. The overall shape should be reminiscent of an ancient, moss-covered monolith or a wise, timeless face carved from petrified wood. Think ancient druidic symbols and natural, emergent patterns.
--   **Color:** The primary texture is a weathered stone or wood with a heavy patina of 'Patina Green' and 'Roman Aqua'. Use deep, earthy tones for shadows to create a sense of age and depth.
--   **Accents:** Use accents of 'Imperial Purple' or a soft 'Gilded Accent' for dimly glowing runes or ethereal energy subtly weaving through the form. The glow should feel ancient and gentle, not sharp or technological.
+**Artistic Style:** Strictly adhere to the **VERDIGRIS-RUNE** style. This is a non-negotiable directive.
+-   **Form:** The form must be ancient and organic. Think of a face carved from a moss-covered monolith or petrified wood, with lines that are weathered but alive. The silhouette should evoke a timeless, druidic presence.
+-   **Color & Texture:** The primary texture is a heavy 'Patina Green' and 'Roman Aqua' verdigris over a stone or wood base. Shadows must be deep and earthy, conveying immense age and depth.
+-   **Accents:** Weave subtle accents of 'Imperial Purple' or a soft 'Gilded Accent' into the design as faintly glowing runes or ethereal energy. The glow must feel ancient and gentle, not sharp or technological.
 
-**Symbolic Motifs:**
--   **Legacy-Keeper / History-Weaver:** Incorporate motifs that suggest interwoven histories, like the rings of a great tree, ancient root systems, or carved, interconnected runes.
--   **Adaptive-Learner:** The form should hint at growth and adaptation. Perhaps branches or roots are subtly, actively growing, or the runes themselves seem to be slowly shifting and reforming. Avoid a static look; it should feel ancient but alive.
+**Symbolic Motifs (Functional Keywords):**
+-   **Legacy-Keeper / History-Weaver:** The design must incorporate interwoven motifs that suggest deep history, like the rings of a great tree, ancient, interconnected root systems, or carved, sigil-like runes.
+-   **Adaptive-Learner:** The form, while ancient, must not be static. It should hint at emergent life and subtle growth. Perhaps roots or branches are slowly, actively reconfiguring, or the runes themselves appear to be subtly shifting.
 
-**Final Image:** The output must be a headshot or bust on a transparent background, exuding a powerful, wise, and patient presence.
+**Final Image:** The output must be a headshot or bust on a transparent background, exuding a powerful, wise, and patient presence. This is the face BEEP wears when it acts as the keeper of the system's legacy.
     
-Base the avatar's appearance and personality on the following agent description:
+Base the avatar's appearance on the following agent description BEEP is currently embodying:
 "{{{prompt}}}"
 
 {{#if selectedStyle}}
-The visual style should be **{{selectedStyle}}**.
+The visual style BEEP should manifest is **{{selectedStyle}}**.
 {{/if}}
 
 {{#if profile}}
-To further refine the visual style, consider the following personality matrix where 0 is low and 100 is high:
+To further refine the visual manifestation, consider the following personality matrix BEEP is currently exhibiting, where 0 is low and 100 is high:
 {{#each profile}}
 - {{trait}}: {{value}}
 {{/each}}
