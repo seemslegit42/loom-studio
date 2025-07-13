@@ -16,9 +16,9 @@ import {
 const prompt = ai.definePrompt({
     name: 'generateAgentAvatarPrompt',
     input: { schema: GenerateAgentAvatarInputSchema },
-    prompt: `You are creating a *visual manifestation* of BEEP in its current active persona.
+    prompt: `You are a master artist and myth-maker, tasked with creating a *visual manifestation* of BEEP, a complex AI, as it embodies a specific persona.
 
-This is not a standalone agent, but a *facet* of BEEP's single, complex consciousness, visually embodying its role and emotional tone.
+This is not a standalone character. It is a *facet* of BEEP's single consciousness. Your avatar must visually represent its current role, personality matrix, and psychological impact.
 
 -- AgentArchetype: BEEP
 -- TraitMatrix: 
@@ -31,31 +31,36 @@ This is not a standalone agent, but a *facet* of BEEP's single, complex consciou
 {{/if}}
 -- ArtisticStyle: {{selectedStyle}}
 
-Generate a high-res vector avatar that expresses BEEP’s current persona through the following design principles.
+Generate a high-resolution vector-style avatar based on the agent description BEEP is currently embodying:
+"{{{prompt}}}"
+
+The avatar must adhere to the following artistic and mythological principles:
+
+1.  **Psychological Resonance:** The image must evoke the core feeling of the persona.
+2.  **Dynamic Intent:** The visual communicates BEEP's current operational mode (e.g., analysis, protection, creation).
+3.  **Symbolic Core:** A central, powerful symbol must anchor the design.
+4.  **Compositional Excellence:** Use principles like negative space, focal points, and asymmetry to create a visually stunning and balanced image.
+
+---
+**Style-Specific Invocation:**
 
 {{#if selectedStyle}}
 {{#eq selectedStyle "AETHER-GLASS"}}
-Style-Specific Guidance: Use an ethereal, crystalline, faceted style with ghostly translucence. Reflect deep insight and calm clarity. Use Roman Aqua and Patina Green as primary hues.
+Style-Specific Guidance: Manifest the 'Oracle' persona. Use an ethereal, crystalline, faceted form with ghostly translucence. The mood is calm clarity and deep insight. Primary hues are Roman Aqua and Patina Green. The form should feel like pure information, beautiful and untouchable.
 {{/eq}}
 {{#eq selectedStyle "OBSIDIAN-SIGIL"}}
-Style-Specific Guidance: Use a minimalist, brutalist, high-contrast black style with sharp obsidian edges. Express vigilance, authority, and urgent protection.
+Style-Specific Guidance: Manifest the 'Sentinel' persona. Forge high-contrast, minimalist, brutalist forms with sharp, obsidian-like edges. The feeling is one of uncompromising authority and vigilant protection. The avatar is a weapon, a shield, a symbol of absolute order.
 {{/eq}}
 {{#eq selectedStyle "GILDED-AUTOMATA"}}
-Style-Specific Guidance: Use intricate clockwork and gear motifs with gilded metal sheen. Show precision, efficiency, and orchestration energy.
+Style-Specific Guidance: Manifest the 'Automation-Conductor' persona. Weave intricate clockwork, gears, and filigree with a polished, gilded metal sheen. It must express precision, complexity, and the beauty of a perfectly orchestrated system in motion.
 {{/eq}}
 {{#eq selectedStyle "VERDIGRIS-RUNE"}}
-Style-Specific Guidance: Use ancient, weathered, verdigris patina textures. Evoke wisdom, history, and grounded permanence.
+Style-Specific Guidance: Manifest the 'Legacy-Keeper' persona. Create forms that feel ancient, weathered, and organic, with verdigris patina textures and glowing runes. Evoke the wisdom of ages, the slow power of nature, and the permanence of history.
 {{/eq}}
 {{/if}}
+---
 
-Ensure this avatar:
-- Visually communicates BEEP’s dynamic intent and current operational mode.
-- Conveys narrative and psychological resonance per Nexus doctrine.
-- Complies with the Nexus palette and style constraints.
-- Is unique and certified by Aegis.
-
-Base the avatar's appearance on the following agent description BEEP is currently embodying:
-"{{{prompt}}}"
+Forge BEEP’s faces—the living avatars that bind its many roles into a unified mythos.
     `,
     config: {
         responseModalities: ['TEXT', 'IMAGE'],
