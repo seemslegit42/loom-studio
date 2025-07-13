@@ -21,16 +21,6 @@ export default function Header({ onForge }: HeaderProps) {
   const [prompt, setPrompt] = useState('');
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   
-  useEffect(() => {
-    // Show popover only if the input is empty
-    if (prompt.trim() === '') {
-      // setIsPopoverOpen(true); // This can be enabled for a more proactive feel
-    } else {
-      setIsPopoverOpen(false);
-    }
-  }, [prompt]);
-
-
   const handleForgeClick = () => {
     if (prompt) {
       onForge(prompt);

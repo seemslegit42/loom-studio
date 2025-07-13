@@ -86,9 +86,9 @@ export default function Home() {
 
   const handleStartForge = (prompt: string) => {
     if (!prompt.trim()) return;
+    setGenesisPrompt(prompt);
     setSelectedNodeId(null); // Deselect any node to show the GenesisChamber
     setIsInspectorOpen(true);
-    setGenesisPrompt(prompt);
   };
   
   const handleFinalizeForge = (manifestedForm: ForgedAgent) => {

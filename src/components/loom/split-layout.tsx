@@ -89,6 +89,7 @@ export default function SplitLayout({
   const handleCanvasClick = () => {
     setSelectedNodeId(null);
     setSelectedConnectionId(null);
+    if (genesisPrompt) onCancelForge(); // Cancel forging if clicking on canvas
   };
 
   const PalettePanel = () => (
@@ -105,35 +106,58 @@ export default function SplitLayout({
        </h2>
         <ScrollArea className="flex-1 mt-4 -mr-4 pr-4">
           <div className="space-y-6">
-            {selectedNode ? (
-              <>
-                <AgentProfileChart profile={selectedNode.profile} agentName={selectedNode.name} />
-                <AgentTaskConfig
-                  initialPrompt={selectedNode.prompt}
-                  agentId={selectedNode.id}
-                  agentType={selectedNode.type}
-                  onUpdateNode={onUpdateNode}
-                />
-              </>
-            ) : genesisPrompt ? (
-               <GenesisChamber
-                  prompt={genesisPrompt}
-                  onFinalize={onFinalizeForge}
-                  onCancel={onCancelForge}
-               />
-            ) : (
-              <Card className="border-border/60 bg-card/40">
-                  <CardHeader>
-                      <CardTitle>Inspector</CardTitle>
-                      <CardDescription>Select an agent to view its configuration, or scribe an incantation in the header to forge a new one.</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                      <div className="text-sm text-muted-foreground text-center italic py-8">
-                          The Architect's Table awaits your command.
-                      </div>
-                  </CardContent>
-              </Card>
-            )}
+            <AnimatePresence mode="wait">
+              {selectedNode ? (
+                <motion.div
+                  key={`inspector-${selectedNode.id}`}
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -10 }}
+                >
+                  <div className="space-y-6">
+                    <AgentProfileChart profile={selectedNode.profile} agentName={selectedNode.name} />
+                    <AgentTaskConfig
+                      initialPrompt={selectedNode.prompt}
+                      agentId={selectedNode.id}
+                      agentType={selectedNode.type}
+                      onUpdateNode={onUpdateNode}
+                    />
+                  </div>
+                </motion.div>
+              ) : genesisPrompt ? (
+                 <motion.div
+                    key="genesis-chamber"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                  >
+                   <GenesisChamber
+                      prompt={genesisPrompt}
+                      onFinalize={onFinalizeForge}
+                      onCancel={onCancelForge}
+                   />
+                 </motion.div>
+              ) : (
+                <motion.div
+                  key="inspector-placeholder"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
+                  <Card className="border-border/60 bg-card/40">
+                      <CardHeader>
+                          <CardTitle>Inspector</CardTitle>
+                          <CardDescription>Select an agent to view its configuration, or scribe an incantation in the header to forge a new one.</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                          <div className="text-sm text-muted-foreground text-center italic py-8">
+                              The Architect's Table awaits your command.
+                          </div>
+                      </CardContent>
+                  </Card>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </ScrollArea>
     </div>
@@ -155,32 +179,34 @@ export default function SplitLayout({
         )}
       </AnimatePresence>
 
-      <ResizablePanelGroup direction="horizontal" className="h-full w-full hidden md:flex">
-        {/* Palette Panel (Desktop) */}
-        <ResizablePanel defaultSize={20} minSize={15} maxSize={30} className="h-full bg-card/30 border-r border-border/50 flex-col gap-4 hidden md:flex">
-          <PalettePanel />
-        </ResizablePanel>
-        <ResizableHandle withHandle className="hidden md:flex" />
+      <div className="hidden md:flex h-full w-full">
+        <ResizablePanelGroup direction="horizontal">
+          {/* Palette Panel (Desktop) */}
+          <ResizablePanel defaultSize={20} minSize={15} maxSize={30} className="h-full bg-card/30 border-r border-border/50 flex-col gap-4">
+            <PalettePanel />
+          </ResizablePanel>
+          <ResizableHandle withHandle />
 
-        <ResizablePanel defaultSize={60}>
-            <WorkflowCanvas 
-              nodes={nodes}
-              connections={connections}
-              selectedNodeId={selectedNodeId}
-              selectedConnectionId={selectedConnectionId}
-              onNodeClick={handleNodeClick}
-              onConnectionClick={handleConnectionClick}
-              onCanvasClick={handleCanvasClick}
-              onNodeDragEnd={handleNodeDragEnd}
-            />
-        </ResizablePanel>
+          <ResizablePanel defaultSize={60}>
+              <WorkflowCanvas 
+                nodes={nodes}
+                connections={connections}
+                selectedNodeId={selectedNodeId}
+                selectedConnectionId={selectedConnectionId}
+                onNodeClick={handleNodeClick}
+                onConnectionClick={handleConnectionClick}
+                onCanvasClick={handleCanvasClick}
+                onNodeDragEnd={handleNodeDragEnd}
+              />
+          </ResizablePanel>
 
-        <ResizableHandle withHandle className="hidden md:flex" />
-        {/* Inspector Panel (Desktop) */}
-        <ResizablePanel defaultSize={20} minSize={15} maxSize={30} className="h-full bg-card/30 border-l border-border/50 flex-col gap-4 hidden md:flex">
-          <InspectorPanel />
-        </ResizablePanel>
-      </ResizablePanelGroup>
+          <ResizableHandle withHandle />
+          {/* Inspector Panel (Desktop) */}
+          <ResizablePanel defaultSize={20} minSize={15} maxSize={30} className="h-full bg-card/30 border-l border-border/50 flex-col gap-4">
+            <InspectorPanel />
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      </div>
       
       {/* Mobile-Only Canvas View */}
        <div className="h-full w-full md:hidden">
