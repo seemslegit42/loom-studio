@@ -2,9 +2,11 @@
  * @fileOverview Schemas for generating an agent avatar.
  */
 import { z } from 'zod';
+import { AnalyzeAgentProfileOutputSchema } from './analyze-agent-profile-schema';
 
 export const GenerateAgentAvatarInputSchema = z.object({
   prompt: z.string().describe('The agent prompt to base the avatar on.'),
+  profile: AnalyzeAgentProfileOutputSchema.shape.profile.optional().describe("An optional array of personality traits and their scores to further guide the avatar's visual style."),
 });
 export type GenerateAgentAvatarInput = z.infer<typeof GenerateAgentAvatarInputSchema>;
 

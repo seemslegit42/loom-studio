@@ -89,7 +89,7 @@ export function ForgeDialog({
     if (!data) return;
     setStep('generatingAvatar');
     try {
-      const avatarResult = await generateAgentAvatar({ prompt: data.prompt });
+      const avatarResult = await generateAgentAvatar({ prompt: data.prompt, profile: data.profile });
       setData(prev => prev ? { ...prev, avatarDataUri: avatarResult.avatarDataUri } : null);
       setStep('complete');
     } catch (error) {
@@ -108,7 +108,7 @@ export function ForgeDialog({
       if (!data) return;
       setStep('generatingAvatar');
       try {
-          const avatarResult = await generateAgentAvatar({ prompt: data.prompt });
+          const avatarResult = await generateAgentAvatar({ prompt: data.prompt, profile: data.profile });
           setData(prev => prev ? { ...prev, avatarDataUri: avatarResult.avatarDataUri } : null);
           setStep('complete');
       } catch (error) {

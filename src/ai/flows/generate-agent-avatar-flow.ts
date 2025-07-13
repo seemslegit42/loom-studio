@@ -17,12 +17,19 @@ const prompt = ai.definePrompt({
     name: 'generateAgentAvatarPrompt',
     input: { schema: GenerateAgentAvatarInputSchema },
     prompt: `Generate a visually appealing and creative avatar for an AI agent. 
-    The avatar should be a stylized, high-quality vector-style illustration on a transparent background.
-    It should be a headshot or bust portrait.
+The avatar should be a stylized, high-quality vector-style illustration on a transparent background.
+It should be a headshot or bust portrait.
     
-    Base the avatar's appearance and personality on the following agent description:
-    
-    "{{{prompt}}}"
+Base the avatar's appearance and personality on the following agent description:
+"{{{prompt}}}"
+
+{{#if profile}}
+To further refine the visual style, consider the following personality matrix where 0 is low and 100 is high:
+{{#each profile}}
+- {{trait}}: {{value}}
+{{/each}}
+A high "Creativity" or "Whimsy" score might suggest a more abstract or artistic style. A high "Formality" or "Technicality" score suggests a cleaner, more robotic or professional look.
+{{/if}}
     `,
     config: {
         responseModalities: ['TEXT', 'IMAGE'],
