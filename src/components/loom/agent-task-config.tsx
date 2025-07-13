@@ -6,19 +6,21 @@ import { Loader2, Wand2 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { usePromptAnalysis } from "@/hooks/use-prompt-analysis";
 import { Skeleton } from "../ui/skeleton";
+import { PersonaGallery } from "./persona-gallery";
 
 interface AgentTaskConfigProps {
     prompt: string;
     setPrompt: (prompt: string) => void;
     onConfigure: (prompt: string) => Promise<void>;
     isConfiguring: boolean;
+    onSelectPersona: (prompt: string) => void;
 }
 
 /**
  * Configuration form for the Agent Task node in the Inspector panel.
  * @returns {JSX.Element} The rendered form component.
  */
-export function AgentTaskConfig({ prompt, setPrompt, onConfigure, isConfiguring }: AgentTaskConfigProps) {
+export function AgentTaskConfig({ prompt, setPrompt, onConfigure, isConfiguring, onSelectPersona }: AgentTaskConfigProps) {
     const { analysis, isLoading: isAnalyzing } = usePromptAnalysis(prompt);
 
     const handleConfigure = () => {
@@ -34,6 +36,8 @@ export function AgentTaskConfig({ prompt, setPrompt, onConfigure, isConfiguring 
                 <CardDescription>Define the core prompt that guides the agent's behavior and goals.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+                 <PersonaGallery onSelectPersona={onSelectPersona} />
+
                  <div>
                     <Label htmlFor="agent-prompt" className="text-muted-foreground">Core Incantation (Prompt)</Label>
                     <Textarea 

@@ -15,7 +15,6 @@ import { Skeleton } from "../ui/skeleton";
 import { WorkflowCanvas } from "./workflow-canvas";
 import type { WorkflowNodeData } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { PersonaGallery } from "./persona-gallery";
 
 
 interface SplitLayoutProps {
@@ -121,15 +120,13 @@ export default function SplitLayout({
         <div className="flex-1 mt-4 space-y-6 overflow-y-auto pr-2">
           
           {!selectedNodeId && !isConfiguringAgent && (
-            <>
-              <PersonaGallery onSelectPersona={handlePersonaSelect} />
-              <AgentTaskConfig 
-                prompt={prompt}
-                setPrompt={setPrompt}
-                onConfigure={handleConfigureAgent} 
-                isConfiguring={isConfiguringAgent} 
-              />
-            </>
+            <AgentTaskConfig 
+              prompt={prompt}
+              setPrompt={setPrompt}
+              onConfigure={handleConfigureAgent} 
+              isConfiguring={isConfiguringAgent}
+              onSelectPersona={handlePersonaSelect}
+            />
           )}
 
           {(isConfiguringAgent && !selectedNode) && (
