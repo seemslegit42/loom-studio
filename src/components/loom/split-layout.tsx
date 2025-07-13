@@ -27,6 +27,8 @@ interface SplitLayoutProps {
   connections: WorkflowConnection[];
   selectedNodeId: string | null;
   setSelectedNodeId: (id: string | null) => void;
+  selectedConnectionId: string | null;
+  setSelectedConnectionId: (id: string | null) => void;
   onUpdateNode: (nodeId: string, newPrompt: string) => void;
   onSummonNode: (codexNode: CodexNode) => void;
 }
@@ -48,6 +50,8 @@ export default function SplitLayout({
   connections,
   selectedNodeId,
   setSelectedNodeId,
+  selectedConnectionId,
+  setSelectedConnectionId,
   onUpdateNode,
   onSummonNode,
 }: SplitLayoutProps) {
@@ -64,7 +68,15 @@ export default function SplitLayout({
   
   const handleNodeClick = (nodeId: string) => {
     setSelectedNodeId(nodeId);
+    setSelectedConnectionId(null);
     setIsInspectorOpen(true);
+  }
+
+  const handleConnectionClick = (connectionId: string) => {
+    setSelectedConnectionId(connectionId);
+    setSelectedNodeId(null);
+    // Optionally open inspector for connection properties in the future
+    setIsInspectorOpen(false); 
   }
 
   const PalettePanel = () => (
@@ -135,7 +147,13 @@ export default function SplitLayout({
               nodes={nodes}
               connections={connections}
               selectedNodeId={selectedNodeId}
+              selectedConnectionId={selectedConnectionId}
               onNodeClick={handleNodeClick}
+              onConnectionClick={handleConnectionClick}
+              onCanvasClick={() => {
+                setSelectedNodeId(null);
+                setSelectedConnectionId(null);
+              }}
               onNodeDragEnd={handleNodeDragEnd}
             />
         </ResizablePanel>
@@ -153,7 +171,13 @@ export default function SplitLayout({
             nodes={nodes}
             connections={connections}
             selectedNodeId={selectedNodeId}
+            selectedConnectionId={selectedConnectionId}
             onNodeClick={handleNodeClick}
+            onConnectionClick={handleConnectionClick}
+            onCanvasClick={() => {
+              setSelectedNodeId(null);
+              setSelectedConnectionId(null);
+            }}
             onNodeDragEnd={handleNodeDragEnd}
           />
       </div>

@@ -26,6 +26,7 @@ import {
   PencilRuler,
   BrainCircuit,
   Lightbulb,
+  Link,
 } from "lucide-react";
 
 export interface CodexNode {
@@ -204,5 +205,13 @@ export const workflowNodeCodex: CodexNode[] = [
     tooltip: "Run your own script directly — powerful, but dangerous. Use only if you know the ancient tongue.",
     family: "Advanced",
     devLabel: "Custom JavaScript / Python"
-  }
+  },
+  {
+    icon: Link,
+    name: "Nexus",
+    subtitle: "The Weaver of Voids",
+    tooltip: "Summon a Nexus agent onto a connection to intelligently forge a new agent that bridges the gap between the source and target.",
+    family: "Advanced",
+    devLabel: "Nexus Agent"
+  },
 ];

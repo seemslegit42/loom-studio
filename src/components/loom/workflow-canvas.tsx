@@ -4,13 +4,18 @@ import { Cpu } from "lucide-react";
 import { WorkflowNode } from "./workflow-node";
 import type { WorkflowNodeData, WorkflowConnection } from "@/lib/types";
 import { SigilRites } from "../sigil-rites/SigilRites";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { cn } from "@/lib/utils";
+
 
 interface WorkflowCanvasProps {
     nodes: WorkflowNodeData[];
     connections: WorkflowConnection[];
     selectedNodeId: string | null;
+    selectedConnectionId: string | null;
     onNodeClick: (id: string) => void;
+    onConnectionClick: (id: string) => void;
+    onCanvasClick: () => void;
     onNodeDragEnd: (nodeId: string, position: { x: number, y: number }) => void;
 }
 
@@ -33,24 +38,35 @@ function getEdgePath(startPos: {x: number, y: number}, endPos: {x: number, y: nu
  * It renders the nodes and the connections between them.
  * @returns {JSX.Element} The rendered canvas component.
  */
-export function WorkflowCanvas({ nodes, connections, selectedNodeId, onNodeClick, onNodeDragEnd }: WorkflowCanvasProps) {
+export function WorkflowCanvas({ 
+    nodes, 
+    connections, 
+    selectedNodeId, 
+    selectedConnectionId,
+    onNodeClick, 
+    onConnectionClick,
+    onCanvasClick,
+    onNodeDragEnd 
+}: WorkflowCanvasProps) {
 
-    const [edgePaths, setEdgePaths] = useState<string[]>([]);
+    const canvasRef = useRef<HTMLDivElement>(null);
+    const [edgePaths, setEdgePaths] = useState<Map<string, string>>(new Map());
 
     useEffect(() => {
         const nodeMap = new Map(nodes.map(node => [node.id, node]));
-        const canvasEl = document.getElementById('workflow-canvas');
+        const canvasEl = canvasRef.current;
         if (!canvasEl) return;
 
         const updatePaths = () => {
             const { width, height } = canvasEl.getBoundingClientRect();
             if (width === 0 || height === 0) return;
 
-            const newPaths = connections.map(conn => {
+            const newPaths = new Map<string, string>();
+            connections.forEach(conn => {
                 const sourceNode = nodeMap.get(conn.sourceId);
                 const targetNode = nodeMap.get(conn.targetId);
 
-                if (!sourceNode || !targetNode) return null;
+                if (!sourceNode || !targetNode) return;
 
                 const sourcePos = {
                     x: (sourceNode.position.x / 100) * width,
@@ -60,9 +76,8 @@ export function WorkflowCanvas({ nodes, connections, selectedNodeId, onNodeClick
                     x: (targetNode.position.x / 100) * width,
                     y: (targetNode.position.y / 100) * height,
                 };
-
-                return getEdgePath(sourcePos, targetPos);
-            }).filter((path): path is string => path !== null);
+                newPaths.set(conn.id, getEdgePath(sourcePos, targetPos));
+            });
 
             setEdgePaths(newPaths);
         };
@@ -76,9 +91,21 @@ export function WorkflowCanvas({ nodes, connections, selectedNodeId, onNodeClick
 
     }, [nodes, connections]);
 
+    const handleCanvasClick = (e: React.MouseEvent<HTMLDivElement>) => {
+        // Ensure the click is on the canvas itself, not a node.
+        if (e.target === canvasRef.current) {
+            onCanvasClick();
+        }
+    };
+
 
     return (
-        <div className="h-full w-full flex items-center justify-center p-8 bg-transparent relative overflow-hidden" id="workflow-canvas">
+        <div 
+            ref={canvasRef}
+            className="h-full w-full flex items-center justify-center p-8 bg-transparent relative overflow-hidden" 
+            id="workflow-canvas"
+            onClick={handleCanvasClick}
+        >
             {/* Background Effects & Sigil */}
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.3),rgba(255,255,255,0))]"></div>
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -98,17 +125,43 @@ export function WorkflowCanvas({ nodes, connections, selectedNodeId, onNodeClick
                         orient="auto-start-reverse">
                         <path d="M 0 0 L 10 5 L 0 10 z" fill="hsl(var(--primary) / 0.8)" />
                     </marker>
+                     <marker
+                        id="arrowhead-selected"
+                        viewBox="0 0 10 10"
+                        refX="8"
+                        refY="5"
+                        markerWidth="6"
+                        markerHeight="6"
+                        orient="auto-start-reverse">
+                        <path d="M 0 0 L 10 5 L 0 10 z" fill="hsl(var(--gilded-accent))" />
+                    </marker>
                 </defs>
                 <g>
-                   {edgePaths.map((path, index) => (
-                        <path
-                            key={`edge-${index}`}
-                            d={path}
-                            stroke="hsl(var(--primary) / 0.8)"
-                            strokeWidth="2"
-                            fill="none"
-                            markerEnd="url(#arrowhead)"
-                        />
+                   {Array.from(edgePaths.entries()).map(([id, path]) => (
+                        <g key={`edge-group-${id}`}>
+                            <path
+                                d={path}
+                                className={cn(
+                                    "transition-all",
+                                    selectedConnectionId === id ? "stroke-[hsl(var(--gilded-accent))]" : "stroke-[hsl(var(--primary)/0.8)]"
+                                )}
+                                strokeWidth={selectedConnectionId === id ? 3 : 2}
+                                fill="none"
+                                markerEnd={selectedConnectionId === id ? "url(#arrowhead-selected)" : "url(#arrowhead)"}
+                            />
+                            {/* Invisible wider path for easier clicking */}
+                             <path
+                                d={path}
+                                stroke="transparent"
+                                strokeWidth="20"
+                                fill="none"
+                                className="cursor-pointer pointer-events-stroke"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onConnectionClick(id)
+                                }}
+                            />
+                        </g>
                    ))}
                 </g>
             </svg>
@@ -121,7 +174,10 @@ export function WorkflowCanvas({ nodes, connections, selectedNodeId, onNodeClick
                         key={node.id}
                         node={node}
                         isSelected={selectedNodeId === node.id}
-                        onClick={() => onNodeClick(node.id)}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onNodeClick(node.id)
+                        }}
                         onDragEnd={onNodeDragEnd}
                     />
                 ))}

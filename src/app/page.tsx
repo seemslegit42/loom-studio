@@ -12,6 +12,8 @@ import { ForgeDialog, type ForgedAgent } from "@/components/loom/forge-dialog";
 import type { CodexNode } from "@/lib/codex";
 import { analyzeAgentProfile } from "@/ai/flows/analyze-agent-profile-flow";
 import { generateAgentAvatar } from "@/ai/flows/generate-agent-avatar-flow";
+import { createNexusAgent } from "@/ai/flows/create-nexus-agent-flow";
+
 
 const initialNodes: WorkflowNodeData[] = [
   {
@@ -76,6 +78,8 @@ export default function Home() {
   const [nodes, setNodes] = useState<WorkflowNodeData[]>(initialNodes);
   const [connections, setConnections] = useState<WorkflowConnection[]>(initialConnections);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const [selectedConnectionId, setSelectedConnectionId] = useState<string | null>(null);
+
 
   const [isForging, setIsForging] = useState(false);
   const [forgePrompt, setForgePrompt] = useState<string>('');
@@ -164,7 +168,82 @@ export default function Home() {
     }
   };
 
+  const handleNexusSummon = async (connectionId: string) => {
+    setRitual('transmute');
+    const connection = connections.find(c => c.id === connectionId);
+    if (!connection) {
+        toast({ variant: 'destructive', title: 'Nexus Error', description: 'Connection not found.' });
+        setRitual('idle');
+        return;
+    }
+
+    const sourceNode = nodes.find(n => n.id === connection.sourceId);
+    const targetNode = nodes.find(n => n.id === connection.targetId);
+
+    if (!sourceNode || !targetNode) {
+        toast({ variant: 'destructive', title: 'Nexus Error', description: 'Source or target node not found.' });
+        setRitual('idle');
+        return;
+    }
+
+    try {
+        toast({ title: "Nexus Invoked", description: "The void whispers... forging a new form to bridge the gap." });
+
+        const newNode = await createNexusAgent({
+            sourcePrompt: sourceNode.prompt,
+            targetPrompt: targetNode.prompt,
+        });
+
+        // Position the new node halfway between the source and target
+        const sourcePos = sourceNode.position;
+        const targetPos = targetNode.position;
+        newNode.position = {
+            x: (sourcePos.x + targetPos.x) / 2,
+            y: (sourcePos.y + targetPos.y) / 2,
+        };
+
+        // Add the new node and rewire the connections
+        setNodes(prev => [...prev, newNode]);
+        setConnections(prev => [
+            // Remove the old connection
+            ...prev.filter(c => c.id !== connectionId),
+            // Add new connections
+            { id: `conn_${sourceNode.id}_${newNode.id}`, sourceId: sourceNode.id, targetId: newNode.id },
+            { id: `conn_${newNode.id}_${targetNode.id}`, sourceId: newNode.id, targetId: targetNode.id },
+        ]);
+
+        setSelectedNodeId(newNode.id);
+        setIsInspectorOpen(true);
+        toast({ title: "Nexus Agent Forged", description: `"${newNode.name}" has manifested to complete the sequence.` });
+
+    } catch (error) {
+        console.error("Failed to create Nexus agent:", error);
+        toast({
+            variant: "destructive",
+            title: "Nexus Failed",
+            description: "The AI could not forge a new agent to bridge the connection.",
+        });
+    } finally {
+        setRitual('idle');
+    }
+  };
+
+
   const handleSummonNode = async (codexNode: CodexNode) => {
+    // This is a special case for the revolutionary Nexus agent.
+    if (codexNode.devLabel === "Nexus Agent") {
+        if (selectedConnectionId) {
+            handleNexusSummon(selectedConnectionId);
+        } else {
+            toast({
+                variant: 'destructive',
+                title: "Nexus requires a connection",
+                description: "Select a connection on the canvas before summoning a Nexus agent.",
+            });
+        }
+        return;
+    }
+
     setRitual('summon');
     
     try {
@@ -239,6 +318,8 @@ export default function Home() {
           connections={connections}
           selectedNodeId={selectedNodeId}
           setSelectedNodeId={setSelectedNodeId}
+          selectedConnectionId={selectedConnectionId}
+          setSelectedConnectionId={setSelectedConnectionId}
           onUpdateNode={handleUpdateNode}
           onSummonNode={handleSummonNode}
         />
