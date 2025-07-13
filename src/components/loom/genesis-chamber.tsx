@@ -48,41 +48,6 @@ export function GenesisChamber({
   const [isStylePopoverOpen, setIsStylePopoverOpen] = useState(false);
   const { toast } = useToast();
 
-  const startAnalysis = useCallback(async (p: string) => {
-    if (!p.trim()) return;
-    setData(null);
-    setStep('profiling');
-
-    try {
-      const profileResult = await analyzeAgentProfile({ prompt: p });
-      const forgeData: ForgeData = { 
-        ...profileResult, 
-        prompt: p,
-        selectedStyle: profileResult.recommendedStyle,
-      };
-      setData(forgeData);
-      await generateAvatar(forgeData);
-    } catch (error) {
-      console.error("Agent profiling failed:", error);
-      toast({
-        variant: "destructive",
-        title: "Aetheric Interference",
-        description: "The agent's personality could not be analyzed. Please check the incantation.",
-      });
-      onCancel();
-    }
-  }, [toast, onCancel]);
-
-  useEffect(() => {
-    if (prompt) {
-      startAnalysis(prompt);
-    } else {
-      setStep('inactive');
-      setData(null);
-      setIsFinalizing(false);
-    }
-  }, [prompt, startAnalysis]);
-
   const generateSignature = useCallback(async (currentData: ForgeData) => {
     if (!currentData.avatarDataUri) return;
     setStep('signing');
@@ -134,10 +99,46 @@ export function GenesisChamber({
          description: "The agent's avatar could not be rendered. A default will be assigned.",
        });
         const newData = { ...data, avatarDataUri: `https://placehold.co/96x96.png` };
-        setData(newData);
+        // This 'as' cast is safe because we check for data before calling this function chain.
+        setData(newData as ForgeData); 
         if(data) await generateSignature(newData as ForgeData);
     }
   }, [toast, data, generateSignature]);
+
+  const startAnalysis = useCallback(async (p: string) => {
+    if (!p.trim()) return;
+    setData(null);
+    setStep('profiling');
+
+    try {
+      const profileResult = await analyzeAgentProfile({ prompt: p });
+      const forgeData: ForgeData = { 
+        ...profileResult, 
+        prompt: p,
+        selectedStyle: profileResult.recommendedStyle,
+      };
+      setData(forgeData);
+      await generateAvatar(forgeData);
+    } catch (error) {
+      console.error("Agent profiling failed:", error);
+      toast({
+        variant: "destructive",
+        title: "Aetheric Interference",
+        description: "The agent's personality could not be analyzed. Please check the incantation.",
+      });
+      onCancel();
+    }
+  }, [toast, onCancel, generateAvatar]);
+
+  useEffect(() => {
+    if (prompt) {
+      startAnalysis(prompt);
+    } else {
+      setStep('inactive');
+      setData(null);
+      setIsFinalizing(false);
+    }
+  }, [prompt, startAnalysis]);
 
   const handleRerollAvatar = async () => {
       if (!data) return;
@@ -207,7 +208,7 @@ export function GenesisChamber({
                         )}
                    </CardContent>
                 </Card>
-                <AgentProfileChart profile={data.profile} agentName={data.name} />
+                <AgentProfileChart profile={data.profile} agentName={data.name} isSculpting={false} />
 
                 <div className="flex flex-col gap-2">
                     <div className="flex gap-2">
