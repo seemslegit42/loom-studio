@@ -160,8 +160,9 @@ export default function SplitLayout({
                   <Skeleton className="h-6 w-3/4" />
                   <Skeleton className="h-4 w-1/2" />
                 </CardHeader>
-                <CardContent>
-                    <Skeleton className="h-48 w-full" />
+                <CardContent className="space-y-4">
+                    <Skeleton className="h-24 w-full" />
+                    <Skeleton className="h-10 w-full" />
                 </CardContent>
              </Card>
           )} 
