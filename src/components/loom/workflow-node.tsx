@@ -19,12 +19,12 @@ interface WorkflowNodeProps {
  * @returns {JSX.Element} The rendered workflow node.
  */
 export function WorkflowNode({ icon: Icon, title, children, className, isSelected, onClick, content }: WorkflowNodeProps) {
-    const isAvatar = content?.startsWith('data:image');
+    const isAvatar = !!content;
 
     return (
         <div 
             className={cn(
-                "relative flex flex-col items-center justify-center w-48 h-24 p-4 rounded-lg border-2 bg-card/60 backdrop-blur-sm shadow-lg cursor-pointer",
+                "relative flex flex-col items-center justify-center w-40 h-32 p-4 rounded-lg border-2 bg-card/80 backdrop-blur-sm shadow-lg cursor-pointer",
                 "transition-all duration-200",
                 isSelected 
                     ? "border-primary/80 shadow-primary/20 shadow-2xl" 
@@ -44,10 +44,10 @@ export function WorkflowNode({ icon: Icon, title, children, className, isSelecte
                         width={48} 
                         height={48}
                         data-ai-hint="avatar"
-                        className="rounded-full object-cover"
+                        className="rounded-full object-cover border-2 border-primary/50"
                     />
                 ) : (
-                    <Icon className="h-6 w-6 text-primary" />
+                    <Icon className="h-8 w-8 text-primary" />
                 )}
                 <h3 className="font-semibold text-foreground text-sm leading-tight line-clamp-2">{title}</h3>
             </div>

@@ -1,22 +1,20 @@
 
 'use client';
 
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
-import { Info, Cpu, Play, Wand2 } from "lucide-react";
 import { useState } from "react";
 import { WorkflowNodePalette } from "./workflow-node-palette";
-import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { AgentTaskConfig } from "./agent-task-config";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { useToast } from "@/hooks/use-toast";
-import type { AnalyzeAgentProfileOutput } from "@/ai/flows/analyze-agent-profile-flow";
+import type { AnalyzeAgentProfileOutput } from "@/ai/flows/analyze-agent-profile-schema";
 import { AgentProfileChart } from "./agent-profile-chart";
 import { forgeAgentIdentity } from "@/ai/flows/forge-agent-identity-flow";
 import { SigilRites, type Ritual, type Variant } from "../sigil-rites/SigilRites";
 import { Skeleton } from "../ui/skeleton";
 import BottomBar from "./bottom-bar";
+import { WorkflowCanvas } from "./workflow-canvas";
 
 interface SplitLayoutProps {
   variant: Variant;
@@ -34,15 +32,18 @@ export default function SplitLayout({ variant, ritual, setRitual }: SplitLayoutP
   const [isInspectorOpen, setIsInspectorOpen] = useState(false);
 
   const [isConfiguringAgent, setIsConfiguringAgent] = useState(false);
-  const [agentName, setAgentName] = useState('New Agent');
+  const [agentName, setAgentName] = useState('');
   const [agentAvatar, setAgentAvatar] = useState<string | null>(null);
   const [agentProfile, setAgentProfile] = useState<AnalyzeAgentProfileOutput['profile'] | null>(null);
   const { toast } = useToast();
 
   const handleConfigureAgent = async (prompt: string) => {
     setIsConfiguringAgent(true);
+    setAgentName('');
+    setAgentAvatar(null);
     setAgentProfile(null);
     setRitual('orchestrate');
+
     try {
       const result = await forgeAgentIdentity({ prompt });
 
@@ -80,19 +81,23 @@ export default function SplitLayout({ variant, ritual, setRitual }: SplitLayoutP
        <h2 className="text-lg font-headline text-muted-foreground">Inspector</h2>
         <div className="flex-1 mt-4 space-y-6 overflow-y-auto pr-2">
           <AgentTaskConfig onConfigure={handleConfigureAgent} isConfiguring={isConfiguringAgent} />
-          {isConfiguringAgent && !agentProfile && (
-             <Card>
-                <CardHeader>
-                  <Skeleton className="h-6 w-3/4" />
-                  <Skeleton className="h-4 w-1/2" />
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <Skeleton className="h-24 w-full" />
-                </CardContent>
-             </Card>
-          )}
-          {agentProfile && (
-              <AgentProfileChart profile={agentProfile} agentName={agentName} />
+          
+          {(isConfiguringAgent || agentProfile) && (
+            <div className="space-y-6">
+              {isConfiguringAgent && !agentProfile ? (
+                 <Card>
+                    <CardHeader>
+                      <Skeleton className="h-6 w-3/4" />
+                      <Skeleton className="h-4 w-1/2" />
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <Skeleton className="h-48 w-full" />
+                    </CardContent>
+                 </Card>
+              ) : agentProfile && agentName ? (
+                  <AgentProfileChart profile={agentProfile} agentName={agentName} />
+              ) : null}
+            </div>
           )}
         </div>
     </div>
@@ -102,20 +107,20 @@ export default function SplitLayout({ variant, ritual, setRitual }: SplitLayoutP
     <>
       <ResizablePanelGroup direction="horizontal" className="h-full w-full">
         {/* Palette Panel (Desktop) */}
-        <ResizablePanel defaultSize={20} minSize={15} maxSize={25} className="h-full bg-card/30 border-r border-border/50 flex-col gap-4 hidden md:flex">
+        <ResizablePanel defaultSize={20} minSize={15} maxSize={30} className="h-full bg-card/30 border-r border-border/50 flex-col gap-4 hidden md:flex">
           <PalettePanel />
         </ResizablePanel>
         <ResizableHandle withHandle className="hidden md:flex" />
+
         <ResizablePanel defaultSize={60}>
-          {/* Main Canvas Area */}
-          <div className="h-full w-full flex flex-col items-center justify-center p-8 bg-background relative overflow-hidden">
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.3),rgba(255,255,255,0))]"></div>
-            <SigilRites variant={variant} ritual={ritual} onRitualComplete={() => setRitual('idle')} />
-          </div>
+            <WorkflowCanvas agentName={agentName} agentAvatar={agentAvatar}>
+                <SigilRites variant={variant} ritual={ritual} onRitualComplete={() => setRitual('idle')} />
+            </WorkflowCanvas>
         </ResizablePanel>
+
         <ResizableHandle withHandle className="hidden md:flex" />
         {/* Inspector Panel (Desktop) */}
-        <ResizablePanel defaultSize={20} minSize={15} maxSize={25} className="h-full bg-card/30 border-l border-border/50 flex-col gap-4 hidden md:flex">
+        <ResizablePanel defaultSize={20} minSize={15} maxSize={30} className="h-full bg-card/30 border-l border-border/50 flex-col gap-4 hidden md:flex">
           <InspectorPanel />
         </ResizablePanel>
       </ResizablePanelGroup>
