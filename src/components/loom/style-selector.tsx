@@ -9,7 +9,7 @@ interface StyleSelectorProps {
 
 export function StyleSelector({ onSelectStyle }: StyleSelectorProps) {
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 p-2">
             {PrimeArsenal.map((style) => (
                 <Card 
                     key={style.name} 
@@ -19,7 +19,7 @@ export function StyleSelector({ onSelectStyle }: StyleSelectorProps) {
                     )}
                     onClick={() => onSelectStyle(style)}
                 >
-                    <CardHeader>
+                    <CardHeader className="p-4">
                         <CardTitle className="text-base">{style.name}</CardTitle>
                         <CardDescription className="text-xs">{style.essence}</CardDescription>
                     </CardHeader>

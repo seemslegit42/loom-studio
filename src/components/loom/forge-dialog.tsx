@@ -4,7 +4,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { AnimatePresence, motion } from "framer-motion";
-import { Loader2, RefreshCw, Wand2, Check, Fingerprint } from "lucide-react";
+import { Loader2, RefreshCw, Wand2, Check, Fingerprint, Palette } from "lucide-react";
 import { AgentProfileChart } from "./agent-profile-chart";
 import Image from 'next/image';
 import { Skeleton } from "../ui/skeleton";
@@ -18,10 +18,11 @@ import crypto from 'crypto';
 import { Badge } from "../ui/badge";
 import type { PrimeArsenalStyle, ArsenalStyle } from "@/lib/styles";
 import { StyleSelector } from "./style-selector";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 
 
-export type ForgeStep = 'inactive' | 'profiling' | 'reviewing' | 'selectingStyle' | 'generatingAvatar' | 'signing' | 'complete';
-export type ForgeData = AnalyzeAgentProfileOutput & { prompt: string, avatarDataUri?: string, signature?: string, selectedStyle?: PrimeArsenalStyle };
+export type ForgeStep = 'inactive' | 'profiling' | 'reviewingProfile' | 'generatingAvatar' | 'signing' | 'complete';
+export type ForgeData = AnalyzeAgentProfileOutput & { prompt: string, avatarDataUri?: string, signature?: string, selectedStyle: PrimeArsenalStyle };
 export type ForgedAgent = ForgeData;
 
 interface ForgeDialogProps {
@@ -46,6 +47,7 @@ export function ForgeDialog({
   const [step, setStep] = useState<ForgeStep>('inactive');
   const [data, setData] = useState<ForgeData | null>(null);
   const [isFinalizing, setIsFinalizing] = useState(false);
+  const [isStylePopoverOpen, setIsStylePopoverOpen] = useState(false);
   const { toast } = useToast();
 
   const startAnalysis = useCallback(async () => {
@@ -55,8 +57,13 @@ export function ForgeDialog({
 
     try {
       const profileResult = await analyzeAgentProfile({ prompt });
-      setData({ ...profileResult, prompt });
-      setStep('reviewing');
+      const forgeData: ForgeData = { 
+        ...profileResult, 
+        prompt,
+        selectedStyle: profileResult.recommendedStyle,
+      };
+      setData(forgeData);
+      await generateAvatar(forgeData);
     } catch (error) {
       console.error("Agent profiling failed:", error);
       toast({
@@ -64,7 +71,7 @@ export function ForgeDialog({
         title: "Aetheric Interference",
         description: "The agent's personality could not be analyzed. Please check the incantation.",
       });
-      onCancel(); // Close dialog on failure
+      onCancel();
     }
   }, [prompt, toast, onCancel]);
 
@@ -73,10 +80,10 @@ export function ForgeDialog({
       startAnalysis();
     }
     if (!isOpen) {
-      // Reset state when dialog closes
       setStep('inactive');
       setData(null);
       setIsFinalizing(false);
+      setIsStylePopoverOpen(false);
     }
   }, [isOpen, step, startAnalysis]);
 
@@ -91,9 +98,9 @@ export function ForgeDialog({
         .digest('hex');
 
       const signatureResult = await signAvatarData({
-          agentId: `agent_${Date.now()}`, // Placeholder ID
+          agentId: `agent_${Date.now()}`,
           timestamp: Date.now(),
-          architectUid: 'arch_001', // Placeholder UID
+          architectUid: 'arch_001',
           avatarDataUri: currentData.avatarDataUri,
           personalityProfileHash,
       });
@@ -136,41 +143,18 @@ export function ForgeDialog({
     }
   }, [toast, data, generateSignature]);
 
-
-  const handleRerollProfile = async () => {
-    if (!data) return;
-    setStep('profiling');
-    try {
-        const profileResult = await analyzeAgentProfile({ prompt: data.prompt });
-        setData({ ...profileResult, prompt: data.prompt });
-        setStep('reviewing');
-    } catch (error) {
-        console.error("Agent re-profiling failed:", error);
-        toast({
-            variant: "destructive",
-            title: "Aetheric Interference",
-            description: "Failed to forge a new profile. The spirits are restless.",
-        });
-        setStep('reviewing'); // Go back to reviewing previous state
-    }
-  };
-  
-  const handleAcceptProfile = async () => {
-    if (!data) return;
-    setStep('selectingStyle');
-  };
-
-  const handleSelectStyle = async (style: ArsenalStyle) => {
-    if (!data) return;
-    const newData = { ...data, selectedStyle: style.name };
-    setData(newData);
-    await generateAvatar(newData);
-  }
-
   const handleRerollAvatar = async () => {
       if (!data) return;
       await generateAvatar(data);
   };
+
+  const handleSelectStyleAndReforge = async (style: ArsenalStyle) => {
+    if (!data) return;
+    setIsStylePopoverOpen(false);
+    const newData = { ...data, selectedStyle: style.name };
+    setData(newData);
+    await generateAvatar(newData);
+  }
   
   const handleFinalize = () => {
     if (data && !isFinalizing) {
@@ -183,52 +167,23 @@ export function ForgeDialog({
     switch (step) {
       case 'profiling':
         return (
-          <motion.div key="profiling" variants={stepVariants} initial="hidden" animate="visible" exit="exit" className="flex flex-col items-center justify-center text-center gap-4 h-64">
+          <motion.div key="profiling" variants={stepVariants} initial="hidden" animate="visible" exit="exit" className="flex flex-col items-center justify-center text-center gap-4 h-96">
              <SigilRites variant="klepsydra" ritual="orchestrate" />
             <p className="text-muted-foreground">Analyzing incantation... Forging personality matrix...</p>
           </motion.div>
         );
 
-      case 'reviewing':
-        if (!data) return null;
-        return (
-          <motion.div key="reviewing" variants={stepVariants} initial="hidden" animate="visible" exit="exit">
-            <DialogHeader>
-              <DialogTitle className="text-center text-2xl font-headline">Ratify Profile Matrix</DialogTitle>
-            </DialogHeader>
-            <div className="my-6">
-                <AgentProfileChart profile={data.profile} agentName={data.name} />
-            </div>
-            <DialogFooter className="sm:justify-between gap-2">
-                <Button variant="outline" onClick={handleRerollProfile}><RefreshCw className="mr-2" />Re-roll Profile</Button>
-                <Button onClick={handleAcceptProfile} className="glow-primary"><Wand2 className="mr-2" />Accept & Select Style</Button>
-            </DialogFooter>
-          </motion.div>
-        );
-      
-      case 'selectingStyle':
-        return (
-            <motion.div key="selectingStyle" variants={stepVariants} initial="hidden" animate="visible" exit="exit">
-                <DialogHeader>
-                    <DialogTitle className="text-center text-2xl font-headline">Stylistic Invocation</DialogTitle>
-                </DialogHeader>
-                <div className="my-6">
-                    <StyleSelector onSelectStyle={handleSelectStyle} />
-                </div>
-            </motion.div>
-        );
-
       case 'generatingAvatar':
          return (
-          <motion.div key="generating" variants={stepVariants} initial="hidden" animate="visible" exit="exit" className="flex flex-col items-center justify-center text-center gap-4 h-64">
+          <motion.div key="generating" variants={stepVariants} initial="hidden" animate="visible" exit="exit" className="flex flex-col items-center justify-center text-center gap-4 h-96">
              <SigilRites variant="aegis" ritual="orchestrate" />
-            <p className="text-muted-foreground">Rendering visual form... Binding essence to image...</p>
+            <p className="text-muted-foreground">Rendering visual form based on AI analysis...</p>
           </motion.div>
         );
 
       case 'signing':
         return (
-          <motion.div key="signing" variants={stepVariants} initial="hidden" animate="visible" exit="exit" className="flex flex-col items-center justify-center text-center gap-4 h-64">
+          <motion.div key="signing" variants={stepVariants} initial="hidden" animate="visible" exit="exit" className="flex flex-col items-center justify-center text-center gap-4 h-96">
             <SigilRites variant="genesis" ritual="transmute" />
             <p className="text-muted-foreground">Sealing avatar with cryptographic signature...</p>
           </motion.div>
@@ -241,33 +196,46 @@ export function ForgeDialog({
                 <DialogHeader>
                     <DialogTitle className="text-center text-2xl font-headline">Sanctify Manifested Form</DialogTitle>
                 </DialogHeader>
-                <div className="my-6 flex flex-col items-center gap-6">
-                    <div className="relative w-48 h-48 rounded-full border-2 border-primary/50 glow-primary">
-                        {data.avatarDataUri ? (
-                             <Image 
-                                src={data.avatarDataUri} 
-                                alt={`${data.name} Avatar`}
-                                layout="fill"
-                                className="rounded-full object-cover"
-                            />
-                        ) : (
-                            <Skeleton className="w-full h-full rounded-full" />
+                <div className="my-6 grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                    <div className="flex flex-col items-center gap-4">
+                        <div className="relative w-40 h-40 rounded-full border-2 border-primary/50 glow-primary">
+                            {data.avatarDataUri ? (
+                                <Image 
+                                    src={data.avatarDataUri} 
+                                    alt={`${data.name} Avatar`}
+                                    layout="fill"
+                                    className="rounded-full object-cover"
+                                />
+                            ) : (
+                                <Skeleton className="w-full h-full rounded-full" />
+                            )}
+                        </div>
+                        <h3 className="text-xl font-semibold text-foreground">{data.name}</h3>
+
+                        {data.signature && (
+                        <div className="flex flex-col items-center gap-2 text-center">
+                            <Badge variant="secondary" className="gap-1.5 px-3 py-1 text-xs border-gilded-accent/30 text-gilded-accent/90">
+                            <Fingerprint className="h-3 w-3" />
+                            Sanctification Seal
+                            </Badge>
+                            <p className="text-xs text-muted-foreground font-mono break-all max-w-full px-4">{data.signature}</p>
+                        </div>
                         )}
                     </div>
-                    <h3 className="text-xl font-semibold text-foreground">{data.name}</h3>
-
-                    {data.signature && (
-                      <div className="flex flex-col items-center gap-2 text-center">
-                        <Badge variant="secondary" className="gap-1.5 px-3 py-1 text-xs border-gilded-accent/30 text-gilded-accent/90">
-                          <Fingerprint className="h-3 w-3" />
-                          Sanctification Seal
-                        </Badge>
-                        <p className="text-xs text-muted-foreground font-mono break-all max-w-full">{data.signature}</p>
-                      </div>
-                    )}
+                    <AgentProfileChart profile={data.profile} agentName={data.name} />
                 </div>
-                 <DialogFooter className="sm:justify-between gap-2">
-                    <Button variant="outline" onClick={handleRerollAvatar} disabled={isFinalizing}><RefreshCw className="mr-2" />Re-forge Avatar</Button>
+                 <DialogFooter className="sm:justify-between gap-2 flex-wrap">
+                    <div className="flex gap-2">
+                        <Button variant="outline" onClick={handleRerollAvatar} disabled={isFinalizing}><RefreshCw className="mr-2" />Re-forge</Button>
+                        <Popover open={isStylePopoverOpen} onOpenChange={setIsStylePopoverOpen}>
+                            <PopoverTrigger asChild>
+                                <Button variant="outline" disabled={isFinalizing}><Palette className="mr-2" />Change Style</Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0">
+                                <StyleSelector onSelectStyle={handleSelectStyleAndReforge} />
+                            </PopoverContent>
+                        </Popover>
+                    </div>
                     <Button onClick={handleFinalize} className="glow-gilded" disabled={isFinalizing}>
                         {isFinalizing ? (
                           <>
@@ -286,13 +254,13 @@ export function ForgeDialog({
         );
 
       default:
-        return null;
+        return <div className="h-96" />;
     }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onCancel()}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-3xl">
         <AnimatePresence mode="wait">
             {renderContent()}
         </AnimatePresence>
