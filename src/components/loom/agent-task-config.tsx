@@ -35,9 +35,6 @@ export function AgentTaskConfig({ initialPrompt, agentId, agentType, onUpdateNod
 
     const handleUpdate = async () => {
         setIsUpdating(true);
-        // Simulate network delay for visual feedback
-        await new Promise(resolve => setTimeout(resolve, 750));
-        
         onUpdateNode(agentId, currentPromptValue);
         
         // After successful update, the new prompt becomes the original prompt

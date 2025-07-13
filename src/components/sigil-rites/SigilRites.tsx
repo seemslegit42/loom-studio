@@ -58,17 +58,10 @@ export function SigilRites({
     if (sonicSignature) {
       console.log(`⚡️ Sonic Signature Activated: ${variant} + ${ritual}`);
     }
-    
-    // The duration of the primary animation for summon/orchestrate.
-    const RITUAL_DURATION = ritual === 'summon' ? 1500 : 2000;
 
-    const timer = setTimeout(() => {
-      onRitualComplete();
-    }, RITUAL_DURATION);
-    
-    return () => {
-      clearTimeout(timer);
-    };
+    // Immediately call the completion callback. Animations are purely visual.
+    onRitualComplete();
+
   }, [ritual, onRitualComplete, sonicSignature, variant]);
 
   return (
