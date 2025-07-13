@@ -16,9 +16,12 @@ import { generateAgentAvatar } from "@/ai/flows/generate-agent-avatar-flow";
 import { signAvatarData } from "@/ai/flows/sign-avatar-data-flow";
 import crypto from 'crypto';
 import { Badge } from "../ui/badge";
+import type { PrimeArsenalStyle, ArsenalStyle } from "@/lib/styles";
+import { StyleSelector } from "./style-selector";
 
-export type ForgeStep = 'inactive' | 'profiling' | 'reviewing' | 'generatingAvatar' | 'signing' | 'complete';
-export type ForgeData = AnalyzeAgentProfileOutput & { prompt: string, avatarDataUri?: string, signature?: string };
+
+export type ForgeStep = 'inactive' | 'profiling' | 'reviewing' | 'selectingStyle' | 'generatingAvatar' | 'signing' | 'complete';
+export type ForgeData = AnalyzeAgentProfileOutput & { prompt: string, avatarDataUri?: string, signature?: string, selectedStyle?: PrimeArsenalStyle };
 export type ForgedAgent = ForgeData;
 
 interface ForgeDialogProps {
@@ -108,6 +111,31 @@ export function ForgeDialog({
       setStep('complete');
     }
   }, [toast]);
+  
+  const generateAvatar = useCallback(async (currentData: ForgeData) => {
+    setStep('generatingAvatar');
+    try {
+      const avatarResult = await generateAgentAvatar({ 
+        prompt: currentData.prompt, 
+        profile: currentData.profile,
+        selectedStyle: currentData.selectedStyle,
+      });
+      const newData = { ...currentData, avatarDataUri: avatarResult.avatarDataUri };
+      setData(newData);
+      await generateSignature(newData);
+    } catch (error) {
+       console.error("Avatar generation failed:", error);
+       toast({
+         variant: "destructive",
+         title: "Visual Incoherence",
+         description: "The agent's avatar could not be rendered. A default will be assigned.",
+       });
+        const newData = { ...data, avatarDataUri: `https://placehold.co/96x96.png` };
+        setData(newData);
+        if(data) await generateSignature(newData);
+    }
+  }, [toast, data, generateSignature]);
+
 
   const handleRerollProfile = async () => {
     if (!data) return;
@@ -129,42 +157,19 @@ export function ForgeDialog({
   
   const handleAcceptProfile = async () => {
     if (!data) return;
-    setStep('generatingAvatar');
-    try {
-      const avatarResult = await generateAgentAvatar({ prompt: data.prompt, profile: data.profile });
-      const newData = { ...data, avatarDataUri: avatarResult.avatarDataUri };
-      setData(newData);
-      await generateSignature(newData);
-    } catch (error) {
-      console.error("Avatar generation failed:", error);
-      toast({
-        variant: "destructive",
-        title: "Visual Incoherence",
-        description: "The agent's avatar could not be rendered. A default will be assigned.",
-      });
-       const newData = { ...data, avatarDataUri: `https://placehold.co/96x96.png` };
-       setData(newData);
-       await generateSignature(newData);
-    }
+    setStep('selectingStyle');
   };
+
+  const handleSelectStyle = async (style: ArsenalStyle) => {
+    if (!data) return;
+    const newData = { ...data, selectedStyle: style.name };
+    setData(newData);
+    await generateAvatar(newData);
+  }
 
   const handleRerollAvatar = async () => {
       if (!data) return;
-      setStep('generatingAvatar');
-      try {
-          const avatarResult = await generateAgentAvatar({ prompt: data.prompt, profile: data.profile });
-          const newData = {...data, avatarDataUri: avatarResult.avatarDataUri };
-          setData(newData);
-          await generateSignature(newData);
-      } catch (error) {
-          console.error("Avatar re-generation failed:", error);
-          toast({
-              variant: "destructive",
-              title: "Visual Incoherence",
-              description: "Could not render a new avatar. The previous form remains.",
-          });
-          setStep('complete'); // Go back to complete with old avatar
-      }
+      await generateAvatar(data);
   };
   
   const handleFinalize = () => {
@@ -200,9 +205,21 @@ export function ForgeDialog({
             </div>
             <DialogFooter className="sm:justify-between gap-2">
                 <Button variant="outline" onClick={handleRerollProfile}><RefreshCw className="mr-2" />Re-roll Profile</Button>
-                <Button onClick={handleAcceptProfile} className="glow-primary"><Wand2 className="mr-2" />Accept & Forge Avatar</Button>
+                <Button onClick={handleAcceptProfile} className="glow-primary"><Wand2 className="mr-2" />Accept & Select Style</Button>
             </DialogFooter>
           </motion.div>
+        );
+      
+      case 'selectingStyle':
+        return (
+            <motion.div key="selectingStyle" variants={stepVariants} initial="hidden" animate="visible" exit="exit">
+                <DialogHeader>
+                    <DialogTitle className="text-center text-2xl font-headline">Stylistic Invocation</DialogTitle>
+                </DialogHeader>
+                <div className="my-6">
+                    <StyleSelector onSelectStyle={handleSelectStyle} />
+                </div>
+            </motion.div>
         );
 
       case 'generatingAvatar':

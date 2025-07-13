@@ -23,6 +23,10 @@ It should be a headshot or bust portrait.
 Base the avatar's appearance and personality on the following agent description:
 "{{{prompt}}}"
 
+{{#if selectedStyle}}
+The visual style should be **{{selectedStyle}}**.
+{{/if}}
+
 {{#if profile}}
 To further refine the visual style, consider the following personality matrix where 0 is low and 100 is high:
 {{#each profile}}
