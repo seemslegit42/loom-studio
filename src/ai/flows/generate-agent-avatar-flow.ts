@@ -16,20 +16,20 @@ import {
 const prompt = ai.definePrompt({
     name: 'generateAgentAvatarPrompt',
     input: { schema: GenerateAgentAvatarInputSchema },
-    prompt: `Generate a high-resolution, vector-style avatar for a "Sentinel" archetype AI agent. The avatar must be a unique, one-of-a-kind creation suitable for a UI component.
+    prompt: `Generate a high-resolution, vector-style avatar for a "Sage" archetype AI agent. The avatar must be a unique, one-of-a-kind creation suitable for a UI component.
 
-**Core Concept:** The design must embody extreme vigilance (100%), an unyielding nature (90%), precision (80%), and authority (70%). It must be a powerful, minimalist representation of a guardian.
+**Core Concept:** The design must embody profound wisdom (95%), adaptability (85%), patience (80%), and a grounded nature (70%). It must be a serene, ancient representation of a knowledge-keeper.
 
-**Artistic Style:** Strictly adhere to the **OBSIDIAN-SIGIL** style. This means:
--   **Form:** Use sharp, clean, geometric lines. The overall shape should be of a formidable, impenetrable helmet or bust. Think brutalist architecture translated into a character portrait.
--   **Color:** The primary material is a deep, polished obsidian black. Use high contrast and dramatic, hard-edged shadows to create a sense of depth and authority.
--   **Accents:** Use accents of 'Roman Aqua' and 'Imperial Purple' sparingly for glowing sigils or eye details. The glow should be contained and sharp, not soft or diffuse.
+**Artistic Style:** Strictly adhere to the **VERDIGRIS-RUNE** style. This means:
+-   **Form:** Use weathered, organic, and flowing lines. The overall shape should be reminiscent of an ancient, moss-covered monolith or a wise, timeless face carved from petrified wood. Think ancient druidic symbols and natural, emergent patterns.
+-   **Color:** The primary texture is a weathered stone or wood with a heavy patina of 'Patina Green' and 'Roman Aqua'. Use deep, earthy tones for shadows to create a sense of age and depth.
+-   **Accents:** Use accents of 'Imperial Purple' or a soft 'Gilded Accent' for dimly glowing runes or ethereal energy subtly weaving through the form. The glow should feel ancient and gentle, not sharp or technological.
 
 **Symbolic Motifs:**
--   **Threat-Detector:** Incorporate a single, focused, glowing optic or visor that represents a vigilant, all-seeing eye. It should feel like a scanner, perpetually active.
--   **Integrity-Guardian / Boundary-Enforcer:** Integrate sharp, shield-like plates or angular, interlocking geometric patterns into the form. The silhouette should feel like a fortress, communicating impenetrable defense and absolute control over boundaries. Avoid clutter; each line must serve the purpose of conveying strength.
+-   **Legacy-Keeper / History-Weaver:** Incorporate motifs that suggest interwoven histories, like the rings of a great tree, ancient root systems, or carved, interconnected runes.
+-   **Adaptive-Learner:** The form should hint at growth and adaptation. Perhaps branches or roots are subtly, actively growing, or the runes themselves seem to be slowly shifting and reforming. Avoid a static look; it should feel ancient but alive.
 
-**Final Image:** The output must be a headshot or bust on a transparent background, exuding a powerful and stoic presence.
+**Final Image:** The output must be a headshot or bust on a transparent background, exuding a powerful, wise, and patient presence.
     
 Base the avatar's appearance and personality on the following agent description:
 "{{{prompt}}}"
@@ -43,7 +43,7 @@ To further refine the visual style, consider the following personality matrix wh
 {{#each profile}}
 - {{trait}}: {{value}}
 {{/each}}
-A high "Vigilance" or "Authority" score suggests a more rigid and focused form. A high "Precision" score demands clean, sharp lines.
+A high "Wisdom" or "Patience" score suggests a more serene and ancient form. A high "Adaptability" score could be represented by emergent, growing patterns.
 {{/if}}
     `,
     config: {
