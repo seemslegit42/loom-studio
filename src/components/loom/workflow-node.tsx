@@ -79,7 +79,7 @@ export function WorkflowNode({
                         alt={`${title} Avatar`} 
                         width={48} 
                         height={48}
-                        data-ai-hint="avatar"
+                        data-ai-hint="futuristic agent"
                         className="rounded-full object-cover border-2 border-primary/50 pointer-events-none"
                     />
                 ) : (

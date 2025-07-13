@@ -3,7 +3,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Loader2, Wand2 } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { usePromptAnalysis } from "@/hooks/use-prompt-analysis";
 import { Skeleton } from "../ui/skeleton";
 import { PersonaGallery } from "./persona-gallery";
@@ -30,55 +29,49 @@ export function AgentTaskConfig({ prompt, setPrompt, onConfigure, isConfiguring,
     }
 
     return (
-        <Card className="border-border/60 bg-card/40">
-            <CardHeader>
-                <CardTitle>Configure Agent Task</CardTitle>
-                <CardDescription>Define the core prompt that guides the agent's behavior and goals.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                 <PersonaGallery onSelectPersona={onSelectPersona} />
+        <div className="space-y-4">
+             <PersonaGallery onSelectPersona={onSelectPersona} />
 
-                 <div>
-                    <Label htmlFor="agent-prompt" className="text-muted-foreground">Core Incantation (Prompt)</Label>
-                    <Textarea 
-                        id="agent-prompt" 
-                        placeholder="e.g., 'You are a master cybersecurity analyst. Your goal is to analyze security logs and identify potential threats...'"
-                        className="mt-2 min-h-[200px] bg-background/50 border-border/70"
-                        value={prompt}
-                        onChange={(e) => setPrompt(e.target.value)}
-                        disabled={isConfiguring}
-                    />
-                </div>
-                
-                <div className="min-h-[40px] p-3 rounded-md bg-background/30 border border-transparent">
-                    {isAnalyzing ? (
-                        <div className="space-y-2">
-                           <Skeleton className="h-4 w-4/5" />
-                           <Skeleton className="h-4 w-3/5" />
-                        </div>
-                    ) : analysis ? (
-                        <div className="flex items-start gap-2 text-sm text-accent">
-                            <Wand2 className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                            <p>{analysis}</p>
-                        </div>
-                    ): (
-                        <div className="text-sm text-muted-foreground/60 italic">
-                            AI-driven analysis will appear here as you type...
-                        </div>
-                    )}
-                </div>
+             <div>
+                <Label htmlFor="agent-prompt" className="text-muted-foreground">Core Incantation (Prompt)</Label>
+                <Textarea 
+                    id="agent-prompt" 
+                    placeholder="e.g., 'You are a master cybersecurity analyst. Your goal is to analyze security logs and identify potential threats...'"
+                    className="mt-2 min-h-[200px] bg-background/50 border-border/70"
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    disabled={isConfiguring}
+                />
+            </div>
+            
+            <div className="min-h-[40px] p-3 rounded-md bg-background/30 border border-transparent">
+                {isAnalyzing ? (
+                    <div className="space-y-2">
+                       <Skeleton className="h-4 w-4/5" />
+                       <Skeleton className="h-4 w-3/5" />
+                    </div>
+                ) : analysis ? (
+                    <div className="flex items-start gap-2 text-sm text-accent">
+                        <Wand2 className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                        <p>{analysis}</p>
+                    </div>
+                ): (
+                    <div className="text-sm text-muted-foreground/60 italic">
+                        AI-driven analysis will appear here as you type...
+                    </div>
+                )}
+            </div>
 
-                <Button className="w-full animate-pulse-glow" onClick={handleConfigure} disabled={isConfiguring || !prompt.trim()}>
-                    {isConfiguring ? (
-                        <>
-                            <Loader2 className="animate-spin" />
-                            Forging...
-                        </>
-                    ) : (
-                        "Forge Agent Identity"
-                    )}
-                </Button>
-            </CardContent>
-        </Card>
+            <Button className="w-full animate-pulse-glow" onClick={handleConfigure} disabled={isConfiguring || !prompt.trim()}>
+                {isConfiguring ? (
+                    <>
+                        <Loader2 className="animate-spin" />
+                        Forging...
+                    </>
+                ) : (
+                    "Forge Agent Identity"
+                )}
+            </Button>
+        </div>
     );
 }

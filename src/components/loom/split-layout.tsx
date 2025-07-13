@@ -16,6 +16,23 @@ import { WorkflowCanvas } from "./workflow-canvas";
 import type { WorkflowNodeData } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
+const initialNodes: WorkflowNodeData[] = [
+  {
+    id: 'welcome_agent_1',
+    name: 'Welcome Agent',
+    avatarDataUri: `https://placehold.co/96x96.png`,
+    profile: [
+      { trait: 'Creativity', value: 75 },
+      { trait: 'Humor', value: 40 },
+      { trait: 'Formality', value: 85 },
+      { trait: 'Enthusiasm', value: 60 },
+      { trait: 'Technicality', value: 90 },
+      { trait: 'Whimsy', value: 20 },
+    ],
+    position: { x: 50, y: 50 },
+  }
+];
+
 
 interface SplitLayoutProps {
   variant: Variant;
@@ -43,8 +60,8 @@ export default function SplitLayout({
 }: SplitLayoutProps) {
   const [isConfiguringAgent, setIsConfiguringAgent] = useState(false);
   
-  const [nodes, setNodes] = useState<WorkflowNodeData[]>([]);
-  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const [nodes, setNodes] = useState<WorkflowNodeData[]>(initialNodes);
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(initialNodes[0]?.id || null);
 
   const [prompt, setPrompt] = useState("");
 
@@ -120,13 +137,21 @@ export default function SplitLayout({
         <div className="flex-1 mt-4 space-y-6 overflow-y-auto pr-2">
           
           {!selectedNodeId && !isConfiguringAgent && (
-            <AgentTaskConfig 
-              prompt={prompt}
-              setPrompt={setPrompt}
-              onConfigure={handleConfigureAgent} 
-              isConfiguring={isConfiguringAgent}
-              onSelectPersona={handlePersonaSelect}
-            />
+             <Card className="border-border/60 bg-card/40">
+                <CardHeader>
+                    <CardTitle>Create New Agent</CardTitle>
+                    <CardDescription>Start here to forge a new AI agent for your workflow.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <AgentTaskConfig 
+                      prompt={prompt}
+                      setPrompt={setPrompt}
+                      onConfigure={handleConfigureAgent} 
+                      isConfiguring={isConfiguringAgent}
+                      onSelectPersona={handlePersonaSelect}
+                    />
+                </CardContent>
+            </Card>
           )}
 
           {(isConfiguringAgent && !selectedNode) && (
