@@ -5,7 +5,7 @@ import { ScrollArea } from "../ui/scroll-area";
 
 /**
  * The Palette panel component, which displays a list of all available
- * workflow nodes that can be dragged onto the canvas.
+ * workflow nodes that can be dragged onto the canvas, as defined by the Architect's Codex.
  * @returns {JSX.Element} The rendered palette component.
  */
 export function WorkflowNodePalette() {
