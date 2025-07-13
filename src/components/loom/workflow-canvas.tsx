@@ -42,28 +42,37 @@ export function WorkflowCanvas({ nodes, connections, selectedNodeId, onNodeClick
         const canvasEl = document.getElementById('workflow-canvas');
         if (!canvasEl) return;
 
-        const { width, height } = canvasEl.getBoundingClientRect();
-        if (width === 0 || height === 0) return;
+        const updatePaths = () => {
+            const { width, height } = canvasEl.getBoundingClientRect();
+            if (width === 0 || height === 0) return;
 
-        const newPaths = connections.map(conn => {
-            const sourceNode = nodeMap.get(conn.sourceId);
-            const targetNode = nodeMap.get(conn.targetId);
+            const newPaths = connections.map(conn => {
+                const sourceNode = nodeMap.get(conn.sourceId);
+                const targetNode = nodeMap.get(conn.targetId);
 
-            if (!sourceNode || !targetNode) return null;
+                if (!sourceNode || !targetNode) return null;
 
-            const sourcePos = {
-                x: (sourceNode.position.x / 100) * width,
-                y: (sourceNode.position.y / 100) * height,
-            };
-            const targetPos = {
-                x: (targetNode.position.x / 100) * width,
-                y: (targetNode.position.y / 100) * height,
-            };
+                const sourcePos = {
+                    x: (sourceNode.position.x / 100) * width,
+                    y: (sourceNode.position.y / 100) * height,
+                };
+                const targetPos = {
+                    x: (targetNode.position.x / 100) * width,
+                    y: (targetNode.position.y / 100) * height,
+                };
 
-            return getEdgePath(sourcePos, targetPos);
-        }).filter((path): path is string => path !== null);
+                return getEdgePath(sourcePos, targetPos);
+            }).filter((path): path is string => path !== null);
 
-        setEdgePaths(newPaths);
+            setEdgePaths(newPaths);
+        };
+        
+        updatePaths(); // Initial calculation
+
+        const resizeObserver = new ResizeObserver(updatePaths);
+        resizeObserver.observe(canvasEl);
+
+        return () => resizeObserver.disconnect();
 
     }, [nodes, connections]);
 
