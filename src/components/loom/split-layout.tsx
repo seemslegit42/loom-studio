@@ -101,15 +101,18 @@ export default function SplitLayout({ variant, ritual, setRitual }: SplitLayoutP
     <div className="p-4 h-full flex flex-col">
        <h2 className="text-lg font-headline text-muted-foreground">Inspector</h2>
         <div className="flex-1 mt-4 space-y-6 overflow-y-auto pr-2">
-          <AgentTaskConfig onConfigure={handleConfigureAgent} isConfiguring={isConfiguringAgent} />
           
+          {!selectedNodeId && (
+            <AgentTaskConfig onConfigure={handleConfigureAgent} isConfiguring={isConfiguringAgent} />
+          )}
+
           {isConfiguringAgent && !selectedNode ? (
              <Card className="border-border/60 bg-card/40">
                 <CardHeader>
                   <Skeleton className="h-6 w-3/4" />
                   <Skeleton className="h-4 w-1/2" />
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent>
                     <Skeleton className="h-48 w-full" />
                 </CardContent>
              </Card>
