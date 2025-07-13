@@ -1,12 +1,12 @@
 
 'use client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import type { AnalyzeAgentProfileOutput } from '@/ai/flows/analyze-agent-profile-schema';
 import { Label } from '../ui/label';
 import { Slider } from '../ui/slider';
 import { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import type { WorkflowNodeData } from '@/lib/types';
+import { useDebouncedCallback } from 'use-debounce';
 
 interface AgentProfileChartProps {
     profile: WorkflowNodeData['profile'];
@@ -19,30 +19,29 @@ export function AgentProfileChart({ profile, agentName, onProfileChange, isSculp
     const [localProfile, setLocalProfile] = useState(profile);
 
     useEffect(() => {
-        setLocalProfile(profile);
-    }, [profile]);
+        // Update local state if the external profile changes (e.g., node selection changes)
+        // but not while the user is actively sculpting.
+        if (!isSculpting) {
+            setLocalProfile(profile);
+        }
+    }, [profile, isSculpting]);
+
+    const debouncedProfileChange = useDebouncedCallback((newProfile: WorkflowNodeData['profile']) => {
+        if (onProfileChange) {
+            onProfileChange(newProfile);
+        }
+    }, 500);
+
 
     const handleSliderChange = (traitName: string, newValue: number[]) => {
         const newProfile = localProfile.map(trait => 
             trait.trait === traitName ? { ...trait, value: newValue[0] } : trait
         );
         setLocalProfile(newProfile);
-    };
-
-    const handleSliderCommit = (newValues: number[]) => {
-        if (!onProfileChange) return;
-        // Find which trait changed to get the full profile object.
-        // This is a bit of a workaround because onValueCommit only gives us the number.
-        // It assumes only one slider moves at a time which is a safe assumption.
-        const changedTrait = localProfile.find(p => p.value !== profile.find(op => op.trait === p.trait)?.value);
-        if (changedTrait) {
-            const finalProfile = profile.map(p => p.trait === changedTrait.trait ? { ...p, value: newValues[0] } : p);
-            onProfileChange(finalProfile);
-        }
+        debouncedProfileChange(newProfile);
     };
 
     const isInteractive = !!onProfileChange;
-    
 
     return (
         <Card className="border-border/60 bg-card/40">
@@ -69,7 +68,6 @@ export function AgentProfileChart({ profile, agentName, onProfileChange, isSculp
                             max={100}
                             step={1}
                             onValueChange={(value) => handleSliderChange(item.trait, value)}
-                            onValueCommit={handleSliderCommit}
                             className="col-span-2"
                             disabled={!isInteractive || isSculpting}
                         />

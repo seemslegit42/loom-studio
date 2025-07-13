@@ -22,7 +22,6 @@ interface AgentTaskConfigProps {
 export function AgentTaskConfig({ node, onUpdateNode, isSculpting }: AgentTaskConfigProps) {
     const [currentPromptValue, setCurrentPromptValue] = useState(node.prompt);
     const [originalPrompt, setOriginalPrompt] = useState(node.prompt);
-    const [isUpdating, setIsUpdating] = useState(false);
     
     const { analysis, isLoading: isAnalyzing, resetAnalysis } = usePromptAnalysis(currentPromptValue, originalPrompt);
     
@@ -34,13 +33,10 @@ export function AgentTaskConfig({ node, onUpdateNode, isSculpting }: AgentTaskCo
 
     const hasChanges = currentPromptValue !== originalPrompt;
 
-    const handleUpdate = async () => {
-        setIsUpdating(true);
-        await onUpdateNode(node.id, currentPromptValue);
-        
-        // The parent component will send down the new node.prompt,
-        // which will trigger the useEffect to update originalPrompt.
-        setIsUpdating(false);
+    const handleUpdate = () => {
+        if (hasChanges) {
+             onUpdateNode(node.id, currentPromptValue);
+        }
     };
 
     const isLLMTaskAgent = node.type === 'LLM Task Agent';
@@ -58,7 +54,7 @@ export function AgentTaskConfig({ node, onUpdateNode, isSculpting }: AgentTaskCo
                     className="min-h-[200px] bg-background/50 border-border/70"
                     value={currentPromptValue}
                     onChange={(e) => setCurrentPromptValue(e.target.value)}
-                    disabled={isUpdating || isSculpting}
+                    disabled={isSculpting}
                 />
             </div>
             
@@ -81,13 +77,8 @@ export function AgentTaskConfig({ node, onUpdateNode, isSculpting }: AgentTaskCo
                 </div>
             )}
 
-            <Button className="w-full" onClick={handleUpdate} disabled={isUpdating || isSculpting || !hasChanges}>
-                {isUpdating ? (
-                    <>
-                        <Loader2 className="animate-spin" />
-                        Refining...
-                    </>
-                ) : isSculpting ? (
+            <Button className="w-full" onClick={handleUpdate} disabled={isSculpting || !hasChanges}>
+                {isSculpting ? (
                     <>
                         <Loader2 className="animate-spin" />
                         AI is Sculpting...

@@ -31,6 +31,7 @@ interface SplitLayoutProps {
   nodes: WorkflowNodeData[];
   setNodes: React.Dispatch<React.SetStateAction<WorkflowNodeData[]>>;
   connections: WorkflowConnection[];
+  setConnections: React.Dispatch<React.SetStateAction<WorkflowConnection[]>>;
   selectedNodeId: string | null;
   setSelectedNodeId: (id: string | null) => void;
   selectedConnectionId: string | null;
@@ -58,6 +59,7 @@ export default function SplitLayout({
   nodes,
   setNodes,
   connections,
+  setConnections,
   selectedNodeId,
   setSelectedNodeId,
   selectedConnectionId,

@@ -380,6 +380,7 @@ export default function Home() {
           nodes={nodes}
           setNodes={setNodes}
           connections={connections}
+          setConnections={setConnections}
           selectedNodeId={selectedNodeId}
           setSelectedNodeId={setSelectedNodeId}
           selectedConnectionId={selectedConnectionId}
