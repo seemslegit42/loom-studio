@@ -131,8 +131,16 @@ export default function Home() {
 
   const handleUpdateNode = async (nodeId: string, newPrompt: string) => {
     try {
+        // 1. Re-analyze the agent's profile based on the new prompt
         const newProfile = await analyzeAgentProfile({ prompt: newPrompt });
         
+        // 2. Re-forge the avatar with the new identity
+        const newAvatar = await generateAgentAvatar({
+            prompt: newPrompt,
+            profile: newProfile.profile,
+            selectedStyle: newProfile.recommendedStyle,
+        });
+
         let updatedNode: WorkflowNodeData | undefined;
 
         setNodes(currentNodes =>
@@ -143,6 +151,7 @@ export default function Home() {
                         prompt: newPrompt,
                         profile: newProfile.profile,
                         name: newProfile.name, // Also update name in case it changes
+                        avatarDataUri: newAvatar.avatarDataUri, // Update the avatar
                     };
                     return updatedNode;
                 }
@@ -152,16 +161,16 @@ export default function Home() {
         
         if (updatedNode) {
             toast({
-                title: "Agent Refined",
-                description: `The personality matrix for ${updatedNode.name} has been recalibrated.`,
+                title: "Identity Re-Forged",
+                description: `The personality matrix and visual form for ${updatedNode.name} have been recalibrated.`,
             });
         }
     } catch (error) {
-        console.error("Failed to update and re-analyze node:", error);
+        console.error("Failed to update and re-forge node:", error);
         toast({
             variant: "destructive",
-            title: "Refinement Failed",
-            description: "The AI could not re-analyze the new incantation. Please try again.",
+            title: "Re-Forging Failed",
+            description: "The AI could not recalibrate the agent's identity. Please try again.",
         });
     }
   };
@@ -323,3 +332,5 @@ export default function Home() {
     </div>
   );
 }
+
+    
