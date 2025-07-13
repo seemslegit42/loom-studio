@@ -1,9 +1,8 @@
 
 'use client';
 
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { PersonaCard } from "./persona-card";
-import { personas, type Persona } from "@/lib/personas";
+import { personas } from "@/lib/personas";
 
 interface PersonaGalleryProps {
     onSelectPersona: (prompt: string) => void;
@@ -16,23 +15,17 @@ interface PersonaGalleryProps {
  */
 export function PersonaGallery({ onSelectPersona }: PersonaGalleryProps) {
     return (
-        <Accordion type="single" collapsible className="w-full">
-            <AccordionItem value="item-1">
-                <AccordionTrigger className="text-sm text-muted-foreground hover:no-underline">
-                    Or begin with a pre-defined Persona...
-                </AccordionTrigger>
-                <AccordionContent>
-                    <div className="space-y-2 pt-2">
-                        {personas.map((persona) => (
-                            <PersonaCard 
-                                key={persona.name}
-                                persona={persona}
-                                onSelect={() => onSelectPersona(persona.prompt)}
-                            />
-                        ))}
-                    </div>
-                </AccordionContent>
-            </AccordionItem>
-        </Accordion>
+        <div className="space-y-3">
+             <p className="text-sm text-muted-foreground px-1">Or, begin with a pre-defined Persona...</p>
+            <div className="grid grid-cols-2 gap-2">
+                {personas.map((persona) => (
+                    <PersonaCard 
+                        key={persona.name}
+                        persona={persona}
+                        onSelect={() => onSelectPersona(persona.prompt)}
+                    />
+                ))}
+            </div>
+        </div>
     );
 }

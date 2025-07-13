@@ -100,7 +100,7 @@ export default function Header({ onForge, isForging }: HeaderProps) {
           </div>
         </PopoverTrigger>
         <PopoverContent 
-            className="w-[var(--radix-popover-trigger-width)] p-2"
+            className="w-[var(--radix-popover-trigger-width)] p-4"
             onOpenAutoFocus={(e) => e.preventDefault()}
         >
           <PersonaGallery onSelectPersona={handlePersonaSelect} />
