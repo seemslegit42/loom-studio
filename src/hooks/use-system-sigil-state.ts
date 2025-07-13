@@ -1,24 +1,7 @@
 
 'use client';
 import { useState } from 'react';
-
-/**
- * @typedef Variant
- * @description The visual theme variant of the sigil.
- * @property {'aegis'}
- * @property {'klepsydra'}
- * @property {'genesis'}
- */
-export type Variant = 'aegis' | 'klepsydra' | 'genesis';
-/**
- * @typedef Ritual
- * @description The animation state or "ritual" the sigil is performing.
- * @property {'summon'} - The initial, high-energy activation animation.
- * @property {'orchestrate'} - An active, processing state animation.
- * @property {'transmute'} - (Future use) A state for transformation animations.
- * @property {'idle'} - The default, low-energy ambient state.
- */
-export type Ritual = 'summon' | 'orchestrate' | 'transmute' | 'idle';
+import type { Ritual, Variant } from '@/components/sigil-rites/SigilRites';
 
 /**
  * A custom hook to manage the state of the system's central sigil animation.
@@ -42,5 +25,3 @@ export function useSystemSigilState() {
     setRitual,
   };
 }
-
-    

@@ -1,9 +1,10 @@
+
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Loader2, Wand2 } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { usePromptAnalysis } from "@/hooks/use-prompt-analysis";
 import { Skeleton } from "../ui/skeleton";
 
@@ -29,12 +30,12 @@ export function AgentTaskConfig({ onConfigure, isConfiguring }: AgentTaskConfigP
     return (
         <Card className="border-border/60 bg-card/40">
             <CardHeader>
-                <CardTitle>Agent Configuration</CardTitle>
+                <CardTitle>Forge New Agent</CardTitle>
                 <CardDescription>Define the core prompt that guides the agent's behavior and goals.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
                  <div>
-                    <Label htmlFor="agent-prompt" className="text-muted-foreground">Agent Prompt</Label>
+                    <Label htmlFor="agent-prompt" className="text-muted-foreground">Core Incantation (Prompt)</Label>
                     <Textarea 
                         id="agent-prompt" 
                         placeholder="e.g., 'You are a master cybersecurity analyst. Your goal is to analyze security logs and identify potential threats...'"
@@ -53,7 +54,7 @@ export function AgentTaskConfig({ onConfigure, isConfiguring }: AgentTaskConfigP
                         </div>
                     ) : analysis ? (
                         <div className="flex items-start gap-2 text-sm text-accent">
-                            <Wand2 className="h-4 w-4 mt-0.5" />
+                            <Wand2 className="h-4 w-4 mt-0.5 flex-shrink-0" />
                             <p>{analysis}</p>
                         </div>
                     ): (
@@ -70,7 +71,7 @@ export function AgentTaskConfig({ onConfigure, isConfiguring }: AgentTaskConfigP
                             Forging...
                         </>
                     ) : (
-                        "Forge Agent"
+                        "Forge Agent Identity"
                     )}
                 </Button>
             </CardContent>

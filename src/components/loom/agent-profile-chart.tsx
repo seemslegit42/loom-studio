@@ -3,7 +3,7 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
-import type { AnalyzeAgentProfileOutput } from '@/ai/flows/analyze-agent-profile-flow';
+import type { AnalyzeAgentProfileOutput } from '@/ai/flows/analyze-agent-profile-schema';
 
 interface AgentProfileChartProps {
     profile: AnalyzeAgentProfileOutput['profile'];

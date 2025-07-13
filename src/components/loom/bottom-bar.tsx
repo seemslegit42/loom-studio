@@ -1,3 +1,4 @@
+
 import { PanelLeft, PanelRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -13,7 +14,7 @@ interface BottomBarProps {
  */
 export default function BottomBar({ onTogglePalette, onToggleInspector }: BottomBarProps) {
   return (
-    <footer className="md:hidden fixed bottom-0 left-0 right-0 h-16 border-t border-border/50 bg-card/80 backdrop-blur-lg z-50 flex items-center justify-around">
+    <footer className="md:hidden fixed bottom-0 left-0 right-0 h-16 border-t border-border/50 bg-background/80 backdrop-blur-lg z-50 flex items-center justify-around">
         <Button variant="ghost" size="lg" className="flex flex-col h-auto gap-1" onClick={onTogglePalette}>
             <PanelLeft />
             <span className="text-xs">Palette</span>

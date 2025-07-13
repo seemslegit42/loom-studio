@@ -55,7 +55,7 @@ export function SigilRites({
   useEffect(() => {
     if (ritual === 'idle') return;
 
-    console.log(`Ritual started: ${ritual}`);
+    // console.log(`Ritual started: ${ritual}`);
     if (sonicSignature) {
       console.log(`⚡️ Sonic Signature Activated: ${variant} + ${ritual}`);
       // Placeholder: Integrate Web Audio API soundscapes here
@@ -64,16 +64,16 @@ export function SigilRites({
     const sigilCore = document.querySelector('.sigil-core');
     const handleAnimationEnd = (event: AnimationEvent) => {
       // Ensure we only trigger completion on the intended animation
-      if (event.animationName === 'summon-glow') {
+      if (event.animationName === 'summon-glow' || event.animationName === 'orchestrate-glow') {
         onRitualComplete?.();
-        console.log(`Ritual completed: ${ritual}`);
+        // console.log(`Ritual completed: ${ritual}`);
       }
     };
 
-    sigilCore?.addEventListener('animationend', handleAnimationEnd);
+    sigilCore?.addEventListener('animationend', handleAnimationEnd as EventListener);
     
     return () => {
-      sigilCore?.removeEventListener('animationend', handleAnimationEnd);
+      sigilCore?.removeEventListener('animationend', handleAnimationEnd as EventListener);
     };
   }, [ritual, onRitualComplete, sonicSignature, variant]);
 
