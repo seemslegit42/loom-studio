@@ -109,7 +109,7 @@ export default function SplitLayout({ variant, ritual, setRitual }: SplitLayoutP
 
   return (
     <>
-      <ResizablePanelGroup direction="horizontal" className="h-full w-full">
+      <ResizablePanelGroup direction="horizontal" className="h-full w-full hidden md:flex">
         {/* Palette Panel (Desktop) */}
         <ResizablePanel defaultSize={20} minSize={15} maxSize={30} className="h-full bg-card/30 border-r border-border/50 flex-col gap-4 hidden md:flex">
           <PalettePanel />
@@ -132,6 +132,18 @@ export default function SplitLayout({ variant, ritual, setRitual }: SplitLayoutP
           <InspectorPanel />
         </ResizablePanel>
       </ResizablePanelGroup>
+      
+      {/* Mobile-Only Canvas View */}
+       <div className="h-full w-full md:hidden">
+         <WorkflowCanvas 
+            nodes={nodes}
+            selectedNodeId={selectedNodeId}
+            setSelectedNodeId={setSelectedNodeId}
+          >
+              <SigilRites variant={variant} ritual={ritual} onRitualComplete={() => setRitual('idle')} />
+          </WorkflowCanvas>
+      </div>
+
 
       {/* Mobile Bottom Bar controlled Sheets */}
       <BottomBar onTogglePalette={() => setIsPaletteOpen(p => !p)} onToggleInspector={() => setIsInspectorOpen(p => !p)} />
