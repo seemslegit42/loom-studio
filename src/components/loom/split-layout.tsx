@@ -8,7 +8,6 @@ import { WorkflowNodePalette } from "./workflow-node-palette";
 import { AgentTaskConfig } from "./agent-task-config";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { useToast } from "@/hooks/use-toast";
-import type { AnalyzeAgentProfileOutput } from "@/ai/flows/analyze-agent-profile-schema";
 import { AgentProfileChart } from "./agent-profile-chart";
 import { forgeAgentIdentity } from "@/ai/flows/forge-agent-identity-flow";
 import { SigilRites, type Ritual, type Variant } from "../sigil-rites/SigilRites";
@@ -38,16 +37,12 @@ export default function SplitLayout({ variant, ritual, setRitual }: SplitLayoutP
   const [nodes, setNodes] = useState<WorkflowNodeData[]>([]);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
 
-  // For now, the profile chart will show the last-configured agent's data
-  const [latestAgentProfile, setLatestAgentProfile] = useState<AnalyzeAgentProfileOutput['profile'] | null>(null);
-  const [latestAgentName, setLatestAgentName] = useState<string>('');
+  const selectedNode = nodes.find(node => node.id === selectedNodeId) || null;
   
   const { toast } = useToast();
 
   const handleConfigureAgent = async (prompt: string) => {
     setIsConfiguringAgent(true);
-    setLatestAgentProfile(null);
-    setLatestAgentName('');
     setRitual('orchestrate');
 
     try {
@@ -55,15 +50,13 @@ export default function SplitLayout({ variant, ritual, setRitual }: SplitLayoutP
       
       const newNode: WorkflowNodeData = {
         id: `agent_${Date.now()}`,
-        title: result.name,
+        name: result.name,
         avatarDataUri: result.avatarDataUri,
+        profile: result.profile,
       };
 
       setNodes(prevNodes => [...prevNodes, newNode]);
       setSelectedNodeId(newNode.id);
-      
-      setLatestAgentProfile(result.profile);
-      setLatestAgentName(result.name);
       
       toast({
         title: "Agent Forged",
@@ -96,23 +89,19 @@ export default function SplitLayout({ variant, ritual, setRitual }: SplitLayoutP
         <div className="flex-1 mt-4 space-y-6 overflow-y-auto pr-2">
           <AgentTaskConfig onConfigure={handleConfigureAgent} isConfiguring={isConfiguringAgent} />
           
-          {(isConfiguringAgent || latestAgentProfile) && (
-            <div className="space-y-6">
-              {isConfiguringAgent && !latestAgentProfile ? (
-                 <Card>
-                    <CardHeader>
-                      <Skeleton className="h-6 w-3/4" />
-                      <Skeleton className="h-4 w-1/2" />
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <Skeleton className="h-48 w-full" />
-                    </CardContent>
-                 </Card>
-              ) : latestAgentProfile && latestAgentName ? (
-                  <AgentProfileChart profile={latestAgentProfile} agentName={latestAgentName} />
-              ) : null}
-            </div>
-          )}
+          {isConfiguringAgent ? (
+             <Card>
+                <CardHeader>
+                  <Skeleton className="h-6 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <Skeleton className="h-48 w-full" />
+                </CardContent>
+             </Card>
+          ) : selectedNode && selectedNode.profile ? (
+              <AgentProfileChart profile={selectedNode.profile} agentName={selectedNode.name} />
+          ) : null}
         </div>
     </div>
   );

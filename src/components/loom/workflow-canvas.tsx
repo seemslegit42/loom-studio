@@ -31,7 +31,7 @@ export function WorkflowCanvas({ children, nodes, selectedNodeId, setSelectedNod
                 {nodes.map(node => (
                     <WorkflowNode 
                         key={node.id}
-                        title={node.title}
+                        title={node.name}
                         icon={Cpu} // Fallback icon
                         content={node.avatarDataUri}
                         isSelected={selectedNodeId === node.id}
