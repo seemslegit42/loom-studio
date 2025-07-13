@@ -1,14 +1,13 @@
 
 'use client';
-import { Loader2, Search, Wand2, X } from 'lucide-react';
+import { Loader2, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { usePromptAnalysis } from '@/hooks/use-prompt-analysis';
 import { useState } from 'react';
 import { Button } from '../ui/button';
 import { Skeleton } from '../ui/skeleton';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
-import { AgentTaskConfig } from './agent-task-config';
+import { Wand2 } from 'lucide-react';
 
 
 interface HeaderProps {

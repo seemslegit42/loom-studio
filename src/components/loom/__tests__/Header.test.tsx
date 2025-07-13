@@ -13,15 +13,15 @@ jest.mock('@/hooks/use-prompt-analysis', () => ({
 
 describe('Header', () => {
   it('renders the application logo', () => {
-    render(<Header />);
-    const logoElement = screen.getByText('ΛΞVON');
+    render(<Header onForge={() => {}} isForging={false} />);
+    const logoElement = screen.getByText('LOOM');
     expect(logoElement).toBeInTheDocument();
   });
 
   it('renders the search input', () => {
-    render(<Header />);
+    render(<Header onForge={() => {}} isForging={false} />);
     const inputElement = screen.getByPlaceholderText(
-      'BEEP: Scribe a new agent to analyze market sentiment...'
+      'Scribe an incantation to summon a new agent...'
     );
     expect(inputElement).toBeInTheDocument();
   });
