@@ -91,7 +91,7 @@ export default function SplitLayout({
       
       toast({
         title: "Agent Forged",
-        description: `New agent "${result.name}" has been summoned to the canvas.`,
+        description: `The new agent, "${result.name}", has been summoned to the canvas.`,
       });
       setPrompt(""); // Clear prompt after forging
 
@@ -99,8 +99,8 @@ export default function SplitLayout({
       console.error("Agent configuration failed:", error);
       toast({
         variant: "destructive",
-        title: "Error Forging Agent",
-        description: "The agent's identity could not be forged. Please try again.",
+        title: "Aetheric Interference",
+        description: "The agent's identity could not be forged. Please check the incantation or try again.",
       });
     } finally {
       setIsConfiguringAgent(false);

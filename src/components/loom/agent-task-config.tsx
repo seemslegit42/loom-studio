@@ -71,7 +71,7 @@ export function AgentTaskConfig({ prompt, setPrompt, onConfigure, isConfiguring 
                             Forging...
                         </>
                     ) : (
-                        "Add Agent to Canvas"
+                        "Forge Agent Identity"
                     )}
                 </Button>
             </CardContent>

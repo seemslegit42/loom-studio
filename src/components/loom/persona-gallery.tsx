@@ -19,7 +19,7 @@ export function PersonaGallery({ onSelectPersona }: PersonaGalleryProps) {
         <Accordion type="single" collapsible className="w-full">
             <AccordionItem value="item-1">
                 <AccordionTrigger className="text-sm text-muted-foreground hover:no-underline">
-                    Or select a pre-defined Persona...
+                    Or begin with a pre-defined Persona...
                 </AccordionTrigger>
                 <AccordionContent>
                     <div className="space-y-2 pt-2">
