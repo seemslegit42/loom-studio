@@ -42,9 +42,18 @@ export default function SplitLayout({ variant, ritual, setRitual }: SplitLayoutP
   
   const { toast } = useToast();
 
+  const handleNodeDragEnd = (nodeId: string, newPosition: { x: number; y: number }) => {
+    setNodes(currentNodes => 
+        currentNodes.map(node => 
+            node.id === nodeId ? { ...node, position: newPosition } : node
+        )
+    );
+  };
+
   const handleConfigureAgent = async (prompt: string) => {
     setIsConfiguringAgent(true);
     setRitual('orchestrate');
+    setSelectedNodeId(null);
 
     try {
       const result = await forgeAgentIdentity({ prompt });
@@ -94,7 +103,7 @@ export default function SplitLayout({ variant, ritual, setRitual }: SplitLayoutP
         <div className="flex-1 mt-4 space-y-6 overflow-y-auto pr-2">
           <AgentTaskConfig onConfigure={handleConfigureAgent} isConfiguring={isConfiguringAgent} />
           
-          {isConfiguringAgent ? (
+          {isConfiguringAgent && !selectedNode ? (
              <Card className="border-border/60 bg-card/40">
                 <CardHeader>
                   <Skeleton className="h-6 w-3/4" />
@@ -125,6 +134,7 @@ export default function SplitLayout({ variant, ritual, setRitual }: SplitLayoutP
               nodes={nodes}
               selectedNodeId={selectedNodeId}
               setSelectedNodeId={setSelectedNodeId}
+              onNodeDragEnd={handleNodeDragEnd}
             >
                 <SigilRites variant={variant} ritual={ritual} onRitualComplete={() => setRitual('idle')} />
             </WorkflowCanvas>
@@ -143,6 +153,7 @@ export default function SplitLayout({ variant, ritual, setRitual }: SplitLayoutP
             nodes={nodes}
             selectedNodeId={selectedNodeId}
             setSelectedNodeId={setSelectedNodeId}
+            onNodeDragEnd={handleNodeDragEnd}
           >
               <SigilRites variant={variant} ritual={ritual} onRitualComplete={() => setRitual('idle')} />
           </WorkflowCanvas>
