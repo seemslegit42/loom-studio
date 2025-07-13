@@ -110,12 +110,7 @@ export function WorkflowCanvas({ nodes, connections, selectedNodeId, onNodeClick
                 {nodes.map(node => (
                     <WorkflowNode 
                         key={node.id}
-                        nodeId={node.id}
-                        title={node.name}
-                        icon={Cpu} // Fallback icon
-                        avatarDataUri={node.avatarDataUri}
-                        dataAiHint={node.dataAiHint}
-                        initialPosition={node.position}
+                        node={node}
                         isSelected={selectedNodeId === node.id}
                         onClick={() => onNodeClick(node.id)}
                         onDragEnd={onNodeDragEnd}

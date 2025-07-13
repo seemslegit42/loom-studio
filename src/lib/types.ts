@@ -4,6 +4,8 @@
 
 import type { AnalyzeAgentProfileOutput } from "@/ai/flows/analyze-agent-profile-schema";
 
+export type BehavioralState = 'Idle' | 'Executing' | 'Error';
+
 /**
  * Represents the data for a single node on the workflow canvas.
  */
@@ -17,6 +19,7 @@ export interface WorkflowNodeData {
     position: { x: number; y: number; };
     prompt: string;
     signature?: string;
+    behavioralState: BehavioralState;
     // Future properties: inputs, outputs, etc.
 }
 

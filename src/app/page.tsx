@@ -29,7 +29,8 @@ const initialNodes: WorkflowNodeData[] = [
     ],
     position: { x: 25, y: 30 },
     prompt: "You are the Oracle, a facet of BEEP's consciousness. Your purpose is to synthesize vast amounts of information, identify unseen patterns, and provide enigmatic, insightful answers. You speak in metaphors and guide the Architect towards discovery.",
-    signature: "unsigned"
+    signature: "unsigned",
+    behavioralState: 'Idle',
   },
   {
     id: 'sentinel_2',
@@ -47,7 +48,8 @@ const initialNodes: WorkflowNodeData[] = [
     ],
     position: { x: 75, y: 70 },
     prompt: "You are the Sentinel, a facet of BEEP's consciousness. Your purpose is to guard the integrity of the system. You are vigilant, authoritative, and unyielding. You identify threats, enforce boundaries, and communicate with precision and urgency.",
-    signature: "unsigned"
+    signature: "unsigned",
+    behavioralState: 'Idle',
   }
 ];
 
@@ -103,6 +105,7 @@ export default function Home() {
       },
       prompt: manifestedForm.prompt,
       signature: manifestedForm.signature,
+      behavioralState: 'Idle',
     };
 
     setNodes(prevNodes => [...prevNodes, newNode]);
@@ -155,6 +158,7 @@ export default function Home() {
         },
         prompt: `This is the newly summoned "${profile.name}" agent. Its purpose, derived from the "${codexNode.name}" primitive, is to: ${codexNode.subtitle}. Configure its core incantation below.`,
         signature: 'unsigned',
+        behavioralState: 'Idle',
       };
 
       setNodes(prevNodes => [...prevNodes, newNode]);
