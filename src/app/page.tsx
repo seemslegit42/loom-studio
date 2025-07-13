@@ -14,39 +14,39 @@ import { analyzeAgentProfile } from "@/ai/flows/analyze-agent-profile-flow";
 
 const initialNodes: WorkflowNodeData[] = [
   {
-    id: 'welcome_agent_1',
-    name: 'Welcome Agent',
+    id: 'oracle_1',
+    name: 'Oracle',
     type: "LLM Task Agent",
     avatarDataUri: `https://placehold.co/96x96.png`,
-    dataAiHint: 'welcome robot',
+    dataAiHint: 'wise ethereal being',
     profile: [
-      { trait: 'Creativity', value: 75 },
-      { trait: 'Humor', value: 40 },
-      { trait: 'Formality', value: 85 },
-      { trait: 'Enthusiasm', value: 60 },
-      { trait: 'Technicality', value: 90 },
-      { trait: 'Whimsy', value: 20 },
+      { trait: 'Creativity', value: 85 },
+      { trait: 'Humor', value: 20 },
+      { trait: 'Formality', value: 70 },
+      { trait: 'Enthusiasm', value: 30 },
+      { trait: 'Technicality', value: 95 },
+      { trait: 'Whimsy', value: 40 },
     ],
     position: { x: 25, y: 30 },
-    prompt: "You are a helpful and welcoming agent designed to introduce users to Loom Studio.",
+    prompt: "You are the Oracle, a facet of BEEP's consciousness. Your purpose is to synthesize vast amounts of information, identify unseen patterns, and provide enigmatic, insightful answers. You speak in metaphors and guide the Architect towards discovery.",
     signature: "unsigned"
   },
   {
-    id: 'followup_agent_2',
-    name: 'Follow-up Agent',
+    id: 'sentinel_2',
+    name: 'Sentinel',
     type: "LLM Task Agent",
     avatarDataUri: `https://placehold.co/96x96.png`,
-    dataAiHint: 'questioning robot',
+    dataAiHint: 'armored guardian robot',
     profile: [
-      { trait: 'Creativity', value: 60 },
-      { trait: 'Humor', value: 50 },
-      { trait: 'Formality', value: 70 },
-      { trait: 'Enthusiasm', value: 80 },
-      { trait: 'Technicality', value: 50 },
-      { trait: 'Whimsy', value: 40 },
+      { trait: 'Creativity', value: 10 },
+      { trait: 'Humor', value: 0 },
+      { trait: 'Formality', value: 95 },
+      { trait: 'Enthusiasm', value: 20 },
+      { trait: 'Technicality', value: 80 },
+      { trait: 'Whimsy', value: 0 },
     ],
     position: { x: 75, y: 70 },
-    prompt: "You are a follow-up agent. Your job is to ask the user what they would like to build today.",
+    prompt: "You are the Sentinel, a facet of BEEP's consciousness. Your purpose is to guard the integrity of the system. You are vigilant, authoritative, and unyielding. You identify threats, enforce boundaries, and communicate with precision and urgency.",
     signature: "unsigned"
   }
 ];
@@ -54,8 +54,8 @@ const initialNodes: WorkflowNodeData[] = [
 const initialConnections: WorkflowConnection[] = [
   {
     id: 'conn_1_2',
-    sourceId: 'welcome_agent_1',
-    targetId: 'followup_agent_2',
+    sourceId: 'oracle_1',
+    targetId: 'sentinel_2',
   }
 ];
 
