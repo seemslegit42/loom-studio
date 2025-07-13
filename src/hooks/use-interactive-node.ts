@@ -27,38 +27,28 @@ interface UseInteractiveNodeProps {
 export function useInteractiveNode({ nodeId, initialPosition, onDragEnd }: UseInteractiveNodeProps) {
     const [position, setPosition] = useState(initialPosition);
     const [isDragging, setIsDragging] = useState(false);
-    const dragStartRef = useRef<{ x: number; y: number; offsetX: number, offsetY: number } | null>(null);
+    const positionRef = useRef(position);
+    
+    // Update refs when state changes
+    useEffect(() => {
+        positionRef.current = position;
+    }, [position]);
 
-    // Update position if initialPosition prop changes
     useEffect(() => {
         setPosition(initialPosition);
     }, [initialPosition]);
 
     const handleMouseDown = useCallback((e: React.MouseEvent<HTMLElement, MouseEvent>) => {
-        // Only start drag with left mouse button
         if (e.button !== 0) return;
         
         e.preventDefault();
         e.stopPropagation();
 
-        const target = e.currentTarget;
-        const parent = target.offsetParent as HTMLElement;
-        if (!parent) return;
-
-        const parentRect = parent.getBoundingClientRect();
-
-        dragStartRef.current = {
-            x: e.clientX,
-            y: e.clientY,
-            offsetX: (e.clientX - parentRect.left) / parentRect.width * 100,
-            offsetY: (e.clientY - parentRect.top) / parentRect.height * 100,
-        };
         setIsDragging(true);
 
     }, []);
 
     const handleMouseMove = useCallback((e: MouseEvent) => {
-        if (!isDragging || !dragStartRef.current) return;
         e.preventDefault();
         e.stopPropagation();
 
@@ -75,25 +65,21 @@ export function useInteractiveNode({ nodeId, initialPosition, onDragEnd }: UseIn
         newY = Math.max(0, Math.min(100, newY));
 
         setPosition({ x: newX, y: newY });
-    }, [isDragging]);
+    }, []);
 
     const handleMouseUp = useCallback((e: MouseEvent) => {
-        if (!isDragging) return;
         e.preventDefault();
         e.stopPropagation();
 
         setIsDragging(false);
-        onDragEnd(nodeId, position);
-        dragStartRef.current = null;
-    }, [isDragging, onDragEnd, nodeId, position]);
+        onDragEnd(nodeId, positionRef.current);
+    }, [onDragEnd, nodeId]);
 
     useEffect(() => {
         if (isDragging) {
+            // Attach listeners to the document to capture mouse movement anywhere on the page
             document.addEventListener('mousemove', handleMouseMove);
-            document.addEventListener('mouseup', handleMouseUp);
-        } else {
-            document.removeEventListener('mousemove', handleMouseMove);
-            document.removeEventListener('mouseup', handleMouseUp);
+            document.addEventListener('mouseup', handleMouseUp, { once: true });
         }
 
         return () => {
