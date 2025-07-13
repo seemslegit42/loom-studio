@@ -1,4 +1,3 @@
-
 /**
  * @fileOverview A hook for managing interactive (draggable) nodes on a canvas.
  */
@@ -31,16 +30,17 @@ export function useInteractiveNode({ nodeId, initialPosition, onDragEnd }: UseIn
     const [position, setPosition] = useState(initialPosition);
     const [isDragging, setIsDragging] = useState(false);
     const [didDrag, setDidDrag] = useState(false);
-    const startMousePosition = useRef({ x: 0, y: 0 });
-    const positionRef = useRef(position);
-    
-    // Update refs when state changes
-    useEffect(() => {
-        positionRef.current = position;
-    }, [position]);
 
+    const dragState = useRef({
+        didDrag: false,
+        startMouse: { x: 0, y: 0 },
+        currentPosition: initialPosition,
+    });
+    
+    // Update ref when state changes
     useEffect(() => {
         setPosition(initialPosition);
+        dragState.current.currentPosition = initialPosition;
     }, [initialPosition]);
 
     const handleMouseDown = useCallback((e: React.MouseEvent<HTMLElement, MouseEvent>) => {
@@ -49,49 +49,53 @@ export function useInteractiveNode({ nodeId, initialPosition, onDragEnd }: UseIn
         e.preventDefault();
         e.stopPropagation();
 
-        setIsDragging(true);
+        dragState.current.didDrag = false;
+        dragState.current.startMouse = { x: e.clientX, y: e.clientY };
+        
         setDidDrag(false);
-        startMousePosition.current = { x: e.clientX, y: e.clientY };
+        setIsDragging(true);
     }, []);
 
-    const handleMouseMove = useCallback((e: MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-        
-        const dx = e.clientX - startMousePosition.current.x;
-        const dy = e.clientY - startMousePosition.current.y;
-        if (!didDrag && Math.sqrt(dx * dx + dy * dy) > DRAG_THRESHOLD) {
-            setDidDrag(true);
-        }
-
-        const parent = document.getElementById('workflow-canvas');
-        if (!parent) return;
-
-        const parentRect = parent.getBoundingClientRect();
-        
-        let newX = ((e.clientX - parentRect.left) / parentRect.width) * 100;
-        let newY = ((e.clientY - parentRect.top) / parentRect.height) * 100;
-        
-        // Clamp position within parent bounds (0% to 100%)
-        newX = Math.max(0, Math.min(100, newX));
-        newY = Math.max(0, Math.min(100, newY));
-
-        setPosition({ x: newX, y: newY });
-    }, [didDrag]);
-
-    const handleMouseUp = useCallback((e: MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-
-        setIsDragging(false);
-        if (didDrag) {
-            onDragEnd(nodeId, positionRef.current);
-        }
-    }, [onDragEnd, nodeId, didDrag]);
-
     useEffect(() => {
+        const handleMouseMove = (e: MouseEvent) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const parent = document.getElementById('workflow-canvas');
+            if (!parent) return;
+            
+            if (!dragState.current.didDrag) {
+                const dx = e.clientX - dragState.current.startMouse.x;
+                const dy = e.clientY - dragState.current.startMouse.y;
+                if (Math.sqrt(dx * dx + dy * dy) > DRAG_THRESHOLD) {
+                    dragState.current.didDrag = true;
+                    setDidDrag(true);
+                }
+            }
+            
+            const parentRect = parent.getBoundingClientRect();
+            let newX = ((e.clientX - parentRect.left) / parentRect.width) * 100;
+            let newY = ((e.clientY - parentRect.top) / parentRect.height) * 100;
+            
+            newX = Math.max(0, Math.min(100, newX));
+            newY = Math.max(0, Math.min(100, newY));
+
+            const newPosition = { x: newX, y: newY };
+            dragState.current.currentPosition = newPosition;
+            setPosition(newPosition);
+        };
+
+        const handleMouseUp = (e: MouseEvent) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            if (dragState.current.didDrag) {
+                onDragEnd(nodeId, dragState.current.currentPosition);
+            }
+            setIsDragging(false);
+        };
+        
         if (isDragging) {
-            // Attach listeners to the document to capture mouse movement anywhere on the page
             document.addEventListener('mousemove', handleMouseMove);
             document.addEventListener('mouseup', handleMouseUp, { once: true });
         }
@@ -100,7 +104,7 @@ export function useInteractiveNode({ nodeId, initialPosition, onDragEnd }: UseIn
             document.removeEventListener('mousemove', handleMouseMove);
             document.removeEventListener('mouseup', handleMouseUp);
         };
-    }, [isDragging, handleMouseMove, handleMouseUp]);
+    }, [isDragging, onDragEnd, nodeId]);
 
     return {
         position,
