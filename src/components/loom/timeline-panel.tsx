@@ -1,4 +1,3 @@
-
 /**
  * @fileOverview A panel for displaying the chronological audit log of system events.
  */
@@ -14,7 +13,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/
 
 
 const getIconForAction = (action: string) => {
-    if (action.includes('FORGE')) return Sparkles;
+    if (action.includes('FORGE') || action.includes('SUMMON')) return Sparkles;
     if (action.includes('AGENT')) return Cpu;
     if (action.includes('NEXUS')) return Link;
     if (action.includes('PALETTE')) return Palette;
@@ -49,25 +48,27 @@ export function TimelinePanel() {
                                             onClick={() => selectLogEntry(log.id)}
                                         >
                                             <TableCell className="w-12 p-2 text-center">
-                                                <Icon className="h-4 w-4 mx-auto text-primary/80"/>
+                                                 <TooltipTrigger asChild>
+                                                    <Icon className="h-4 w-4 mx-auto text-primary/80"/>
+                                                </TooltipTrigger>
                                             </TableCell>
                                             <TableCell className="p-2">
                                                 <p className="font-semibold text-foreground/90">{log.action.replace(/_/g, ' ')}</p>
                                                 <p className="text-xs text-muted-foreground">{log.metadata?.agentName || log.metadata?.nodeType || ''}</p>
                                             </TableCell>
-                                            <TooltipTrigger asChild>
-                                                <TableCell className="p-2 text-right text-xs text-muted-foreground">
-                                                    {formatDistanceToNow(new Date(log.timestamp), { addSuffix: true })}
-                                                </TableCell>
-                                            </TooltipTrigger>
+                                            <TableCell className="p-2 text-right text-xs text-muted-foreground">
+                                                {formatDistanceToNow(new Date(log.timestamp), { addSuffix: true })}
+                                            </TableCell>
                                         </TableRow>
-                                        <TooltipContent side="top">
-                                            <div className="text-xs space-y-1">
-                                                <p>Timestamp: {new Date(log.timestamp).toISOString()}</p>
-                                                <p>ID: {log.id}</p>
-                                                {Object.entries(log.metadata).map(([key, value]) => (
-                                                    <p key={key}>{key}: {JSON.stringify(value)}</p>
-                                                ))}
+                                        <TooltipContent side="top" className="max-w-md">
+                                            <div className="text-xs space-y-1 font-mono bg-background/80 p-2 rounded-md border border-border">
+                                                <p><span className="font-semibold text-foreground">Action:</span> {log.action}</p>
+                                                <p><span className="font-semibold text-foreground">Timestamp:</span> {new Date(log.timestamp).toISOString()}</p>
+                                                <p><span className="font-semibold text-foreground">ID:</span> {log.id}</p>
+                                                <p className="font-semibold text-foreground">Metadata:</p>
+                                                <pre className="text-muted-foreground whitespace-pre-wrap break-all max-h-48 overflow-y-auto">
+                                                    {JSON.stringify(log.metadata, null, 2)}
+                                                </pre>
                                             </div>
                                         </TooltipContent>
                                     </Tooltip>

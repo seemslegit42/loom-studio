@@ -23,7 +23,7 @@ export interface AuditSlice {
 const initialState = {
   auditLog: [
       {
-          id: crypto.randomUUID(),
+          id: `log_${crypto.randomUUID()}`,
           timestamp: new Date().toISOString(),
           userId: 'Architect-001',
           action: 'SESSION_STARTED',
@@ -43,7 +43,7 @@ export const createAuditSlice: StateCreator<
   ...initialState,
   logAction: (action, metadata = {}) => {
     const newEntry: AuditLogEntry = {
-      id: crypto.randomUUID(),
+      id: `log_${crypto.randomUUID()}`,
       timestamp: new Date().toISOString(),
       userId: 'Architect-001', // Placeholder
       action,
