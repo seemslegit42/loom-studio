@@ -364,6 +364,22 @@ export default function Home() {
         // The ritual completes in the SigilRites component, which will set it back to idle.
     }
   }
+  
+  const handleDelete = () => {
+    if (selectedNodeId) {
+        const nodeToDelete = nodes.find(n => n.id === selectedNodeId);
+        logAction('NODE_DELETED', { nodeId: selectedNodeId, nodeName: nodeToDelete?.name });
+        setNodes(current => current.filter(node => node.id !== selectedNodeId));
+        setConnections(current => current.filter(conn => conn.sourceId !== selectedNodeId && conn.targetId !== selectedNodeId));
+        setSelectedNodeId(null);
+        toast({ title: "Agent Dismissed", description: `"${nodeToDelete?.name}" has been returned to the aether.` });
+    } else if (selectedConnectionId) {
+        logAction('CONNECTION_DELETED', { connectionId: selectedConnectionId });
+        setConnections(current => current.filter(conn => conn.id !== selectedConnectionId));
+        setSelectedConnectionId(null);
+        toast({ title: "Connection Severed", description: "The link between agents has been broken." });
+    }
+  };
 
   return (
     <div className="flex flex-col h-screen bg-background text-foreground">
@@ -388,6 +404,7 @@ export default function Home() {
           onUpdateNode={handleUpdateNode}
           onSummonNode={handleSummonNode}
           onNexusSummon={handleNexusSummon}
+          onDelete={handleDelete}
           genesisPrompt={genesisPrompt}
           onFinalizeForge={handleFinalizeForge}
           onCancelForge={handleCancelForge}

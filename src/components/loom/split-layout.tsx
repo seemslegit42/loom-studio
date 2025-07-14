@@ -17,7 +17,7 @@ import type { CodexNode } from "@/lib/codex";
 import { GenesisChamber, type ForgedAgent } from "./genesis-chamber";
 import { Button } from "../ui/button";
 import { Sparkles } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AgentDNAViewer } from "./agent-dna-viewer";
 import { TimelinePanel } from "./timeline-panel";
 
@@ -39,6 +39,7 @@ interface SplitLayoutProps {
   onUpdateNode: (nodeId: string, newPrompt: string, newProfile?: WorkflowNodeData['profile']) => void;
   onSummonNode: (codexNode: CodexNode) => void;
   onNexusSummon: (connectionId: string) => void;
+  onDelete: () => void;
   genesisPrompt: string;
   onFinalizeForge: (agent: ForgedAgent) => void;
   onCancelForge: () => void;
@@ -67,6 +68,7 @@ export default function SplitLayout({
   onUpdateNode,
   onSummonNode,
   onNexusSummon,
+  onDelete,
   genesisPrompt,
   onFinalizeForge,
   onCancelForge,
@@ -76,6 +78,18 @@ export default function SplitLayout({
   const selectedConnection = connections.find(conn => conn.id === selectedConnectionId) || null;
   const [isSculpting, setIsSculpting] = useState(false);
   
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.key === 'Delete' || e.key === 'Backspace') && (selectedNodeId || selectedConnectionId)) {
+        onDelete();
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [selectedNodeId, selectedConnectionId, onDelete]);
+
   const handleNodeDragEnd = (nodeId: string, newPosition: { x: number; y: number }) => {
     setNodes(currentNodes => 
         currentNodes.map(node => 
