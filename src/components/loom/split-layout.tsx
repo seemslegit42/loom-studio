@@ -183,7 +183,7 @@ export default function SplitLayout({
                         <CardDescription>Forge a new agent to bridge this connection.</CardDescription>
                       </CardHeader>
                       <CardContent>
-                          <Button className="w-full" onClick={() => onNexusSummon(selectedConnection.id)}>
+                          <Button variant="cta" className="w-full" onClick={() => onNexusSummon(selectedConnection.id)}>
                             <Sparkles className="mr-2" />
                             Summon Nexus Agent
                           </Button>

@@ -77,7 +77,7 @@ export function AgentTaskConfig({ node, onUpdateNode, isSculpting }: AgentTaskCo
                 </div>
             )}
 
-            <Button className="w-full" onClick={handleUpdate} disabled={isSculpting || !hasChanges}>
+            <Button variant="cta" className="w-full" onClick={handleUpdate} disabled={isSculpting || !hasChanges}>
                 {isSculpting ? (
                     <>
                         <Loader2 className="animate-spin" />

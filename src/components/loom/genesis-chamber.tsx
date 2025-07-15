@@ -222,7 +222,7 @@ export function GenesisChamber({
                             </PopoverContent>
                         </Popover>
                     </div>
-                     <Button onClick={handleFinalize} className="w-full glow-gilded" disabled={isFinalizing}>
+                     <Button variant="cta" onClick={handleFinalize} className="w-full" disabled={isFinalizing}>
                         {isFinalizing ? (
                           <>
                             <Loader2 className="animate-spin" />
@@ -254,5 +254,3 @@ export function GenesisChamber({
     </AnimatePresence>
   );
 }
-
-    

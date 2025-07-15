@@ -1,3 +1,4 @@
+
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
@@ -5,7 +6,7 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
@@ -18,6 +19,8 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
+        cta: "bg-gradient-to-br from-primary/80 to-primary/60 text-primary-foreground border border-primary/90 shadow-[inset_0_1px_0_hsl(var(--primary-foreground)/0.1),_0_2px_4px_hsl(var(--background)/0.5)] hover:from-primary/90 hover:to-primary/70 hover:shadow-primary/20 hover:shadow-lg active:scale-[0.98] active:shadow-[inset_0_2px_4px_hsl(var(--background)/0.5)]",
+        tribute: "bg-gradient-to-br from-gilded-accent/80 to-gilded-accent/60 text-primary-foreground border border-gilded-accent/90 shadow-[inset_0_1px_0_hsl(var(--primary-foreground)/0.1),_0_2px_4px_hsl(var(--background)/0.5)] hover:from-gilded-accent/90 hover:to-gilded-accent/70 hover:shadow-gilded-accent/20 hover:shadow-lg active:scale-[0.98] active:shadow-[inset_0_2px_4px_hsl(var(--background)/0.5)]",
       },
       size: {
         default: "h-10 px-4 py-2",

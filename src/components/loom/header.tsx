@@ -78,6 +78,7 @@ export default function Header({ onForge }: HeaderProps) {
         <div className="absolute right-2 top-1/2 -translate-y-1/2">
             <Button 
                 size="sm" 
+                variant="cta"
                 className="rounded-full" 
                 onClick={handleForgeClick} 
                 disabled={!prompt.trim()}
@@ -93,5 +94,3 @@ export default function Header({ onForge }: HeaderProps) {
     </header>
   );
 }
-
-    
