@@ -4,9 +4,19 @@ import { Cpu } from "lucide-react";
 import { WorkflowNode } from "./workflow-node";
 import type { WorkflowNodeData, WorkflowConnection } from "@/lib/types";
 import { SigilRites } from "../sigil-rites/SigilRites";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { cn } from "@/lib/utils";
 
+
+interface Point {
+    x: number;
+    y: number;
+}
+interface WiringState {
+    sourceId: string;
+    sourcePos: Point;
+    currentPos: Point;
+}
 
 interface WorkflowCanvasProps {
     nodes: WorkflowNodeData[];
@@ -16,7 +26,8 @@ interface WorkflowCanvasProps {
     onNodeClick: (id: string) => void;
     onConnectionClick: (id: string) => void;
     onCanvasClick: () => void;
-    onNodeDragEnd: (nodeId: string, position: { x: number, y: number }) => void;
+    onNodeDragEnd: (nodeId: string, position: Point) => void;
+    onCreateConnection: (sourceId: string, targetId: string) => void;
 }
 
 /**
@@ -25,7 +36,7 @@ interface WorkflowCanvasProps {
  * @param {object} endPos - The ending position {x, y}.
  * @returns {string} The SVG path data string.
  */
-function getEdgePath(startPos: {x: number, y: number}, endPos: {x: number, y: number}): string {
+function getEdgePath(startPos: Point, endPos: Point): string {
     const dx = endPos.x - startPos.x;
     // A simple bezier curve. More complex logic could be used for fancier curves.
     return `M${startPos.x},${startPos.y} C${startPos.x + dx * 0.5},${startPos.y} ${endPos.x - dx * 0.5},${endPos.y} ${endPos.x},${endPos.y}`;
@@ -45,55 +56,115 @@ export function WorkflowCanvas({
     onNodeClick, 
     onConnectionClick,
     onCanvasClick,
-    onNodeDragEnd 
+    onNodeDragEnd,
+    onCreateConnection,
 }: WorkflowCanvasProps) {
 
     const canvasRef = useRef<HTMLDivElement>(null);
+    const nodeElementsRef = useRef<Map<string, HTMLDivElement>>(new Map());
     const [edgePaths, setEdgePaths] = useState<Map<string, string>>(new Map());
+    const [wiringState, setWiringState] = useState<WiringState | null>(null);
+
+    const getNodeElementById = (id: string) => document.getElementById(`node-${id}`);
+
+    const updatePaths = useCallback(() => {
+        const nodeMap = new Map(nodes.map(node => [node.id, node]));
+
+        const newPaths = new Map<string, string>();
+        connections.forEach(conn => {
+            const sourceNodeEl = getNodeElementById(conn.sourceId);
+            const targetNodeEl = getNodeElementById(conn.targetId);
+
+            if (!sourceNodeEl || !targetNodeEl) return;
+
+            const sourceRect = sourceNodeEl.getBoundingClientRect();
+            const targetRect = targetNodeEl.getBoundingClientRect();
+            const canvasRect = canvasRef.current!.getBoundingClientRect();
+
+            const sourcePos = {
+                x: sourceRect.right - canvasRect.left,
+                y: sourceRect.top + sourceRect.height / 2 - canvasRect.top,
+            };
+            const targetPos = {
+                x: targetRect.left - canvasRect.left,
+                y: targetRect.top + targetRect.height / 2 - canvasRect.top,
+            };
+            newPaths.set(conn.id, getEdgePath(sourcePos, targetPos));
+        });
+        setEdgePaths(newPaths);
+    }, [nodes, connections]);
 
     useEffect(() => {
-        const nodeMap = new Map(nodes.map(node => [node.id, node]));
-        const canvasEl = canvasRef.current;
-        if (!canvasEl) return;
-
-        const updatePaths = () => {
-            const { width, height } = canvasEl.getBoundingClientRect();
-            if (width === 0 || height === 0) return;
-
-            const newPaths = new Map<string, string>();
-            connections.forEach(conn => {
-                const sourceNode = nodeMap.get(conn.sourceId);
-                const targetNode = nodeMap.get(conn.targetId);
-
-                if (!sourceNode || !targetNode) return;
-
-                const sourcePos = {
-                    x: (sourceNode.position.x / 100) * width,
-                    y: (sourceNode.position.y / 100) * height,
-                };
-                const targetPos = {
-                    x: (targetNode.position.x / 100) * width,
-                    y: (targetNode.position.y / 100) * height,
-                };
-                newPaths.set(conn.id, getEdgePath(sourcePos, targetPos));
-            });
-
-            setEdgePaths(newPaths);
-        };
-        
-        updatePaths(); // Initial calculation
-
+        updatePaths();
         const resizeObserver = new ResizeObserver(updatePaths);
-        resizeObserver.observe(canvasEl);
-
+        if (canvasRef.current) {
+            resizeObserver.observe(canvasRef.current);
+        }
         return () => resizeObserver.disconnect();
-
-    }, [nodes, connections]);
+    }, [updatePaths]);
+    
+    // Update paths when nodes move
+    useEffect(() => {
+        updatePaths();
+    }, [nodes, updatePaths]);
 
     const handleCanvasClick = (e: React.MouseEvent<HTMLDivElement>) => {
         // Ensure the click is on the canvas itself, not a node.
         if (e.target === canvasRef.current) {
             onCanvasClick();
+        }
+    };
+
+    const handleStartWiring = useCallback((sourceId: string, e: React.MouseEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const sourceNodeEl = getNodeElementById(sourceId);
+        if (!sourceNodeEl) return;
+
+        const canvasRect = canvasRef.current!.getBoundingClientRect();
+        const sourceRect = sourceNodeEl.getBoundingClientRect();
+
+        const startPos = {
+            x: sourceRect.right - canvasRect.left,
+            y: sourceRect.top + sourceRect.height / 2 - canvasRect.top,
+        };
+
+        setWiringState({
+            sourceId,
+            sourcePos: startPos,
+            currentPos: { x: e.clientX - canvasRect.left, y: e.clientY - canvasRect.top },
+        });
+
+    }, []);
+
+    const handleMouseMove = useCallback((e: MouseEvent) => {
+        if (!wiringState || !canvasRef.current) return;
+        const canvasRect = canvasRef.current.getBoundingClientRect();
+        setWiringState(prev => prev ? ({
+            ...prev,
+            currentPos: { x: e.clientX - canvasRect.left, y: e.clientY - canvasRect.top },
+        }) : null);
+    }, [wiringState]);
+
+    const handleMouseUp = useCallback(() => {
+        setWiringState(null);
+    }, []);
+
+    useEffect(() => {
+        if (wiringState) {
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp, { once: true });
+        }
+        return () => {
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleMouseUp);
+        };
+    }, [wiringState, handleMouseMove, handleMouseUp]);
+
+    const handleNodeMouseUp = (targetId: string) => {
+        if (wiringState && wiringState.sourceId !== targetId) {
+            onCreateConnection(wiringState.sourceId, targetId);
         }
     };
 
@@ -104,6 +175,7 @@ export function WorkflowCanvas({
             className="h-full w-full flex items-center justify-center p-8 bg-transparent relative overflow-hidden" 
             id="workflow-canvas"
             onClick={handleCanvasClick}
+            onMouseUpCapture={handleMouseUp}
         >
             {/* Background Effects & Sigil */}
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.3),rgba(255,255,255,0))]"></div>
@@ -145,6 +217,10 @@ export function WorkflowCanvas({
                         <stop offset="0%" style={{stopColor: 'hsl(var(--gilded-accent))', stopOpacity: 1}} />
                         <stop offset="100%" style={{stopColor: 'hsl(var(--gilded-accent))', stopOpacity: 0.3}} />
                     </linearGradient>
+                     <linearGradient id="edge-gradient-wiring" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" style={{stopColor: 'hsl(var(--accent))', stopOpacity: 1}} />
+                        <stop offset="100%" style={{stopColor: 'hsl(var(--accent))', stopOpacity: 0.3}} />
+                    </linearGradient>
                 </defs>
                 <g>
                    {Array.from(edgePaths.entries()).map(([id, path]) => (
@@ -173,6 +249,15 @@ export function WorkflowCanvas({
                             />
                         </g>
                    ))}
+                   {wiringState && (
+                        <path 
+                            d={getEdgePath(wiringState.sourcePos, wiringState.currentPos)}
+                            stroke="url(#edge-gradient-wiring)"
+                            strokeWidth="2"
+                            fill="none"
+                            strokeDasharray="4 4"
+                        />
+                   )}
                 </g>
             </svg>
 
@@ -184,11 +269,14 @@ export function WorkflowCanvas({
                         key={node.id}
                         node={node}
                         isSelected={selectedNodeId === node.id}
+                        isWiring={!!wiringState}
                         onClick={(e) => {
                             e.stopPropagation();
                             onNodeClick(node.id)
                         }}
                         onDragEnd={onNodeDragEnd}
+                        onStartWiring={(e) => handleStartWiring(node.id, e)}
+                        onMouseUpCapture={() => handleNodeMouseUp(node.id)}
                     />
                 ))}
             </div>

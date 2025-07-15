@@ -116,6 +116,7 @@ export default function Home() {
                 description: `${result.nodes.length} agents and ${result.connections.length} connections have been forged.`,
             });
             logAction('WORKFLOW_FORGED', { prompt, nodeCount: result.nodes.length, connectionCount: result.connections.length });
+            setRitual('idle');
         }
 
     } catch (error) {
@@ -162,6 +163,7 @@ export default function Home() {
     });
 
     setGenesisPrompt(''); // Clear the prompt after finalizing
+    setRitual('idle');
   };
 
   const handleCancelForge = () => {
@@ -361,7 +363,7 @@ export default function Home() {
          description: "The AI could not forge a complete identity for the new node. Please try again.",
        });
     } finally {
-        // The ritual completes in the SigilRites component, which will set it back to idle.
+        setRitual('idle');
     }
   }
   
@@ -379,6 +381,16 @@ export default function Home() {
         setSelectedConnectionId(null);
         toast({ title: "Connection Severed", description: "The link between agents has been broken." });
     }
+  };
+
+  const handleCreateConnection = (sourceId: string, targetId: string) => {
+    const newConnection: WorkflowConnection = {
+      id: `conn_${sourceId}_${targetId}_${Date.now()}`,
+      sourceId,
+      targetId,
+    };
+    setConnections(prev => [...prev, newConnection]);
+    logAction('CONNECTION_CREATED', { sourceId, targetId });
   };
 
   return (
@@ -405,6 +417,7 @@ export default function Home() {
           onSummonNode={handleSummonNode}
           onNexusSummon={handleNexusSummon}
           onDelete={handleDelete}
+          onCreateConnection={handleCreateConnection}
           genesisPrompt={genesisPrompt}
           onFinalizeForge={handleFinalizeForge}
           onCancelForge={handleCancelForge}
@@ -417,5 +430,3 @@ export default function Home() {
     </div>
   );
 }
-
-    

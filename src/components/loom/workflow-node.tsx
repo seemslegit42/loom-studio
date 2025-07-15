@@ -9,8 +9,10 @@ import type { WorkflowNodeData } from "@/lib/types";
 interface WorkflowNodeProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onClick'> {
     node: WorkflowNodeData;
     isSelected?: boolean;
+    isWiring?: boolean;
     onClick?: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
     onDragEnd: (nodeId: string, position: { x: number; y: number }) => void;
+    onStartWiring: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
 }
 
 /**
@@ -22,9 +24,11 @@ interface WorkflowNodeProps extends Omit<React.HTMLAttributes<HTMLDivElement>, '
 export function WorkflowNode({ 
     node, 
     className, 
-    isSelected, 
+    isSelected,
+    isWiring,
     onClick, 
     onDragEnd,
+    onStartWiring,
     ...props 
 }: WorkflowNodeProps) {
     const isAvatar = !!node.avatarDataUri;
@@ -33,6 +37,7 @@ export function WorkflowNode({
         nodeId: node.id,
         initialPosition: node.position,
         onDragEnd,
+        disabled: isWiring,
     });
 
     const handleClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -43,6 +48,7 @@ export function WorkflowNode({
     
     return (
         <motion.div 
+            id={`node-${node.id}`}
             className={cn(
                 "absolute flex flex-col items-center justify-center w-40 h-32 p-4 rounded-lg border-2 bg-card/80 backdrop-blur-sm shadow-lg",
                 isDragging ? "cursor-grabbing z-20" : "cursor-pointer z-10",
@@ -71,7 +77,7 @@ export function WorkflowNode({
             {...props}
         >
             {/* Input Handle */}
-            <div className="absolute -left-[9px] top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-background border-2 border-primary/50" />
+            <div className="absolute -left-[9px] top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-background border-2 border-primary/50 hover:bg-accent hover:scale-125 transition-transform" />
 
             <div className="flex flex-col items-center justify-center gap-2 text-center">
                  {isAvatar ? (
@@ -91,7 +97,10 @@ export function WorkflowNode({
             </div>
             
             {/* Output Handle */}
-            <div className="absolute -right-[9px] top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-background border-2 border-primary/50" />
+            <div 
+                className="absolute -right-[9px] top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-background border-2 border-primary/50 cursor-crosshair hover:bg-accent hover:scale-125 transition-transform"
+                onMouseDown={onStartWiring}
+            />
         </motion.div>
     );
 }

@@ -1,3 +1,4 @@
+
 /**
  * @fileOverview A hook for managing interactive (draggable) nodes on a canvas.
  */
@@ -9,6 +10,7 @@ interface UseInteractiveNodeProps {
     nodeId: string;
     initialPosition: { x: number; y: number };
     onDragEnd: (nodeId: string, position: { x: number; y: number }) => void;
+    disabled?: boolean;
 }
 
 const DRAG_THRESHOLD = 5; // pixels
@@ -27,7 +29,7 @@ const DRAG_THRESHOLD = 5; // pixels
  *  handleTouchStart: (e: React.TouchEvent<HTMLElement>) => void;
  * }} An object containing the node's position, dragging state, and event handlers.
  */
-export function useInteractiveNode({ nodeId, initialPosition, onDragEnd }: UseInteractiveNodeProps) {
+export function useInteractiveNode({ nodeId, initialPosition, onDragEnd, disabled = false }: UseInteractiveNodeProps) {
     const [position, setPosition] = useState(initialPosition);
     const [isDragging, setIsDragging] = useState(false);
     const [didDrag, setDidDrag] = useState(false);
@@ -45,26 +47,28 @@ export function useInteractiveNode({ nodeId, initialPosition, onDragEnd }: UseIn
     }, [initialPosition]);
 
     const handleDragStart = useCallback((clientX: number, clientY: number) => {
+        if (disabled) return;
         dragState.current.didDrag = false;
         dragState.current.startMouse = { x: clientX, y: clientY };
         
         setDidDrag(false);
         setIsDragging(true);
-    }, []);
+    }, [disabled]);
 
     const handleMouseDown = useCallback((e: React.MouseEvent<HTMLElement, MouseEvent>) => {
-        if (e.button !== 0) return;
+        if (e.button !== 0 || disabled) return;
         e.preventDefault();
         e.stopPropagation();
         handleDragStart(e.clientX, e.clientY);
-    }, [handleDragStart]);
+    }, [handleDragStart, disabled]);
 
     const handleTouchStart = useCallback((e: React.TouchEvent<HTMLElement>) => {
+        if (disabled) return;
         e.preventDefault();
         e.stopPropagation();
         const touch = e.touches[0];
         handleDragStart(touch.clientX, touch.clientY);
-    }, [handleDragStart]);
+    }, [handleDragStart, disabled]);
 
 
     useEffect(() => {

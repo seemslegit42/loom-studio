@@ -40,6 +40,7 @@ interface SplitLayoutProps {
   onSummonNode: (codexNode: CodexNode) => void;
   onNexusSummon: (connectionId: string) => void;
   onDelete: () => void;
+  onCreateConnection: (sourceId: string, targetId: string) => void;
   genesisPrompt: string;
   onFinalizeForge: (agent: ForgedAgent) => void;
   onCancelForge: () => void;
@@ -69,6 +70,7 @@ export default function SplitLayout({
   onSummonNode,
   onNexusSummon,
   onDelete,
+  onCreateConnection,
   genesisPrompt,
   onFinalizeForge,
   onCancelForge,
@@ -239,6 +241,7 @@ export default function SplitLayout({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
             className="absolute inset-0 bg-background/80 backdrop-blur-md z-20 flex items-center justify-center"
+            onClick={() => setRitual('idle')}
           >
              <SigilRites variant="genesis" ritual={ritual} onRitualComplete={() => setRitual('idle')} />
           </motion.div>
@@ -265,6 +268,7 @@ export default function SplitLayout({
                   onConnectionClick={handleConnectionClick}
                   onCanvasClick={handleCanvasClick}
                   onNodeDragEnd={handleNodeDragEnd}
+                  onCreateConnection={onCreateConnection}
                 />
               </ResizablePanel>
               <ResizableHandle withHandle />
@@ -293,6 +297,7 @@ export default function SplitLayout({
             onConnectionClick={handleConnectionClick}
             onCanvasClick={handleCanvasClick}
             onNodeDragEnd={handleNodeDragEnd}
+            onCreateConnection={onCreateConnection}
           />
       </div>
 
