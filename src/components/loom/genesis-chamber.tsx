@@ -190,7 +190,7 @@ export function GenesisChamber({
                                 <Image 
                                     src={data.avatarDataUri} 
                                     alt={`${data.name} Avatar`}
-                                    layout="fill"
+                                    fill
                                     className="rounded-full object-cover"
                                 />
                             ) : (

@@ -9,27 +9,34 @@ import { useLoomStore } from "@/hooks/useLoomStore";
 import { Table, TableBody, TableCell, TableRow } from "../ui/table";
 import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
-import { GitBranch, Sparkles, Cpu, Link, Palette, Play } from "lucide-react";
+import { GitBranch, Sparkles, Cpu, Link, Palette, Play, Trash2, Edit } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
+import type { AuditLogEntry } from "@/lib/store/createAuditSlice";
 
 
 const getIconForAction = (action: string) => {
     if (action.includes('FORGE') || action.includes('SUMMON')) return Sparkles;
+    if (action.includes('DELETED')) return Trash2;
     if (action.includes('AGENT')) return Cpu;
     if (action.includes('NEXUS')) return Link;
     if (action.includes('PALETTE')) return Palette;
-    if (action.includes('PROMPT') || action.includes('SCULPTED')) return GitBranch;
+    if (action.includes('PROMPT') || action.includes('SCULPTED') || action.includes('REFORGED')) return Edit;
     if (action.includes('EXECUTION')) return Play;
     return Sparkles;
 }
+
+interface TimelinePanelProps {
+  onLogSelect: (log: AuditLogEntry | null) => void;
+}
+
 
 /**
  * Displays a chronological list of all significant actions taken within the Loom,
  * providing a high-level audit trail for debugging and observability.
  * @returns {JSX.Element}
  */
-export function TimelinePanel() {
-    const { auditLog, selectedLogId, selectLogEntry } = useLoomStore();
+export function TimelinePanel({ onLogSelect }: TimelinePanelProps) {
+    const { auditLog, selectedLogId } = useLoomStore();
 
     return (
         <div className="h-full flex flex-col p-4 bg-background/50">
@@ -42,20 +49,20 @@ export function TimelinePanel() {
                                 const Icon = getIconForAction(log.action);
                                 return (
                                     <Tooltip key={log.id} delayDuration={300}>
-                                        <TableRow 
+                                         <TableRow 
                                             className={cn(
                                                 "cursor-pointer transition-colors",
                                                 selectedLogId === log.id && "bg-primary/10"
                                             )}
-                                            onClick={() => selectLogEntry(log.id === selectedLogId ? null : log)}
+                                            onClick={() => onLogSelect(log.id === selectedLogId ? null : log)}
                                         >
-                                            <TableCell className="w-12 p-2 text-center">
-                                                 <TooltipTrigger asChild>
+                                            <TooltipTrigger asChild>
+                                                <TableCell className="w-12 p-2 text-center">
                                                     <div className="inline-flex">
                                                         <Icon className="h-4 w-4 mx-auto text-primary/80"/>
                                                     </div>
-                                                </TooltipTrigger>
-                                            </TableCell>
+                                                </TableCell>
+                                            </TooltipTrigger>
                                             <TableCell className="p-2">
                                                 <p className="font-semibold text-foreground/90">{log.action.replace(/_/g, ' ')}</p>
                                                 <p className="text-xs text-muted-foreground">{log.metadata?.agentName || log.metadata?.nodeType || ''}</p>

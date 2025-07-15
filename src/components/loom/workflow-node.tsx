@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useInteractiveNode } from "@/hooks/use-interactive-node";
 import { motion } from "framer-motion";
 import type { WorkflowNodeData } from "@/lib/types";
+import { Loader2 } from "lucide-react";
 
 interface WorkflowNodeProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onClick'> {
     node: WorkflowNodeData;
@@ -59,7 +60,7 @@ export function WorkflowNode({
                     ? "border-primary/80 shadow-primary/20 shadow-2xl scale-105" 
                     : "border-border/60 hover:border-primary/60 hover:shadow-primary/10",
                 {
-                    'animate-pulse-glow': node.behavioralState === 'Idle' && !isSelected,
+                    'animate-pulse-glow': node.behavioralState === 'Idle' && !isSelected && !isExecuting,
                     'border-primary glow-primary': node.behavioralState === 'Executing',
                     'border-destructive glow-destructive': node.behavioralState === 'Error',
                 },
@@ -96,6 +97,9 @@ export function WorkflowNode({
                     <div className="h-8 w-8 text-primary pointer-events-none" />
                 )}
                 <h3 className="font-semibold text-foreground text-sm leading-tight line-clamp-2 pointer-events-none">{node.name}</h3>
+                {node.behavioralState === 'Executing' && (
+                    <Loader2 className="h-4 w-4 animate-spin text-primary absolute bottom-2" />
+                )}
             </div>
             
             {/* Output Handle */}
@@ -109,5 +113,3 @@ export function WorkflowNode({
         </motion.div>
     );
 }
-
-    

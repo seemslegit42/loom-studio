@@ -47,3 +47,5 @@ export const useLoomStore = () => {
 
   return { ...state, selectedLog };
 };
+
+export { useLoomStoreImpl };

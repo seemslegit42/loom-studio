@@ -20,7 +20,8 @@ import { Sparkles, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { AgentDNAViewer } from "./agent-dna-viewer";
 import { TimelinePanel } from "./timeline-panel";
-import { useLoomStore } from "@/hooks/useLoomStore";
+import type { AuditLogEntry } from "@/lib/store/createAuditSlice";
+
 
 interface SplitLayoutProps {
   ritual: Ritual;
@@ -44,6 +45,7 @@ interface SplitLayoutProps {
   onCreateConnection: (sourceId: string, targetId: string) => void;
   isExecuting: boolean;
   inspectorPanel: React.ReactNode;
+  selectLogEntry: (log: AuditLogEntry | null) => void;
 }
 
 interface InspectorPanelContentProps {
@@ -208,10 +210,9 @@ function SplitLayout({
   onCreateConnection,
   isExecuting,
   inspectorPanel,
+  selectLogEntry,
 }: SplitLayoutProps) {
   
-  const { selectLogEntry } = useLoomStore();
-
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.key === 'Delete' || e.key === 'Backspace') && (selectedNodeId || selectedConnectionId) && !isExecuting) {
@@ -304,7 +305,9 @@ function SplitLayout({
               </ResizablePanel>
               <ResizableHandle withHandle />
               <ResizablePanel defaultSize={25} minSize={10} maxSize={50}>
-                <TimelinePanel />
+                <TimelinePanel 
+                  onLogSelect={(log) => selectLogEntry(log)}
+                />
               </ResizablePanel>
             </ResizablePanelGroup>
           </ResizablePanel>

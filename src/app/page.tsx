@@ -91,7 +91,7 @@ export default function Home() {
   const [isExecuting, setIsExecuting] = useState(false);
   
   const { toast } = useToast();
-  const { logAction, selectedLog } = useLoomStore();
+  const { logAction, selectedLog, selectLogEntry } = useLoomStore();
 
   // Effect to link Timeline selection to Inspector selection
   useEffect(() => {
@@ -303,7 +303,7 @@ export default function Home() {
             ...prev.filter(c => c.id !== connectionId),
             // Add new connections
             { id: `conn_${sourceNode.id}_${newNode.id}`, sourceId: sourceNode.id, targetId: newNode.id },
-            { id: `conn_${newNode.id}_${targetNode.id}`, sourceId: newNode.id, targetId: newNode.id },
+            { id: `conn_${newNode.id}_${targetNode.id}`, sourceId: newNode.id, targetId: targetNode.id },
         ]);
 
         setSelectedNodeId(newNode.id);
@@ -459,6 +459,7 @@ export default function Home() {
         await sleep(1000); // Simulate work
 
         setNodes(prev => prev.map(n => n.id === nodeId ? { ...n, behavioralState: 'Idle' } : n));
+        logAction('AGENT_EXECUTION_COMPLETED', { agentId: node.id, agentName: node.name });
     }
 
     logAction('WORKFLOW_EXECUTION_COMPLETED');
@@ -522,6 +523,7 @@ export default function Home() {
           onCreateConnection={handleCreateConnection}
           isExecuting={isExecuting}
           inspectorPanel={inspectorPanel}
+          selectLogEntry={selectLogEntry}
         />
       </main>
       <BottomBar

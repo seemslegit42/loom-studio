@@ -21,9 +21,7 @@ export interface AuditSlice {
   auditLog: AuditLogEntry[];
   logAction: (action: string, metadata?: Record<string, any>) => void;
   selectedLogId: string | null;
-  isTimelineOpen: boolean;
   selectLogEntry: (log: AuditLogEntry | null) => void;
-  toggleTimeline: () => void;
 }
 
 const initialState = {
@@ -37,7 +35,6 @@ const initialState = {
       }
   ],
   selectedLogId: null,
-  isTimelineOpen: false,
 };
 
 export const createAuditSlice: StateCreator<
@@ -58,5 +55,4 @@ export const createAuditSlice: StateCreator<
     set((state) => ({ auditLog: [newEntry, ...state.auditLog] }));
   },
   selectLogEntry: (log) => set({ selectedLogId: log ? log.id : null }),
-  toggleTimeline: () => set(state => ({ isTimelineOpen: !state.isTimelineOpen })),
 });
