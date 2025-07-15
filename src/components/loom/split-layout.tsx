@@ -280,7 +280,7 @@ function SplitLayout({
         )}
       </AnimatePresence>
 
-      <div className="hidden md:flex h-full w-full">
+      <div className="hidden md:flex h-full w-full relative z-10">
         <ResizablePanelGroup direction="horizontal">
           {/* Palette Panel (Desktop) */}
           <ResizablePanel defaultSize={20} minSize={15} maxSize={30} className={cn("h-full bg-card/30 border-r border-border/50 flex-col gap-4", isExecuting && "opacity-50 pointer-events-none")}>

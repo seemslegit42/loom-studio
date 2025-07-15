@@ -266,7 +266,7 @@ export function WorkflowCanvas({
 
 
             {/* Workflow Nodes Layer */}
-            <div className="relative z-10 w-full h-full">
+            <div className="relative w-full h-full">
                 {nodes.map(node => (
                     <WorkflowNode 
                         key={node.id}
