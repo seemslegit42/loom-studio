@@ -41,84 +41,38 @@ interface SplitLayoutProps {
   onNexusSummon: (connectionId: string) => void;
   onDelete: () => void;
   onCreateConnection: (sourceId: string, targetId: string) => void;
+  isExecuting: boolean;
+  inspectorPanel: React.ReactNode;
+}
+
+interface InspectorPanelContentProps {
+  selectedNodeId: string | null;
+  nodes: WorkflowNodeData[];
+  connections: WorkflowConnection[];
+  isExecuting: boolean;
+  onUpdateNode: (nodeId: string, newPrompt: string, newProfile?: WorkflowNodeData['profile']) => void;
+  onNexusSummon: (connectionId: string) => void;
   genesisPrompt: string;
   onFinalizeForge: (agent: ForgedAgent) => void;
   onCancelForge: () => void;
-  isExecuting: boolean;
 }
 
-/**
- * The main three-panel layout for Loom Studio, featuring the Palette,
- * the central Canvas/Sigil, and the Inspector.
- * It is responsive, resizable, and manages the mobile sheet views.
- */
-export default function SplitLayout({ 
-  ritual,
-  setRitual,
-  isPaletteOpen,
-  setIsPaletteOpen,
-  isInspectorOpen,
-  setIsInspectorOpen,
-  nodes,
-  setNodes,
-  connections,
-  setConnections,
+
+const InspectorPanelContent = ({
   selectedNodeId,
-  setSelectedNodeId,
-  selectedConnectionId,
-  setSelectedConnectionId,
+  nodes,
+  connections,
+  isExecuting,
   onUpdateNode,
-  onSummonNode,
   onNexusSummon,
-  onDelete,
-  onCreateConnection,
   genesisPrompt,
   onFinalizeForge,
   onCancelForge,
-  isExecuting,
-}: SplitLayoutProps) {
+}: InspectorPanelContentProps) => {
   
   const selectedNode = nodes.find(node => node.id === selectedNodeId) || null;
-  const selectedConnection = connections.find(conn => conn.id === selectedConnectionId) || null;
+  const selectedConnection = connections.find(conn => conn.id === selectedNodeId) || null;
   const [isSculpting, setIsSculpting] = useState(false);
-  
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.key === 'Delete' || e.key === 'Backspace') && (selectedNodeId || selectedConnectionId) && !isExecuting) {
-        onDelete();
-      }
-    };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [selectedNodeId, selectedConnectionId, onDelete, isExecuting]);
-
-  const handleNodeDragEnd = (nodeId: string, newPosition: { x: number; y: number }) => {
-    setNodes(currentNodes => 
-        currentNodes.map(node => 
-            node.id === nodeId ? { ...node, position: newPosition } : node
-        )
-    );
-  };
-  
-  const handleNodeClick = (nodeId: string) => {
-    setSelectedNodeId(nodeId);
-    setSelectedConnectionId(null);
-    setIsInspectorOpen(true);
-  }
-
-  const handleConnectionClick = (connectionId: string) => {
-    setSelectedConnectionId(connectionId);
-    setSelectedNodeId(null);
-    setIsInspectorOpen(true); 
-  }
-
-  const handleCanvasClick = () => {
-    setSelectedNodeId(null);
-    setSelectedConnectionId(null);
-    if (genesisPrompt) onCancelForge(); // Cancel forging if clicking on canvas
-  };
 
   const handleProfileChange = async (newProfile: WorkflowNodeData['profile']) => {
     if (!selectedNode) return;
@@ -134,17 +88,7 @@ export default function SplitLayout({
     setIsSculpting(false);
   }
 
-
-  const PalettePanel = () => (
-    <div className="p-4 h-full flex flex-col">
-      <h2 className="text-lg font-headline text-muted-foreground pb-4 md:pb-0 hidden md:block">Palette</h2>
-      <div className="flex-1 md:mt-4">
-        <WorkflowNodePalette onNodeSelect={onSummonNode} />
-      </div>
-    </div>
-  );
-
-  const InspectorPanel = () => (
+  return (
     <div className="p-4 h-full flex flex-col">
        <h2 className="text-lg font-headline text-muted-foreground hidden md:block">
         {selectedNode ? 'Inspector' : genesisPrompt ? 'Genesis Chamber' : selectedConnection ? 'Connection' : 'Inspector'}
@@ -232,6 +176,82 @@ export default function SplitLayout({
         </ScrollArea>
     </div>
   );
+}
+
+/**
+ * The main three-panel layout for Loom Studio, featuring the Palette,
+ * the central Canvas/Sigil, and the Inspector.
+ * It is responsive, resizable, and manages the mobile sheet views.
+ */
+function SplitLayout({ 
+  ritual,
+  setRitual,
+  isPaletteOpen,
+  setIsPaletteOpen,
+  isInspectorOpen,
+  setIsInspectorOpen,
+  nodes,
+  setNodes,
+  connections,
+  setConnections,
+  selectedNodeId,
+  setSelectedNodeId,
+  selectedConnectionId,
+  setSelectedConnectionId,
+  onUpdateNode,
+  onSummonNode,
+  onNexusSummon,
+  onDelete,
+  onCreateConnection,
+  isExecuting,
+  inspectorPanel,
+}: SplitLayoutProps) {
+  
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.key === 'Delete' || e.key === 'Backspace') && (selectedNodeId || selectedConnectionId) && !isExecuting) {
+        onDelete();
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [selectedNodeId, selectedConnectionId, onDelete, isExecuting]);
+
+  const handleNodeDragEnd = (nodeId: string, newPosition: { x: number; y: number }) => {
+    setNodes(currentNodes => 
+        currentNodes.map(node => 
+            node.id === nodeId ? { ...node, position: newPosition } : node
+        )
+    );
+  };
+  
+  const handleNodeClick = (nodeId: string) => {
+    setSelectedNodeId(nodeId);
+    setSelectedConnectionId(null);
+    setIsInspectorOpen(true);
+  }
+
+  const handleConnectionClick = (connectionId: string) => {
+    setSelectedConnectionId(connectionId);
+    setSelectedNodeId(null);
+    setIsInspectorOpen(true); 
+  }
+
+  const handleCanvasClick = () => {
+    setSelectedNodeId(null);
+    setSelectedConnectionId(null);
+  };
+
+  const PalettePanel = () => (
+    <div className="p-4 h-full flex flex-col">
+      <h2 className="text-lg font-headline text-muted-foreground pb-4 md:pb-0 hidden md:block">Palette</h2>
+      <div className="flex-1 md:mt-4">
+        <WorkflowNodePalette onNodeSelect={onSummonNode} />
+      </div>
+    </div>
+  );
 
   return (
     <>
@@ -284,7 +304,7 @@ export default function SplitLayout({
           <ResizableHandle withHandle />
           {/* Inspector Panel (Desktop) */}
           <ResizablePanel defaultSize={20} minSize={15} maxSize={30} className="h-full bg-card/30 border-l border-border/50 flex-col gap-4">
-            <InspectorPanel />
+            {inspectorPanel}
           </ResizablePanel>
         </ResizablePanelGroup>
       </div>
@@ -321,14 +341,12 @@ export default function SplitLayout({
       {/* Inspector Panel (Mobile) */}
       <Sheet open={isInspectorOpen} onOpenChange={setIsInspectorOpen}>
         <SheetContent side="right" className="w-[300px] sm:w-[340px] bg-card/80 backdrop-blur-lg flex flex-col p-0">
-            <SheetHeader className="p-4 pb-0">
-               <SheetTitle>{selectedNode ? 'Inspector' : genesisPrompt ? 'Genesis Chamber' : selectedConnection ? 'Connection' : 'Inspector'}</SheetTitle>
-            </SheetHeader>
-           <InspectorPanel />
+           {inspectorPanel}
         </SheetContent>
       </Sheet>
     </>
   );
 }
 
-    
+SplitLayout.InspectorPanelContent = InspectorPanelContent;
+export default SplitLayout;

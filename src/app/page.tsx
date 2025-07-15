@@ -16,6 +16,8 @@ import { createNexusAgent } from "@/ai/flows/create-nexus-agent-flow";
 import { refineAgentPrompt } from "@/ai/flows/refine-agent-prompt-flow";
 import { generateWorkflowFromPrompt } from "@/ai/flows/generate-workflow-from-prompt-flow";
 import { useLoomStore } from "@/hooks/useLoomStore";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { LoomOfFatesPanel } from "@/components/loom/loom-of-fates-panel";
 
 
 const initialNodes: WorkflowNodeData[] = [
@@ -446,6 +448,33 @@ export default function Home() {
   };
 
 
+  const inspectorPanel = (
+    <Tabs defaultValue="workflow" className="h-full flex flex-col">
+      <div className="p-4 pb-0">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="workflow">Workflow</TabsTrigger>
+            <TabsTrigger value="fates">Loom of Fates</TabsTrigger>
+          </TabsList>
+      </div>
+      <TabsContent value="workflow" className="flex-1 overflow-hidden">
+         <SplitLayout.InspectorPanelContent
+            selectedNodeId={selectedNodeId}
+            nodes={nodes}
+            connections={connections}
+            isExecuting={isExecuting}
+            onUpdateNode={handleUpdateNode}
+            onNexusSummon={handleNexusSummon}
+            genesisPrompt={genesisPrompt}
+            onFinalizeForge={handleFinalizeForge}
+            onCancelForge={handleCancelForge}
+          />
+      </TabsContent>
+      <TabsContent value="fates" className="flex-1 overflow-hidden">
+          <LoomOfFatesPanel />
+      </TabsContent>
+    </Tabs>
+  );
+
   return (
     <div className="flex flex-col h-screen bg-background text-foreground">
       <Header onForge={handleStartForge} onRunWorkflow={handleRunWorkflow} isExecuting={isExecuting} hasNodes={nodes.length > 0} />
@@ -471,10 +500,8 @@ export default function Home() {
           onNexusSummon={handleNexusSummon}
           onDelete={handleDelete}
           onCreateConnection={handleCreateConnection}
-          genesisPrompt={genesisPrompt}
-          onFinalizeForge={handleFinalizeForge}
-          onCancelForge={handleCancelForge}
           isExecuting={isExecuting}
+          inspectorPanel={inspectorPanel}
         />
       </main>
       <BottomBar
@@ -484,5 +511,3 @@ export default function Home() {
     </div>
   );
 }
-
-    
