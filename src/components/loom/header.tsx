@@ -7,7 +7,6 @@ import { Button } from '../ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { ArchetypeSelector } from './archetype-selector';
 import type { CodexNode } from '@/lib/codex';
-import { Separator } from '../ui/separator';
 
 interface HeaderProps {
   onForge: (prompt: string) => void;
