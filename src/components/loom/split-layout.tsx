@@ -21,6 +21,7 @@ import { useState, useEffect } from "react";
 import { AgentDNAViewer } from "./agent-dna-viewer";
 import { TimelinePanel } from "./timeline-panel";
 import type { AuditLogEntry } from "@/lib/store/createAuditSlice";
+import { GlassPane } from "../ui/glass-pane";
 
 
 interface SplitLayoutProps {
@@ -130,7 +131,7 @@ const InspectorPanelContent = ({
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -10 }}
                   >
-                    <Card className={cn("border-border/60 bg-card/40", isExecuting && "opacity-50 pointer-events-none")}>
+                    <GlassPane className={cn(isExecuting && "opacity-50 pointer-events-none")}>
                       <CardHeader>
                         <CardTitle>Nexus Invocation</CardTitle>
                         <CardDescription>Forge a new agent to bridge this connection.</CardDescription>
@@ -141,7 +142,7 @@ const InspectorPanelContent = ({
                             Summon Nexus Agent
                           </Button>
                       </CardContent>
-                  </Card>
+                  </GlassPane>
                  </motion.div>
               ) : genesisPrompt ? (
                  <motion.div
@@ -163,7 +164,7 @@ const InspectorPanelContent = ({
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                 >
-                  <Card className="border-border/60 bg-card/40">
+                  <GlassPane>
                       <CardHeader>
                           <CardTitle>Inspector</CardTitle>
                           <CardDescription>Select an agent to view its configuration, or scribe an incantation in the header to forge a new one.</CardDescription>
@@ -173,7 +174,7 @@ const InspectorPanelContent = ({
                               The Architect's Table awaits your command.
                           </div>
                       </CardContent>
-                  </Card>
+                  </GlassPane>
                 </motion.div>
               )}
             </AnimatePresence>

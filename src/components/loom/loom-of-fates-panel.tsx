@@ -1,10 +1,11 @@
 
 'use client';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { ScrollArea } from "../ui/scroll-area";
+import { GlassPane } from "../ui/glass-pane";
 
 const dials = [
     {
@@ -38,7 +39,7 @@ export function LoomOfFatesPanel() {
         <ScrollArea className="h-full p-4">
             <div className="space-y-8">
                 {dials.map((dial) => (
-                    <Card key={dial.key} className="border-border/60 bg-card/40">
+                    <GlassPane key={dial.key}>
                         <CardHeader>
                             <CardTitle>{dial.name}</CardTitle>
                             <CardDescription>{dial.description}</CardDescription>
@@ -57,7 +58,7 @@ export function LoomOfFatesPanel() {
                                 </div>
                             </div>
                         </CardContent>
-                    </Card>
+                    </GlassPane>
                 ))}
             </div>
         </ScrollArea>

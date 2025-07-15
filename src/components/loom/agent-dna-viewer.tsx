@@ -2,10 +2,11 @@
  * @fileOverview A component for displaying an agent's core, immutable data.
  */
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import type { WorkflowNodeData } from "@/lib/types";
 import { Fingerprint, BrainCircuit, Activity, Hash } from "lucide-react";
+import { GlassPane } from "../ui/glass-pane";
 
 interface AgentDNAViewerProps {
     node: WorkflowNodeData;
@@ -39,7 +40,7 @@ export function AgentDNAViewer({ node }: AgentDNAViewerProps) {
     }
 
     return (
-        <Card className="border-border/60 bg-card/40">
+        <GlassPane>
             <CardHeader>
                 <CardTitle>Agent DNA</CardTitle>
                 <CardDescription>Core identity and state of "{node.name}".</CardDescription>
@@ -61,6 +62,6 @@ export function AgentDNAViewer({ node }: AgentDNAViewerProps) {
                     </TableBody>
                 </Table>
             </CardContent>
-        </Card>
+        </GlassPane>
     );
 }

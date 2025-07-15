@@ -1,12 +1,13 @@
 
 'use client';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Label } from '../ui/label';
 import { Slider } from '../ui/slider';
 import { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import type { WorkflowNodeData } from '@/lib/types';
 import { useDebouncedCallback } from 'use-debounce';
+import { GlassPane } from '../ui/glass-pane';
 
 interface AgentProfileChartProps {
     profile: WorkflowNodeData['profile'];
@@ -44,7 +45,7 @@ export function AgentProfileChart({ profile, agentName, onProfileChange, isSculp
     const isInteractive = !!onProfileChange;
 
     return (
-        <Card className="border-border/60 bg-card/40">
+        <GlassPane>
             <CardHeader>
                 <div className="flex justify-between items-center">
                     <div>
@@ -77,6 +78,6 @@ export function AgentProfileChart({ profile, agentName, onProfileChange, isSculp
                     </div>
                 ))}
             </CardContent>
-        </Card>
+        </GlassPane>
     );
 }

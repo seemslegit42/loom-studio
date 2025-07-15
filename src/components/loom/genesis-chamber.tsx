@@ -19,6 +19,7 @@ import type { PrimeArsenalStyle, ArsenalStyle } from "@/lib/styles";
 import { StyleSelector } from "./style-selector";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
+import { GlassPane } from "../ui/glass-pane";
 
 
 export type ForgeStep = 'inactive' | 'profiling' | 'generatingAvatar' | 'signing' | 'complete';
@@ -179,7 +180,7 @@ export function GenesisChamber({
         if (!data) return null;
         return (
              <motion.div key="complete" variants={stepVariants} initial="hidden" animate="visible" exit="exit" className="space-y-6">
-                <Card className="border-border/60 bg-card/40 text-center">
+                <GlassPane className="text-center">
                    <CardHeader>
                         <CardTitle className="text-xl font-headline">{data.name}</CardTitle>
                         <CardDescription>Sanctify Manifested Form</CardDescription>
@@ -207,7 +208,7 @@ export function GenesisChamber({
                             </div>
                         )}
                    </CardContent>
-                </Card>
+                </GlassPane>
                 <AgentProfileChart profile={data.profile} agentName={data.name} isSculpting={false} />
 
                 <div className="flex flex-col gap-2">
