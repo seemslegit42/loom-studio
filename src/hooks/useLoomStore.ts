@@ -15,7 +15,8 @@ import {
   type WorkflowSlice,
   createWorkflowSlice,
 } from '@/lib/store/createWorkflowSlice';
-import { type AuditSlice, createAuditSlice } from '@/lib/store/createAuditSlice';
+import { type AuditSlice, createAuditSlice, type AuditLogEntry } from '@/lib/store/createAuditSlice';
+import { useMemo } from 'react';
 
 /**
  * The master store for the Loom Studio application.
@@ -26,10 +27,23 @@ import { type AuditSlice, createAuditSlice } from '@/lib/store/createAuditSlice'
  * const { workflows, addWorkflow } = useLoomStore();
  * const { auditLog, logAction } = useLoomStore();
  */
-export const useLoomStore = create<
+const useLoomStoreImpl = create<
   AvatarisSlice & WorkflowSlice & AuditSlice
 >()((...a) => ({
   ...createAvatarisSlice(...a),
   ...createWorkflowSlice(...a),
   ...createAuditSlice(...a),
 }));
+
+// Create a hook that includes memoized selectors
+export const useLoomStore = () => {
+  const state = useLoomStoreImpl();
+  const { auditLog, selectedLogId } = state;
+
+  const selectedLog = useMemo(
+    () => auditLog.find(log => log.id === selectedLogId),
+    [auditLog, selectedLogId]
+  );
+
+  return { ...state, selectedLog };
+};

@@ -47,7 +47,7 @@ export function TimelinePanel() {
                                                 "cursor-pointer transition-colors",
                                                 selectedLogId === log.id && "bg-primary/10"
                                             )}
-                                            onClick={() => selectLogEntry(log.id)}
+                                            onClick={() => selectLogEntry(log.id === selectedLogId ? null : log)}
                                         >
                                             <TableCell className="w-12 p-2 text-center">
                                                  <TooltipTrigger asChild>
@@ -85,5 +85,3 @@ export function TimelinePanel() {
         </div>
     );
 }
-
-    

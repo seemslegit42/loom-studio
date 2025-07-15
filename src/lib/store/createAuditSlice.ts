@@ -6,17 +6,23 @@
  */
 
 import type { StateCreator } from 'zustand';
-import type { AuditLogEntry } from './types';
 import type { AvatarisSlice } from './createAvatarisSlice';
 import type { WorkflowSlice } from './createWorkflowSlice';
 
+export interface AuditLogEntry {
+  id: string;
+  timestamp: string;
+  userId: string;
+  action: string;
+  metadata: Record<string, any>;
+}
 
 export interface AuditSlice {
   auditLog: AuditLogEntry[];
   logAction: (action: string, metadata?: Record<string, any>) => void;
   selectedLogId: string | null;
   isTimelineOpen: boolean;
-  selectLogEntry: (logId: string | null) => void;
+  selectLogEntry: (log: AuditLogEntry | null) => void;
   toggleTimeline: () => void;
 }
 
@@ -51,6 +57,6 @@ export const createAuditSlice: StateCreator<
     };
     set((state) => ({ auditLog: [newEntry, ...state.auditLog] }));
   },
-  selectLogEntry: (logId) => set({ selectedLogId: logId }),
+  selectLogEntry: (log) => set({ selectedLogId: log ? log.id : null }),
   toggleTimeline: () => set(state => ({ isTimelineOpen: !state.isTimelineOpen })),
 });

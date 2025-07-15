@@ -5,7 +5,7 @@ import Header from "@/components/loom/header";
 import SplitLayout from "@/components/loom/split-layout";
 import BottomBar from "@/components/loom/bottom-bar";
 import { useSystemSigilState } from "@/hooks/use-system-sigil-state";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { WorkflowNodeData, WorkflowConnection } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import type { ForgedAgent } from "@/components/loom/genesis-chamber";
@@ -91,7 +91,26 @@ export default function Home() {
   const [isExecuting, setIsExecuting] = useState(false);
   
   const { toast } = useToast();
-  const { logAction } = useLoomStore();
+  const { logAction, selectedLog } = useLoomStore();
+
+  // Effect to link Timeline selection to Inspector selection
+  useEffect(() => {
+    if (selectedLog) {
+      const { nodeId, agentId, connectionId } = selectedLog.metadata;
+      const targetNodeId = nodeId || agentId;
+
+      if (targetNodeId && nodes.some(n => n.id === targetNodeId)) {
+        setSelectedNodeId(targetNodeId);
+        setSelectedConnectionId(null);
+        setIsInspectorOpen(true);
+      } else if (connectionId && connections.some(c => c.id === connectionId)) {
+        setSelectedConnectionId(connectionId);
+        setSelectedNodeId(null);
+        setIsInspectorOpen(true);
+      }
+    }
+  }, [selectedLog, nodes, connections]);
+
 
   const handleStartForge = async (prompt: string) => {
     if (!prompt.trim()) return;
@@ -322,7 +341,7 @@ export default function Home() {
     }
 
     setRitual('summon');
-    logAction('PALETTE_SUMMON_INITIATED', { nodeType: codexNode.name });
+    logAction('PALETTE_SUMMON_INITIATED', { nodeType: codexNode.name, nodeId: codexNode.devLabel });
     
     try {
       const seedPrompt = `Analyze the profile for an agent named "${codexNode.name}". Its purpose is to: ${codexNode.subtitle}. Description: ${codexNode.tooltip}`;
@@ -395,7 +414,7 @@ export default function Home() {
       targetId,
     };
     setConnections(prev => [...prev, newConnection]);
-    logAction('CONNECTION_CREATED', { sourceId, targetId });
+    logAction('CONNECTION_CREATED', { sourceId, targetId, connectionId: newConnection.id });
   };
   
   const handleRunWorkflow = async () => {
@@ -459,6 +478,7 @@ export default function Home() {
       <TabsContent value="workflow" className="flex-1 overflow-hidden">
          <SplitLayout.InspectorPanelContent
             selectedNodeId={selectedNodeId}
+            selectedConnectionId={selectedConnectionId}
             nodes={nodes}
             connections={connections}
             isExecuting={isExecuting}

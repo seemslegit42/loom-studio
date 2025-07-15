@@ -16,10 +16,11 @@ import { AgentTaskConfig } from "./agent-task-config";
 import type { CodexNode } from "@/lib/codex";
 import { GenesisChamber, type ForgedAgent } from "./genesis-chamber";
 import { Button } from "../ui/button";
-import { Sparkles } from "lucide-react";
+import { Sparkles, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { AgentDNAViewer } from "./agent-dna-viewer";
 import { TimelinePanel } from "./timeline-panel";
+import { useLoomStore } from "@/hooks/useLoomStore";
 
 interface SplitLayoutProps {
   ritual: Ritual;
@@ -47,6 +48,7 @@ interface SplitLayoutProps {
 
 interface InspectorPanelContentProps {
   selectedNodeId: string | null;
+  selectedConnectionId: string | null;
   nodes: WorkflowNodeData[];
   connections: WorkflowConnection[];
   isExecuting: boolean;
@@ -60,6 +62,7 @@ interface InspectorPanelContentProps {
 
 const InspectorPanelContent = ({
   selectedNodeId,
+  selectedConnectionId,
   nodes,
   connections,
   isExecuting,
@@ -71,7 +74,7 @@ const InspectorPanelContent = ({
 }: InspectorPanelContentProps) => {
   
   const selectedNode = nodes.find(node => node.id === selectedNodeId) || null;
-  const selectedConnection = connections.find(conn => conn.id === selectedNodeId) || null;
+  const selectedConnection = connections.find(conn => conn.id === selectedConnectionId) || null;
   const [isSculpting, setIsSculpting] = useState(false);
 
   const handleProfileChange = async (newProfile: WorkflowNodeData['profile']) => {
@@ -207,6 +210,8 @@ function SplitLayout({
   inspectorPanel,
 }: SplitLayoutProps) {
   
+  const { selectLogEntry } = useLoomStore();
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.key === 'Delete' || e.key === 'Backspace') && (selectedNodeId || selectedConnectionId) && !isExecuting) {
@@ -231,17 +236,20 @@ function SplitLayout({
     setSelectedNodeId(nodeId);
     setSelectedConnectionId(null);
     setIsInspectorOpen(true);
+    selectLogEntry(null);
   }
 
   const handleConnectionClick = (connectionId: string) => {
     setSelectedConnectionId(connectionId);
     setSelectedNodeId(null);
     setIsInspectorOpen(true); 
+    selectLogEntry(null);
   }
 
   const handleCanvasClick = () => {
     setSelectedNodeId(null);
     setSelectedConnectionId(null);
+    selectLogEntry(null);
   };
 
   const PalettePanel = () => (
