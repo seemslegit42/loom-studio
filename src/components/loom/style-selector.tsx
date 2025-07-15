@@ -22,6 +22,7 @@ export function StyleSelector({ onSelectStyle }: StyleSelectorProps) {
                 >
                     <CardHeader className="p-4">
                         <CardTitle className="text-base">{style.name}</CardTitle>
+
                         <CardDescription className="text-xs">{style.essence}</CardDescription>
                     </CardHeader>
                 </GlassPane>
