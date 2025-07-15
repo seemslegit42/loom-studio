@@ -103,7 +103,7 @@ export default function Home() {
 
         if (result.nodes.length === 1 && result.connections.length === 0) {
             // If the AI decides to create just one agent, use the Genesis Chamber flow
-            setGenesisPrompt(prompt);
+            setGenesisPrompt(result.nodes[0].prompt || prompt);
             setIsInspectorOpen(true);
             setRitual('idle'); // Let genesis chamber handle its own ritual
         } else {
@@ -417,3 +417,5 @@ export default function Home() {
     </div>
   );
 }
+
+    
