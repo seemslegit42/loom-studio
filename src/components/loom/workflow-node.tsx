@@ -10,6 +10,7 @@ interface WorkflowNodeProps extends Omit<React.HTMLAttributes<HTMLDivElement>, '
     node: WorkflowNodeData;
     isSelected?: boolean;
     isWiring?: boolean;
+    isExecuting?: boolean;
     onClick?: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
     onDragEnd: (nodeId: string, position: { x: number; y: number }) => void;
     onStartWiring: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
@@ -26,6 +27,7 @@ export function WorkflowNode({
     className, 
     isSelected,
     isWiring,
+    isExecuting,
     onClick, 
     onDragEnd,
     onStartWiring,
@@ -37,7 +39,7 @@ export function WorkflowNode({
         nodeId: node.id,
         initialPosition: node.position,
         onDragEnd,
-        disabled: isWiring,
+        disabled: isWiring || isExecuting,
     });
 
     const handleClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -51,7 +53,7 @@ export function WorkflowNode({
             id={`node-${node.id}`}
             className={cn(
                 "absolute flex flex-col items-center justify-center w-40 h-32 p-4 rounded-lg border-2 bg-card/80 backdrop-blur-sm shadow-lg",
-                isDragging ? "cursor-grabbing z-20" : "cursor-pointer z-10",
+                isDragging ? "cursor-grabbing z-20" : isExecuting ? "cursor-default" : "cursor-pointer z-10",
                 "transition-all duration-300",
                 isSelected 
                     ? "border-primary/80 shadow-primary/20 shadow-2xl scale-105" 
@@ -98,9 +100,14 @@ export function WorkflowNode({
             
             {/* Output Handle */}
             <div 
-                className="absolute -right-[9px] top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-background border-2 border-primary/50 cursor-crosshair hover:bg-accent hover:scale-125 transition-transform"
+                className={cn(
+                    "absolute -right-[9px] top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-background border-2 border-primary/50 cursor-crosshair hover:bg-accent hover:scale-125 transition-transform",
+                    isExecuting && "cursor-not-allowed",
+                )}
                 onMouseDown={onStartWiring}
             />
         </motion.div>
     );
 }
+
+    

@@ -64,7 +64,7 @@ export function useInteractiveNode({ nodeId, initialPosition, onDragEnd, disable
 
     const handleTouchStart = useCallback((e: React.TouchEvent<HTMLElement>) => {
         if (disabled) return;
-        e.preventDefault();
+        // e.preventDefault(); // This can interfere with scrolling on touch devices if not handled carefully
         e.stopPropagation();
         const touch = e.touches[0];
         handleDragStart(touch.clientX, touch.clientY);
@@ -111,7 +111,7 @@ export function useInteractiveNode({ nodeId, initialPosition, onDragEnd, disable
         };
 
         const handleTouchMove = (e: TouchEvent) => {
-            e.preventDefault();
+            // e.preventDefault(); // Be careful with this, can block scrolling.
             e.stopPropagation();
             const touch = e.touches[0];
             handleMove(touch.clientX, touch.clientY);
@@ -132,7 +132,7 @@ export function useInteractiveNode({ nodeId, initialPosition, onDragEnd, disable
         if (isDragging) {
             document.addEventListener('mousemove', handleMouseMove);
             document.addEventListener('mouseup', handleMouseUp, { once: true });
-            document.addEventListener('touchmove', handleTouchMove, { passive: false });
+            document.addEventListener('touchmove', handleTouchMove, { passive: true }); // Use passive for better scroll performance
             document.addEventListener('touchend', handleTouchEnd, { once: true });
         }
 
@@ -152,3 +152,5 @@ export function useInteractiveNode({ nodeId, initialPosition, onDragEnd, disable
         handleTouchStart,
     };
 }
+
+    

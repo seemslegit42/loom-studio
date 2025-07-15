@@ -1,3 +1,4 @@
+
 /**
  * @fileOverview A panel for displaying the chronological audit log of system events.
  */
@@ -18,7 +19,8 @@ const getIconForAction = (action: string) => {
     if (action.includes('NEXUS')) return Link;
     if (action.includes('PALETTE')) return Palette;
     if (action.includes('PROMPT') || action.includes('SCULPTED')) return GitBranch;
-    return Play;
+    if (action.includes('EXECUTION')) return Play;
+    return Sparkles;
 }
 
 /**
@@ -49,7 +51,9 @@ export function TimelinePanel() {
                                         >
                                             <TableCell className="w-12 p-2 text-center">
                                                  <TooltipTrigger asChild>
-                                                    <Icon className="h-4 w-4 mx-auto text-primary/80"/>
+                                                    <div className="inline-flex">
+                                                        <Icon className="h-4 w-4 mx-auto text-primary/80"/>
+                                                    </div>
                                                 </TooltipTrigger>
                                             </TableCell>
                                             <TableCell className="p-2">
@@ -81,3 +85,5 @@ export function TimelinePanel() {
         </div>
     );
 }
+
+    

@@ -44,6 +44,7 @@ interface SplitLayoutProps {
   genesisPrompt: string;
   onFinalizeForge: (agent: ForgedAgent) => void;
   onCancelForge: () => void;
+  isExecuting: boolean;
 }
 
 /**
@@ -74,6 +75,7 @@ export default function SplitLayout({
   genesisPrompt,
   onFinalizeForge,
   onCancelForge,
+  isExecuting,
 }: SplitLayoutProps) {
   
   const selectedNode = nodes.find(node => node.id === selectedNodeId) || null;
@@ -82,7 +84,7 @@ export default function SplitLayout({
   
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.key === 'Delete' || e.key === 'Backspace') && (selectedNodeId || selectedConnectionId)) {
+      if ((e.key === 'Delete' || e.key === 'Backspace') && (selectedNodeId || selectedConnectionId) && !isExecuting) {
         onDelete();
       }
     };
@@ -90,7 +92,7 @@ export default function SplitLayout({
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [selectedNodeId, selectedConnectionId, onDelete]);
+  }, [selectedNodeId, selectedConnectionId, onDelete, isExecuting]);
 
   const handleNodeDragEnd = (nodeId: string, newPosition: { x: number; y: number }) => {
     setNodes(currentNodes => 
@@ -157,7 +159,7 @@ export default function SplitLayout({
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -10 }}
                 >
-                  <div className="space-y-6">
+                  <div className={cn("space-y-6", isExecuting && "opacity-50 pointer-events-none")}>
                     <AgentDNAViewer node={selectedNode} />
                     <AgentProfileChart
                         profile={selectedNode.profile}
@@ -179,7 +181,7 @@ export default function SplitLayout({
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -10 }}
                   >
-                    <Card className="border-border/60 bg-card/40">
+                    <Card className={cn("border-border/60 bg-card/40", isExecuting && "opacity-50 pointer-events-none")}>
                       <CardHeader>
                         <CardTitle>Nexus Invocation</CardTitle>
                         <CardDescription>Forge a new agent to bridge this connection.</CardDescription>
@@ -251,7 +253,7 @@ export default function SplitLayout({
       <div className="hidden md:flex h-full w-full">
         <ResizablePanelGroup direction="horizontal">
           {/* Palette Panel (Desktop) */}
-          <ResizablePanel defaultSize={20} minSize={15} maxSize={30} className="h-full bg-card/30 border-r border-border/50 flex-col gap-4">
+          <ResizablePanel defaultSize={20} minSize={15} maxSize={30} className={cn("h-full bg-card/30 border-r border-border/50 flex-col gap-4", isExecuting && "opacity-50 pointer-events-none")}>
             <PalettePanel />
           </ResizablePanel>
           <ResizableHandle withHandle />
@@ -269,6 +271,7 @@ export default function SplitLayout({
                   onCanvasClick={handleCanvasClick}
                   onNodeDragEnd={handleNodeDragEnd}
                   onCreateConnection={onCreateConnection}
+                  isExecuting={isExecuting}
                 />
               </ResizablePanel>
               <ResizableHandle withHandle />
@@ -298,6 +301,7 @@ export default function SplitLayout({
             onCanvasClick={handleCanvasClick}
             onNodeDragEnd={handleNodeDragEnd}
             onCreateConnection={onCreateConnection}
+            isExecuting={isExecuting}
           />
       </div>
 
@@ -326,3 +330,5 @@ export default function SplitLayout({
     </>
   );
 }
+
+    

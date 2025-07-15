@@ -28,6 +28,7 @@ interface WorkflowCanvasProps {
     onCanvasClick: () => void;
     onNodeDragEnd: (nodeId: string, position: Point) => void;
     onCreateConnection: (sourceId: string, targetId: string) => void;
+    isExecuting: boolean;
 }
 
 /**
@@ -58,6 +59,7 @@ export function WorkflowCanvas({
     onCanvasClick,
     onNodeDragEnd,
     onCreateConnection,
+    isExecuting,
 }: WorkflowCanvasProps) {
 
     const canvasRef = useRef<HTMLDivElement>(null);
@@ -116,6 +118,7 @@ export function WorkflowCanvas({
     };
 
     const handleStartWiring = useCallback((sourceId: string, e: React.MouseEvent<HTMLDivElement>) => {
+        if (isExecuting) return;
         e.preventDefault();
         e.stopPropagation();
         
@@ -136,7 +139,7 @@ export function WorkflowCanvas({
             currentPos: { x: e.clientX - canvasRect.left, y: e.clientY - canvasRect.top },
         });
 
-    }, []);
+    }, [isExecuting]);
 
     const handleMouseMove = useCallback((e: MouseEvent) => {
         if (!wiringState || !canvasRef.current) return;
@@ -180,7 +183,7 @@ export function WorkflowCanvas({
             {/* Background Effects & Sigil */}
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.3),rgba(255,255,255,0))]"></div>
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                 <SigilRites variant='klepsydra' ritual='idle' />
+                 <SigilRites variant='klepsydra' ritual={isExecuting ? 'orchestrate' : 'idle'} />
             </div>
 
             {/* Edges Layer (SVG) */}
@@ -241,7 +244,7 @@ export function WorkflowCanvas({
                                 stroke="transparent"
                                 strokeWidth="20"
                                 fill="none"
-                                className="cursor-pointer pointer-events-stroke"
+                                className={cn("cursor-pointer pointer-events-stroke", isExecuting && "pointer-events-none")}
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     onConnectionClick(id)
@@ -271,15 +274,19 @@ export function WorkflowCanvas({
                         isSelected={selectedNodeId === node.id}
                         isWiring={!!wiringState}
                         onClick={(e) => {
+                            if (isExecuting) return;
                             e.stopPropagation();
                             onNodeClick(node.id)
                         }}
                         onDragEnd={onNodeDragEnd}
                         onStartWiring={(e) => handleStartWiring(node.id, e)}
                         onMouseUpCapture={() => handleNodeMouseUp(node.id)}
+                        isExecuting={isExecuting}
                     />
                 ))}
             </div>
         </div>
     );
 }
+
+    

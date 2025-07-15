@@ -67,6 +67,8 @@ const initialConnections: WorkflowConnection[] = [
   }
 ];
 
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 /**
  * The main page component for Loom Studio, serving as the root of the application's UI.
  * It orchestrates the header, the main split-view layout, and the mobile-only bottom bar.
@@ -84,6 +86,7 @@ export default function Home() {
   const [selectedConnectionId, setSelectedConnectionId] = useState<string | null>(null);
 
   const [genesisPrompt, setGenesisPrompt] = useState<string>('');
+  const [isExecuting, setIsExecuting] = useState(false);
   
   const { toast } = useToast();
   const { logAction } = useLoomStore();
@@ -392,10 +395,60 @@ export default function Home() {
     setConnections(prev => [...prev, newConnection]);
     logAction('CONNECTION_CREATED', { sourceId, targetId });
   };
+  
+  const handleRunWorkflow = async () => {
+    if (isExecuting || nodes.length === 0) return;
+
+    setIsExecuting(true);
+    logAction('WORKFLOW_EXECUTION_STARTED');
+    toast({ title: 'Workflow Executing', description: 'The Loom begins to weave...' });
+    
+    // Simple topological sort
+    const nodeMap = new Map(nodes.map(n => [n.id, n]));
+    const adj = new Map<string, string[]>(nodes.map(n => [n.id, []]));
+    const inDegree = new Map<string, number>(nodes.map(n => [n.id, 0]));
+
+    for (const conn of connections) {
+        adj.get(conn.sourceId)?.push(conn.targetId);
+        inDegree.set(conn.targetId, (inDegree.get(conn.targetId) || 0) + 1);
+    }
+
+    const queue = nodes.filter(n => inDegree.get(n.id) === 0).map(n => n.id);
+    const sortedOrder: string[] = [];
+
+    while (queue.length > 0) {
+        const u = queue.shift()!;
+        sortedOrder.push(u);
+        for (const v of (adj.get(u) || [])) {
+            inDegree.set(v, (inDegree.get(v) || 0) - 1);
+            if (inDegree.get(v) === 0) {
+                queue.push(v);
+            }
+        }
+    }
+
+    // Execution simulation
+    for (const nodeId of sortedOrder) {
+        const node = nodeMap.get(nodeId);
+        if (!node) continue;
+        
+        logAction('AGENT_EXECUTION_STARTED', { agentId: node.id, agentName: node.name });
+        setNodes(prev => prev.map(n => n.id === nodeId ? { ...n, behavioralState: 'Executing' } : n));
+        
+        await sleep(1000); // Simulate work
+
+        setNodes(prev => prev.map(n => n.id === nodeId ? { ...n, behavioralState: 'Idle' } : n));
+    }
+
+    logAction('WORKFLOW_EXECUTION_COMPLETED');
+    toast({ title: 'Workflow Complete', description: 'The sequence has finished.' });
+    setIsExecuting(false);
+  };
+
 
   return (
     <div className="flex flex-col h-screen bg-background text-foreground">
-      <Header onForge={handleStartForge} />
+      <Header onForge={handleStartForge} onRunWorkflow={handleRunWorkflow} isExecuting={isExecuting} hasNodes={nodes.length > 0} />
 
       <main className="flex-1 overflow-hidden">
         <SplitLayout
@@ -421,6 +474,7 @@ export default function Home() {
           genesisPrompt={genesisPrompt}
           onFinalizeForge={handleFinalizeForge}
           onCancelForge={handleCancelForge}
+          isExecuting={isExecuting}
         />
       </main>
       <BottomBar
@@ -430,3 +484,5 @@ export default function Home() {
     </div>
   );
 }
+
+    

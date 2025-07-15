@@ -1,15 +1,19 @@
 
 'use client';
-import { Search } from 'lucide-react';
+import { Search, Play } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useState } from 'react';
 import { Button } from '../ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { ArchetypeSelector } from './archetype-selector';
 import type { CodexNode } from '@/lib/codex';
+import { Separator } from '../ui/separator';
 
 interface HeaderProps {
   onForge: (prompt: string) => void;
+  onRunWorkflow: () => void;
+  isExecuting: boolean;
+  hasNodes: boolean;
 }
 
 /**
@@ -17,7 +21,7 @@ interface HeaderProps {
  * It provides the application logo and the main input for creating new agents.
  * @returns {JSX.Element} The rendered header component.
  */
-export default function Header({ onForge }: HeaderProps) {
+export default function Header({ onForge, onRunWorkflow, isExecuting, hasNodes }: HeaderProps) {
   const [prompt, setPrompt] = useState('');
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   
@@ -68,6 +72,7 @@ export default function Header({ onForge }: HeaderProps) {
                 onKeyDown={handleKeyDown}
                 onFocus={() => { if(prompt.trim() === '') setIsPopoverOpen(true) }}
                 autoComplete="off"
+                disabled={isExecuting}
               />
             </div>
           </PopoverTrigger>
@@ -81,7 +86,7 @@ export default function Header({ onForge }: HeaderProps) {
                 variant="cta"
                 className="rounded-full" 
                 onClick={handleForgeClick} 
-                disabled={!prompt.trim()}
+                disabled={!prompt.trim() || isExecuting}
             >
               {'Forge'}
             </Button>
@@ -89,8 +94,19 @@ export default function Header({ onForge }: HeaderProps) {
       </div>
 
       <div className="flex items-center gap-2 w-auto justify-end min-w-[100px]">
-        {/* User Profile / Settings will go here. Empty div for spacing. */}
+         <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={onRunWorkflow} 
+            disabled={isExecuting || !hasNodes}
+            className="rounded-full"
+        >
+            <Play className="mr-2" />
+            Execute
+        </Button>
       </div>
     </header>
   );
 }
+
+    
